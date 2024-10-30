@@ -3,7 +3,7 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Parent() {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,7 +16,7 @@ export default function Parent() {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
-  const handleNewAccessToken = async () => {
+  const handleNewAccessToken = useCallback(async () => {
     logMessage("User clicked on Request New Access Token button.");
 
     try {
@@ -47,7 +47,7 @@ export default function Parent() {
         `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
-  };
+  }, [refreshToken]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -104,7 +104,7 @@ export default function Parent() {
     window.addEventListener("message", handleMessage);
 
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [handleNewAccessToken]);
 
   if (!isMounted) return null;
 
