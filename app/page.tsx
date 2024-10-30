@@ -104,7 +104,7 @@ export default function Parent() {
     window.addEventListener("message", handleMessage);
 
     return () => window.removeEventListener("message", handleMessage);
-  }, [handleNewAccessToken]);
+  }, []);
 
   if (!isMounted) return null;
 
