@@ -16,6 +16,39 @@ export default function Parent() {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
+  const handleNewAccessToken = async () => {
+    logMessage("User clicked on Request New Access Token button.");
+
+    try {
+      logMessage("Requesting new access token (/api/get-new-access-token)...");
+
+      const response = await fetch("/api/get-new-access-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      logMessage(`API response status: ${response.status}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch new access token");
+      }
+
+      const data = await response.json();
+      setAccessToken(data.accessToken); // Update the access token
+
+      logMessage("New access token received successfully.");
+      logMessage(`New Access Token: ${data.accessToken}`);
+    } catch (error: unknown) {
+      console.error("Error:", error);
+      logMessage(
+        `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  };
+
   useEffect(() => {
     setIsMounted(true);
 
@@ -71,7 +104,7 @@ export default function Parent() {
     window.addEventListener("message", handleMessage);
 
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [handleNewAccessToken]);
 
   if (!isMounted) return null;
 
@@ -103,39 +136,6 @@ export default function Parent() {
       logMessage("Tokens received successfully.");
       logMessage(`Access Token: ${data.accessToken}`);
       logMessage(`Refresh Token: ${data.refreshToken}`);
-    } catch (error: unknown) {
-      console.error("Error:", error);
-      logMessage(
-        `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
-  };
-
-  const handleNewAccessToken = async () => {
-    logMessage("User clicked on Request New Access Token button.");
-
-    try {
-      logMessage("Requesting new access token (/api/get-new-access-token)...");
-
-      const response = await fetch("/api/get-new-access-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      logMessage(`API response status: ${response.status}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch new access token");
-      }
-
-      const data = await response.json();
-      setAccessToken(data.accessToken); // Update the access token
-
-      logMessage("New access token received successfully.");
-      logMessage(`New Access Token: ${data.accessToken}`);
     } catch (error: unknown) {
       console.error("Error:", error);
       logMessage(
