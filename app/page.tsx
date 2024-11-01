@@ -16,46 +16,42 @@ export default function Parent() {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
-  const handleNewAccessToken = useCallback(async () => {
-    logMessage("User clicked on Request New Access Token button.");
-
-    try {
-      logMessage("Requesting new access token (/api/get-new-access-token)...");
-
-      const response = await fetch("/api/get-new-access-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken }),
-      });
-
-      logMessage(`API response status: ${response.status}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch new access token");
-      }
-
-      const data = await response.json();
-      setAccessToken(data.accessToken); // Update the access token
-
-      logMessage("New access token received successfully.");
-      logMessage(`New Access Token: ${data.accessToken}`);
-    } catch (error: unknown) {
-      console.error("Error:", error);
-      logMessage(
-        `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
-  }, [refreshToken]);
+  // const handleNewAccessToken = useCallback(async () => {
+  //   logMessage("User clicked on Request New Access Token button.");
+  //
+  //   try {
+  //     logMessage("Requesting new access token (/api/get-new-access-token)...");
+  //
+  //     const response = await fetch("/api/get-new-access-token", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ refreshToken }),
+  //     });
+  //
+  //     logMessage(`API response status: ${response.status}`);
+  //
+  //     if (!response.ok) {
+  //       throw new Error("Failed to fetch new access token");
+  //     }
+  //
+  //     const data = await response.json();
+  //     setAccessToken(data.accessToken); // Update the access token
+  //
+  //     logMessage("New access token received successfully.");
+  //     logMessage(`New Access Token: ${data.accessToken}`);
+  //   } catch (error: unknown) {
+  //     console.error("Error:", error);
+  //     logMessage(
+  //       `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+  //     );
+  //   }
+  // }, [refreshToken]);
 
   useEffect(() => {
-    setIsMounted(true);
-
-    // Listen for messages from the child iframe
+    // Listen for messages
     const handleMessage = async (event: MessageEvent) => {
-      console.log({ event });
-
       if (
         event.origin ===
           (process.env.CHILD_SITE_URL || "http://localhost:3000") &&
@@ -104,16 +100,14 @@ export default function Parent() {
     window.addEventListener("message", handleMessage);
 
     return () => window.removeEventListener("message", handleMessage);
-  }, [handleNewAccessToken]);
-
-  if (!isMounted) return null;
+  }, []);
 
   const handleConnect = async () => {
     setLogs([]); // Clear the logs
     logMessage("User clicked on Connect button.");
 
     try {
-      logMessage("Connecting to API (/api/get-jwt)...");
+      logMessage("Connecting to API -- iframe -- (/api/get-jwt)...");
 
       const response = await fetch("/api/get-jwt", {
         method: "POST",
@@ -144,10 +138,16 @@ export default function Parent() {
     }
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
   return (
     <main className="max-w-7xl mx-auto py-10">
       <div className="flex items-center justify-center text-3xl font-bold">
-        <h1>Parent</h1>
+        <h1>iFrame</h1>
       </div>
 
       <div className="w-full flex space-x-4">

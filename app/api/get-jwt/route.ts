@@ -1,35 +1,33 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const ACCESS_TOKEN_SECRET =
-  process.env.ACCESS_TOKEN_SECRET || "your_access_secret_key";
-const REFRESH_TOKEN_SECRET =
-  process.env.REFRESH_TOKEN_SECRET || "your_refresh_secret_key";
-const ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN || "15m";
-// const ACCESS_TOKEN_EXPIRES_IN = "5s"; // Set to 5 seconds for testing
-
-const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || "7d";
+// env variables
+const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key";
+const JWT_SECRET_EXPIRES_IN = process.env.JWT_SECRET_EXPIRES_IN || "15m";
+// const JWT_SECRET_EXPIRES_IN = "5s"; // Set to 5 seconds for testing
+const API_KEY_SECRET = process.env.API_KEY_SECRET!;
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId } = body;
+    const { auth_secret } = body;
 
-    // Generate the access token
-    const accessToken = jwt.sign({ userId }, ACCESS_TOKEN_SECRET, {
-      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
-    });
+    if (API_KEY_SECRET === auth_secret) {
+      const accessToken = jwt.sign({ auth_secret }, JWT_SECRET, {
+        expiresIn: JWT_SECRET_EXPIRES_IN,
+      });
 
-    // Generate one refresh token
-    const refreshToken = jwt.sign({ userId }, REFRESH_TOKEN_SECRET, {
-      expiresIn: REFRESH_TOKEN_EXPIRES_IN,
-    });
-
-    return NextResponse.json({ accessToken, refreshToken });
+      return NextResponse.json({ accessToken });
+    } else {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401, statusText: "Unauthorized!" },
+      );
+    }
   } catch (error) {
     console.error("Error generating tokens:", error);
     return NextResponse.json(
-      { error: "Failed to generate tokens" },
+      { error: "Failed to generate token" },
       { status: 500 },
     );
   }
