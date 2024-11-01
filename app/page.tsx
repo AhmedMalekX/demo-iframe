@@ -2,13 +2,11 @@
 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Parent() {
   const [isMounted, setIsMounted] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
   const [logs, setLogs] = useState<string[]>([]);
 
@@ -16,40 +14,9 @@ export default function Parent() {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
-  // const handleNewAccessToken = useCallback(async () => {
-  //   logMessage("User clicked on Request New Access Token button.");
-  //
-  //   try {
-  //     logMessage("Requesting new access token (/api/get-new-access-token)...");
-  //
-  //     const response = await fetch("/api/get-new-access-token", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ refreshToken }),
-  //     });
-  //
-  //     logMessage(`API response status: ${response.status}`);
-  //
-  //     if (!response.ok) {
-  //       throw new Error("Failed to fetch new access token");
-  //     }
-  //
-  //     const data = await response.json();
-  //     setAccessToken(data.accessToken); // Update the access token
-  //
-  //     logMessage("New access token received successfully.");
-  //     logMessage(`New Access Token: ${data.accessToken}`);
-  //   } catch (error: unknown) {
-  //     console.error("Error:", error);
-  //     logMessage(
-  //       `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-  //     );
-  //   }
-  // }, [refreshToken]);
-
   useEffect(() => {
+    if (!isMounted) return;
+
     // Listen for messages
     const handleMessage = async (event: MessageEvent) => {
       if (
@@ -115,7 +82,7 @@ export default function Parent() {
     window.addEventListener("message", handleMessage);
 
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -168,7 +135,6 @@ export default function Parent() {
             <h3 className="font-semibold text-xl">Tokens</h3>
             <ul className="mt-4 space-y-2">
               <li>Access Token: {accessToken}</li>
-              <li>Refresh Token: {refreshToken}</li>
             </ul>
           </div>
         </div>
