@@ -58,41 +58,56 @@ export default function Parent() {
         event.data
       ) {
         console.log("Message received from child:", event.data);
-        const receivedAccessToken = event.data.accessToken;
 
-        if (receivedAccessToken) {
-          setAccessToken(receivedAccessToken); // Update the access token state
-          logMessage("Access token received from child.");
+        if (event.data.message === "accessToken") {
+          const receivedAccessToken = event.data.token;
 
-          // Verify the access token
-          try {
-            const response = await fetch("/api/validate-access-token", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token: receivedAccessToken }),
-            });
+          if (receivedAccessToken) {
+            setAccessToken(receivedAccessToken); // Update the access token state
+            logMessage("Access token received from child.");
 
-            const data = await response.json();
+            // Verify the access token
+            try {
+              const response = await fetch("/api/validate-access-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: receivedAccessToken }),
+              });
 
-            if (!response.ok) {
-              if (response.status === 401) {
-                // Unauthorized, token expired
-                logMessage("Access token is expired. Attempting to refresh...");
+              const data = await response.json();
 
-                // Try to refresh the token
-                await handleNewAccessToken();
+              console.log({ data });
+
+              if (!response.ok) {
+                if (response.status === 401) {
+                  // Unauthorized, token expired
+                  logMessage(
+                    "Access token is expired. Attempting to refresh...",
+                  );
+
+                  // send event message back to the parent
+                  (event.source as Window).postMessage(
+                    {
+                      message: "tokenExpired",
+                      accessToken: null,
+                    },
+                    event.origin,
+                  );
+                } else {
+                  throw new Error(data.message || "Invalid access token");
+                }
               } else {
-                throw new Error(data.message || "Invalid access token");
+                logMessage("Access token is valid.");
+                // logMessage(`User ID from token: ${data.userId}`);
               }
-            } else {
-              logMessage("Access token is valid.");
-              logMessage(`User ID from token: ${data.userId}`);
+            } catch (error) {
+              logMessage(
+                `Access token verification failed: ${(error as { message: string }).message}`,
+              );
             }
-          } catch (error) {
-            logMessage(
-              `Access token verification failed: ${(error as { message: string }).message}`,
-            );
           }
+        } else {
+          //
         }
       }
     };
@@ -101,42 +116,6 @@ export default function Parent() {
 
     return () => window.removeEventListener("message", handleMessage);
   }, []);
-
-  const handleConnect = async () => {
-    setLogs([]); // Clear the logs
-    logMessage("User clicked on Connect button.");
-
-    try {
-      logMessage("Connecting to API -- iframe -- (/api/get-jwt)...");
-
-      const response = await fetch("/api/get-jwt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: "exampleUserId" }),
-      });
-
-      logMessage(`API response status: ${response.status}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to authenticate");
-      }
-
-      const data = await response.json();
-      setAccessToken(data.accessToken);
-      setRefreshToken(data.refreshToken);
-
-      logMessage("Tokens received successfully.");
-      logMessage(`Access Token: ${data.accessToken}`);
-      logMessage(`Refresh Token: ${data.refreshToken}`);
-    } catch (error: unknown) {
-      console.error("Error:", error);
-      logMessage(
-        `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
-  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -162,12 +141,13 @@ export default function Parent() {
               onChange={(e) => setPrompt(e.target.value)}
             />
           </div>
-          <Button className="w-full" onClick={handleConnect}>
-            Connect
-          </Button>
-          <Button className="w-full" onClick={handleNewAccessToken}>
-            Request New Access Token
-          </Button>
+
+          {/*<Button*/}
+          {/*  className="w-full"*/}
+          {/*  // onClick={handleNewAccessToken}*/}
+          {/*>*/}
+          {/*  Request New Access Token*/}
+          {/*</Button>*/}
         </div>
 
         <div className="flex-1 w-full break-words max-w-6xl space-y-4">

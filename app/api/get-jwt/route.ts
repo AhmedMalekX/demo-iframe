@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 
 // env variables
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-key";
-const JWT_SECRET_EXPIRES_IN = process.env.JWT_SECRET_EXPIRES_IN || "15m";
-// const JWT_SECRET_EXPIRES_IN = "5s"; // Set to 5 seconds for testing
+// const JWT_SECRET_EXPIRES_IN = process.env.JWT_SECRET_EXPIRES_IN || "15m";
+const JWT_SECRET_EXPIRES_IN = "5s"; // Set to 5 seconds for testing
 const API_KEY_SECRET = process.env.API_KEY_SECRET!;
 
 export async function POST(req: Request) {
