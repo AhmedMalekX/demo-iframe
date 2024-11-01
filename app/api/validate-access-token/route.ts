@@ -17,6 +17,7 @@ export async function POST(req: Request) {
     console.log({ decoded });
 
     // Return success with the decoded user information
+
     return NextResponse.json({
       valid: true,
     });
