@@ -11,8 +11,9 @@ const nextConfig: NextConfig = {
             value: "https://demo-iframe-parent.vercel.app",
           },
           {
-            key: "X-Frame-Options",
-            value: "ALLOW-FROM https://demo-iframe-parent.vercel.app",
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://demo-iframe-parent.vercel.app",
           },
         ],
       },
