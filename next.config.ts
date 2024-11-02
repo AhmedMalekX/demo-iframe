@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: process.env.PARENT_SITE_URL!,
+            value: "https://demo-iframe-parent.vercel.app",
           },
           {
             key: "Access-Control-Allow-Methods",
