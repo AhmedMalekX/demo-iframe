@@ -11,6 +11,13 @@ export async function POST(req: Request) {
 
     const { token } = body;
 
+    if (!token || typeof token !== "string") {
+      return NextResponse.json(
+        { valid: false, message: "Token is required and must be a string" },
+        { status: 400 },
+      );
+    }
+
     // Verify and decode the access token
     const decoded = jwt.verify(token, JWT_SECRET);
 
