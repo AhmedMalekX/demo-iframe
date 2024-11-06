@@ -21,7 +21,8 @@ export default function Parent() {
     const handleMessage = async (event: MessageEvent) => {
       if (
         event.origin ===
-          (process.env.NEXT_PUBLIC_CHILD_SITE_URL || "http://localhost:3000") &&
+          (process.env.NEXT_PUBLIC_PARENT_SITE_URL ||
+            "http://localhost:3000") &&
         event.data
       ) {
         console.log("Message received from child:", event.data);
