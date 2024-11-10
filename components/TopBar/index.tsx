@@ -20,18 +20,13 @@ import { Tabs } from "@/constants";
  * */
 import { cn } from "@/lib/utils";
 
-/*
- * Types
- * */
-import { ITabs } from "@/types";
-
 export const TopBar = () => {
   // tab store
   const { activeTab, setActiveTab } = useTabsStore();
 
   return (
-    <nav className="flex gap-x-8 bg-white px-6 py-4 rounded-xl drop-shadow-sm">
-      {Tabs.map((tab: ITabs) => (
+    <nav className="flex gap-x-8 bg-white px-4 py-4 rounded-xl drop-shadow-sm">
+      {Tabs.map((tab) => (
         <div
           className={cn(
             activeTab === tab &&
@@ -46,7 +41,7 @@ export const TopBar = () => {
           }}
           aria-label={`Switch to ${tab} tab`}
         >
-          <span className="text-xl cursor-pointer selection:bg-appPrimaryActiveState/50 selection:text-white">
+          <span className="text-lg font-medium cursor-pointer selection:bg-appPrimaryActiveState/50 selection:text-white">
             {tab}
           </span>
         </div>

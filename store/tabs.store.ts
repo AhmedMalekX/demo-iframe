@@ -1,5 +1,11 @@
+/*
+ * Packages
+ * */
 import { create } from "zustand";
 
+/*
+ * Types
+ * */
 import { ITabs } from "@/types";
 
 interface TabsStore {
