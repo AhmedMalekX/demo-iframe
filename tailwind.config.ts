@@ -14,7 +14,7 @@ const config: Config = {
         foreground: "hsl(var(--foreground))",
         appPrimaryBackground: "#F5F5F5",
         appSecondaryBackground: "#FDF8FE",
-        appPrimaryButton: "#8920CE",
+        appPrimaryActiveState: "#8920CE",
         appSecondaryButton: "#F8F3FA",
         appBorderColor: "#EDEDED",
         card: {
