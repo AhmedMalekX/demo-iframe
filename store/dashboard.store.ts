@@ -72,7 +72,7 @@ interface DashboardStore {
   setShowCreatorReview: (value: boolean) => void;
 }
 
-export const useImagesStore = create<DashboardStore>((set) => ({
+export const useDashboardStore = create<DashboardStore>((set) => ({
   // General options
   guidanceScale: 7,
   setGuidanceScale: (value) => set({ guidanceScale: value }),
