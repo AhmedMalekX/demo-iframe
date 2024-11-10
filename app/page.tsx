@@ -3,159 +3,65 @@
 /*
  * NextJS & ReactJS components
  * */
-import React, { useEffect, useState, useRef } from "react";
+import React from "react";
 
 /*
- * UI components
+ * Helpers
  * */
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+// import { handleEventListener } from "@/helpers";
 
 /*
- * Icons
+ * Components
  * */
-import { LoaderCircle } from "lucide-react";
+import { TopBar } from "@/components/TopBar";
+import { Sidebar } from "@/components/Sidebar";
+import { HydrationWrapper } from "@/components/HydrationWrapper";
+import { GeneratedImages } from "@/components/GeneratedImages";
 
 export default function Parent() {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState("");
-  const [logs, setLogs] = useState<string[]>([]);
-  const [isMounted, setIsMounted] = useState(false); // State to control rendering
+  // useEffect(() => {
+  //   if (!isMounted) return;
+  //
+  //   // Async handler for incoming messages
+  //   window.addEventListener("message", handleEventListener);
+  //
+  //   return () => {
+  //     window.removeEventListener("message", handleEventListener);
+  //   };
+  // }, [isMounted]);
 
-  // Prevent updates after unmount and track mounting state
-  const isComponentMounted = useRef(false);
-
-  const logMessage = (message: string) => {
-    setLogs((prevLogs) => [...prevLogs, message]);
-  };
-
-  useEffect(() => {
-    isComponentMounted.current = true;
-    setIsMounted(true); // Set the state to trigger re-render and show content
-
-    return () => {
-      isComponentMounted.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted) return;
-
-    // Async handler for incoming messages
-    const handleMessage = async (event: MessageEvent) => {
-      if (
-        event.origin ===
-          (process.env.NEXT_PUBLIC_PARENT_SITE_URL ||
-            "http://localhost:3000") &&
-        event.data
-      ) {
-        console.log("Message received from child:", event.data);
-
-        if (event.data.message === "accessToken") {
-          const receivedAccessToken = event.data.token;
-
-          if (receivedAccessToken) {
-            setAccessToken(receivedAccessToken);
-            logMessage("Access token received from child.");
-
-            try {
-              const response = await fetch("/api/validate-access-token", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token: receivedAccessToken }),
-              });
-
-              const data = await response.json();
-
-              if (!response.ok) {
-                if (response.status === 401) {
-                  logMessage(
-                    "Access token is expired. Attempting to refresh...",
-                  );
-
-                  // Notify parent about token expiry
-                  (event.source as Window).postMessage(
-                    {
-                      message: "tokenExpired",
-                      accessToken: null,
-                    },
-                    event.origin,
-                  );
-                } else {
-                  throw new Error(data.message || "Invalid access token");
-                }
-              } else {
-                logMessage("Access token is valid.");
-              }
-            } catch (error) {
-              logMessage(
-                `Access token verification failed: ${
-                  (error as { message: string }).message
-                }`,
-              );
-            }
-          }
-        }
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [isMounted]);
-
-  if (!isMounted) {
-    return (
-      <main className="h-screen max-w-7xl mx-auto flex items-center justify-center">
-        <LoaderCircle className="animate-spin" size={32} />
-      </main>
-    );
-  }
+  // if (!isMounted) {
+  //   return (
+  //     <main className="h-screen max-w-7xl mx-auto flex items-center justify-center">
+  //       <LoaderCircle className="animate-spin" size={32} />
+  //     </main>
+  //   );
+  // }
 
   return (
     <main className="max-w-7xl mx-auto py-10">
-      <div>
-        <div className="flex items-center justify-center text-3xl font-bold">
-          <h1>iFrame</h1>
+      {/*Tabs*/}
+      <HydrationWrapper loadingSkeletonClasses="h-[50px] w-full">
+        <TopBar />
+      </HydrationWrapper>
+
+      <div className="mt-8 mx-auto w-full grid grid-cols-1 gap-y-4 md:grid-cols-3 md:gap-y-0 md:gap-x-4 lg:grid-cols-12 ">
+        <div className="md:col-span-1 lg:col-span-3">
+          <HydrationWrapper
+            loadingSkeletonClasses="h-[500px] w-full"
+            wrapperClasses="md:cols-1 lg:col-span-3"
+          >
+            <Sidebar />
+          </HydrationWrapper>
         </div>
 
-        <div className="w-full flex space-x-4">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="prompt">Prompt</Label>
-              <Textarea
-                placeholder="Type your prompt here."
-                rows={5}
-                id="prompt"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="flex-1 w-full break-words max-w-6xl space-y-4">
-            <h2 className="font-semibold text-xl">Result</h2>
-            <hr />
-
-            <div>
-              <h3 className="font-semibold text-xl">Logs</h3>
-              <ul className="mt-4 space-y-2">
-                {logs.map((log, index) => (
-                  <li key={index}># {log}</li>
-                ))}
-              </ul>
-            </div>
-
-            <hr />
-            <div>
-              <h3 className="font-semibold text-xl">Tokens</h3>
-              <ul className="mt-4 space-y-2">
-                <li>Access Token: {accessToken}</li>
-              </ul>
-            </div>
-          </div>
+        <div className="md:col-span-2 lg:col-span-9">
+          <HydrationWrapper
+            loadingSkeletonClasses="h-[500px] w-full"
+            wrapperClasses="md:cols-2 lg:col-span-9"
+          >
+            <GeneratedImages />
+          </HydrationWrapper>
         </div>
       </div>
     </main>
