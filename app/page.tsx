@@ -17,22 +17,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { LoaderCircle } from "lucide-react";
 
 export default function Parent() {
-  const [isMounted, setIsMounted] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
   const [logs, setLogs] = useState<string[]>([]);
+  const [isMounted, setIsMounted] = useState(false); // State to control rendering
 
-  // Prevent updates after unmount
-  const isComponentMounted = useRef(true);
+  // Prevent updates after unmount and track mounting state
+  const isComponentMounted = useRef(false);
 
   const logMessage = (message: string) => {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
   useEffect(() => {
-    // Set flag on mount and cleanup on unmount
     isComponentMounted.current = true;
-    setIsMounted(true);
+    setIsMounted(true); // Set the state to trigger re-render and show content
 
     return () => {
       isComponentMounted.current = false;
@@ -107,7 +106,6 @@ export default function Parent() {
     };
   }, [isMounted]);
 
-  // Return loading screen during initial hydration to avoid mismatches
   if (!isMounted) {
     return (
       <main className="h-screen max-w-7xl mx-auto flex items-center justify-center">
