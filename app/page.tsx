@@ -1,8 +1,20 @@
 "use client";
 
+/*
+ * NextJS & ReactJS components
+ * */
+import React, { useEffect, useState, useRef } from "react";
+
+/*
+ * UI components
+ * */
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
+
+/*
+ * Icons
+ * */
+import { LoaderCircle } from "lucide-react";
 
 export default function Parent() {
   const [isMounted, setIsMounted] = useState(false);
@@ -10,14 +22,27 @@ export default function Parent() {
   const [prompt, setPrompt] = useState("");
   const [logs, setLogs] = useState<string[]>([]);
 
+  // Prevent updates after unmount
+  const isComponentMounted = useRef(true);
+
   const logMessage = (message: string) => {
     setLogs((prevLogs) => [...prevLogs, message]);
   };
 
   useEffect(() => {
+    // Set flag on mount and cleanup on unmount
+    isComponentMounted.current = true;
+    setIsMounted(true);
+
+    return () => {
+      isComponentMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isMounted) return;
 
-    // Listen for messages
+    // Async handler for incoming messages
     const handleMessage = async (event: MessageEvent) => {
       if (
         event.origin ===
@@ -31,10 +56,9 @@ export default function Parent() {
           const receivedAccessToken = event.data.token;
 
           if (receivedAccessToken) {
-            setAccessToken(receivedAccessToken); // Update the access token state
+            setAccessToken(receivedAccessToken);
             logMessage("Access token received from child.");
 
-            // Verify the access token
             try {
               const response = await fetch("/api/validate-access-token", {
                 method: "POST",
@@ -44,16 +68,13 @@ export default function Parent() {
 
               const data = await response.json();
 
-              console.log({ data });
-
               if (!response.ok) {
                 if (response.status === 401) {
-                  // Unauthorized, token expired
                   logMessage(
                     "Access token is expired. Attempting to refresh...",
                   );
 
-                  // send event message back to the parent
+                  // Notify parent about token expiry
                   (event.source as Window).postMessage(
                     {
                       message: "tokenExpired",
@@ -66,77 +87,76 @@ export default function Parent() {
                 }
               } else {
                 logMessage("Access token is valid.");
-                // logMessage(`User ID from token: ${data.userId}`);
               }
             } catch (error) {
               logMessage(
-                `Access token verification failed: ${(error as { message: string }).message}`,
+                `Access token verification failed: ${
+                  (error as { message: string }).message
+                }`,
               );
             }
           }
-        } else {
-          //
         }
       }
     };
 
     window.addEventListener("message", handleMessage);
 
-    return () => window.removeEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, [isMounted]);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) return null;
+  // Return loading screen during initial hydration to avoid mismatches
+  if (!isMounted) {
+    return (
+      <main className="h-screen max-w-7xl mx-auto flex items-center justify-center">
+        <LoaderCircle className="animate-spin" size={32} />
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-7xl mx-auto py-10">
-      <div className="flex items-center justify-center text-3xl font-bold">
-        <h1>iFrame</h1>
-      </div>
-
-      <div className="w-full flex space-x-4">
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="prompt">Prompt</Label>
-            <Textarea
-              placeholder="Type your prompt here."
-              rows={5}
-              id="prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
-          </div>
-
-          {/*<Button*/}
-          {/*  className="w-full"*/}
-          {/*  // onClick={handleNewAccessToken}*/}
-          {/*>*/}
-          {/*  Request New Access Token*/}
-          {/*</Button>*/}
+      <div>
+        <div className="flex items-center justify-center text-3xl font-bold">
+          <h1>iFrame</h1>
         </div>
 
-        <div className="flex-1 w-full break-words max-w-6xl space-y-4">
-          <h2 className="font-semibold text-xl">Result</h2>
-          <hr />
-
-          <div>
-            <h3 className="font-semibold text-xl">Logs</h3>
-            <ul className="mt-4 space-y-2">
-              {logs.map((log, index) => (
-                <li key={index}># {log}</li>
-              ))}
-            </ul>
+        <div className="w-full flex space-x-4">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="prompt">Prompt</Label>
+              <Textarea
+                placeholder="Type your prompt here."
+                rows={5}
+                id="prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+              />
+            </div>
           </div>
 
-          <hr />
-          <div>
-            <h3 className="font-semibold text-xl">Tokens</h3>
-            <ul className="mt-4 space-y-2">
-              <li>Access Token: {accessToken}</li>
-            </ul>
+          <div className="flex-1 w-full break-words max-w-6xl space-y-4">
+            <h2 className="font-semibold text-xl">Result</h2>
+            <hr />
+
+            <div>
+              <h3 className="font-semibold text-xl">Logs</h3>
+              <ul className="mt-4 space-y-2">
+                {logs.map((log, index) => (
+                  <li key={index}># {log}</li>
+                ))}
+              </ul>
+            </div>
+
+            <hr />
+            <div>
+              <h3 className="font-semibold text-xl">Tokens</h3>
+              <ul className="mt-4 space-y-2">
+                <li>Access Token: {accessToken}</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // TODO: uncomment the code before push any code to the git repo
   async headers() {
     return [
       {
