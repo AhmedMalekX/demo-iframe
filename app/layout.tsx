@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 /*
@@ -7,15 +7,10 @@ import "./globals.css";
  * */
 import { ModalProvider } from "@/components/GlobalUI/Providers/ModalProvider";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const inter = Inter({
+  subsets: ["latin"], // You can add other subsets if needed
+  variable: "--font-inter", // Optional, to use with CSS variables
+  weight: ["400", "600", "700"], // Optional: specify weights as needed
 });
 
 export const metadata: Metadata = {
@@ -31,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-appPrimaryBackground`}
+        className={`${inter.className} antialiased bg-appPrimaryBackground`}
       >
         <ModalProvider />
         {children}

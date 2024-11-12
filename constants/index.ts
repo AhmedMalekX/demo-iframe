@@ -115,3 +115,15 @@ export const randomPrompts = [
   "Embrace the adventurous spirit of a beachside vacation with this nautical-inspired design, featuring dark, bold stripes with anchor and seashell motifs. The combination of geometric elements and rich color palette evokes the beauty of the open ocean, providing the perfect backdrop for creating lasting vacation memories.",
   "Bold and colorful protea flowers and foliage come to life in this whimsical, flat vector design. The vibrant palette of pinks, greens, and yellows is perfectly balanced with geometrically crisp outlines of the leaves and flowers, resulting in a playful, modern take on classic botanical art.",
 ];
+
+export const mockups = [
+  "1_dress",
+  "2_men_tshirt",
+  "3_gift_wrap",
+  "4_Wallpaper",
+  "5_phone_case",
+  "6_canvas_bag",
+  "7_notebook",
+  "8_throw_pillow",
+  "9_socks",
+];
