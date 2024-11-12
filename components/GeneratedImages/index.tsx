@@ -9,6 +9,7 @@ import React from "react";
  * Global UI Components
  * */
 import { GeneratedImagesResult } from "../GlobalUI/GeneratedImagesResult";
+import { GeneratedImageControls } from "@/components/GeneratedImages/UI/GeneratedImageControls";
 
 export const GeneratedImages = () => {
   // Temp images
@@ -36,6 +37,8 @@ export const GeneratedImages = () => {
       <GeneratedImagesResult images={images} />
 
       <hr className="mt-3" />
+
+      <GeneratedImageControls />
     </div>
   );
 };

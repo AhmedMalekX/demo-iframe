@@ -86,6 +86,10 @@ interface DashboardStore {
   // Feedback
   showCreatorReview: boolean;
   setShowCreatorReview: (value: boolean) => void;
+
+  // Image preview
+  imagePreviewZoom: number;
+  setImagePreviewZoom: (value: number) => void;
 }
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
@@ -163,4 +167,8 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
 
   showCreatorReview: false,
   setShowCreatorReview: (value) => set({ showCreatorReview: value }),
+
+  // Image preview
+  imagePreviewZoom: 50,
+  setImagePreviewZoom: (value) => set({ imagePreviewZoom: value }),
 }));
