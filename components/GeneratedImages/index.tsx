@@ -9,7 +9,13 @@ import React from "react";
  * Global UI Components
  * */
 import { GeneratedImagesResult } from "../GlobalUI/GeneratedImagesResult";
+
+/*
+ * UI Components
+ * */
 import { GeneratedImageControls } from "@/components/GeneratedImages/UI/GeneratedImageControls";
+import { GeneratedImagePreview } from "@/components/GeneratedImages/UI/GeneratedImagePreview";
+import { useDashboardStore } from "@/store/dashboard.store";
 
 export const GeneratedImages = () => {
   // Temp images
@@ -32,13 +38,21 @@ export const GeneratedImages = () => {
     },
   ];
 
+  const { selectedPreviewImage } = useDashboardStore();
+
   return (
-    <div className="bg-white px-4 py-6 rounded-xl drop-shadow-sm border overflow-hidden">
-      <GeneratedImagesResult images={images} />
+    <div className="bg-white py-6 rounded-xl drop-shadow-sm border overflow-hidden">
+      <div className="px-4">
+        <GeneratedImagesResult images={images} />
+      </div>
 
-      <hr className="mt-3" />
-
-      <GeneratedImageControls />
+      <div className="bg-appSecondaryBackground">
+        <hr className="mt-3" />
+        <div className="px-4">
+          <GeneratedImageControls />
+        </div>
+        <GeneratedImagePreview url={selectedPreviewImage} />
+      </div>
     </div>
   );
 };
