@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
  * */
 import { GeneratingImagesMethods } from "@/constants";
 
-export const GeneratingImagesMethod = () => {
+export const GeneratingImagesMethodBar = () => {
   const { activeGeneratingMethod, setActiveGeneratingMethod } =
     useActiveGeneratingMethodStore();
 

@@ -6,7 +6,7 @@ import { create } from "zustand";
 /*
  * Constants
  * */
-import { Styles } from "@/constants";
+import { StylesNames } from "@/constants";
 
 interface DashboardStore {
   // General options
@@ -16,20 +16,34 @@ interface DashboardStore {
   setSizeOfImageOnFromTextTab: (value: number) => void;
   sizeOfImageOnFromImageTab: number;
   setSizeOfImageOnFromImageTab: (value: number) => void;
-  numberOfImages: number;
-  setNumberOfImages: (value: number) => void;
   openStylesModal: boolean;
   setOpenStylesModal: (value: boolean) => void;
-  styleName: (typeof Styles)[number]["styleName"] | undefined;
-  setStyleName: (
-    value: (typeof Styles)[number]["styleName"] | undefined,
+
+  // Generate image using text
+  prompt: string | undefined;
+  setPrompt: (value: string | undefined) => void;
+  generateFromTextStyleName:
+    | (typeof StylesNames)[number]["styleName"]
+    | undefined;
+  setGenerateFromTextStyleName: (
+    value: (typeof StylesNames)[number]["styleName"] | undefined,
   ) => void;
+  generateFromTextNumberOfImages: number;
+  setGenerateFromTextNumberOfImages: (value: number) => void;
 
   // Generate image using another image
   selectedGenerateSimilarImage: string | null;
   setSelectedGenerateSimilarImage: (imageUrl: string | null) => void;
   generationMethod: "Variation" | "Image Mixing";
   setGenerationMethod: (value: "Variation" | "Image Mixing") => void;
+  generateFromImageStyleName:
+    | (typeof StylesNames)[number]["styleName"]
+    | undefined;
+  setGenerateFromImageStyleName: (
+    value: (typeof StylesNames)[number]["styleName"] | undefined,
+  ) => void;
+  generateFromImageNumberOfImages: number;
+  setGenerateFromImageNumberOfImages: (value: number) => void;
 
   // Generate image using elements
   generatingMotif: boolean;
@@ -82,12 +96,18 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   sizeOfImageOnFromImageTab: 512,
   setSizeOfImageOnFromImageTab: (value) =>
     set({ sizeOfImageOnFromImageTab: value }),
-  numberOfImages: 2,
-  setNumberOfImages: (value) => set({ numberOfImages: value }),
   openStylesModal: false,
   setOpenStylesModal: (value) => set({ openStylesModal: value }),
-  styleName: undefined,
-  setStyleName: (value) => set({ styleName: value }),
+
+  // Generate image using text
+  prompt: "",
+  setPrompt: (value) => set({ prompt: value }),
+  generateFromTextStyleName: undefined,
+  setGenerateFromTextStyleName: (value) =>
+    set({ generateFromTextStyleName: value }),
+  generateFromTextNumberOfImages: 2,
+  setGenerateFromTextNumberOfImages: (value: number) =>
+    set({ generateFromTextNumberOfImages: value }),
 
   // Generate image using another image
   selectedGenerateSimilarImage: null,
@@ -95,6 +115,12 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
     set({ selectedGenerateSimilarImage: state }),
   generationMethod: "Variation",
   setGenerationMethod: (value) => set({ generationMethod: value }),
+  generateFromImageStyleName: undefined,
+  setGenerateFromImageStyleName: (value) =>
+    set({ generateFromImageStyleName: value }),
+  generateFromImageNumberOfImages: 2,
+  setGenerateFromImageNumberOfImages: (value: number) =>
+    set({ generateFromImageNumberOfImages: value }),
 
   // Generate image using elements
   generatingMotif: false,
