@@ -90,6 +90,8 @@ interface DashboardStore {
   // Image preview
   imagePreviewZoom: number;
   setImagePreviewZoom: (value: number) => void;
+  selectedPreviewImage: string | null;
+  setSelectedPreviewImage: (imageUrl: string | null) => void;
 }
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
@@ -171,4 +173,7 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   // Image preview
   imagePreviewZoom: 50,
   setImagePreviewZoom: (value) => set({ imagePreviewZoom: value }),
+  selectedPreviewImage: null,
+  setSelectedPreviewImage: (imageUrl) =>
+    set({ selectedPreviewImage: imageUrl }),
 }));

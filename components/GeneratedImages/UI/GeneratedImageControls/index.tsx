@@ -1,7 +1,7 @@
 /*
  * NextJS & ReactJS Components
  * */
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 /*
  * Stores
@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
  * Icons
  * */
 import { Download } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const GeneratedImageControls = () => {
   const { imagePreviewZoom, setImagePreviewZoom } = useDashboardStore();
@@ -31,6 +32,25 @@ export const GeneratedImageControls = () => {
    * TODO:
    *  1- Add download options
    * */
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted)
+    return (
+      <div className="py-4 flex items-center justify-between w-full">
+        <div className="w-1/2">
+          <Skeleton className="w-full h-8" />
+        </div>
+
+        <div className="w-1/6">
+          <Skeleton className="w-full h-8" />
+        </div>
+      </div>
+    );
 
   return (
     <div className="py-4 flex items-center justify-between w-full">
