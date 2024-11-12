@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
  * Modals
  * */
 import { DashboardErrorModal } from "@/components/GlobalUI/Modals/DashboardErrorModal";
+import { StylesModal } from "@/components/GlobalUI/Modals/StylesModal";
 
 /*
  * Stores
@@ -19,7 +20,7 @@ export const ModalProvider = () => {
   // handle hydration state
   const [isMounted, setIsMounted] = useState(false);
 
-  const { showErrorModal } = useDashboardStore();
+  const { showErrorModal, openStylesModal } = useDashboardStore();
 
   useEffect(() => {
     setIsMounted(true);
@@ -27,5 +28,10 @@ export const ModalProvider = () => {
 
   if (!isMounted) return null;
 
-  return <>{showErrorModal && <DashboardErrorModal />}</>;
+  return (
+    <>
+      {showErrorModal && <DashboardErrorModal />}{" "}
+      {openStylesModal && <StylesModal />}
+    </>
+  );
 };
