@@ -86,6 +86,14 @@ interface DashboardStore {
   // Feedback
   showCreatorReview: boolean;
   setShowCreatorReview: (value: boolean) => void;
+
+  // Image preview
+  imagePreviewZoom: number;
+  setImagePreviewZoom: (value: number) => void;
+  selectedPreviewImage: string | null;
+  setSelectedPreviewImage: (imageUrl: string | null) => void;
+  selectedMockup: string | null;
+  setSelectedMockup: (value: string | null) => void;
 }
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
@@ -163,4 +171,13 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
 
   showCreatorReview: false,
   setShowCreatorReview: (value) => set({ showCreatorReview: value }),
+
+  // Image preview
+  imagePreviewZoom: 50,
+  setImagePreviewZoom: (value) => set({ imagePreviewZoom: value }),
+  selectedPreviewImage: null,
+  setSelectedPreviewImage: (imageUrl) =>
+    set({ selectedPreviewImage: imageUrl }),
+  selectedMockup: null,
+  setSelectedMockup: (value) => set({ selectedMockup: value }),
 }));
