@@ -1,14 +1,29 @@
+/*
+ * NextJS & ReactJS components
+ * */
 import React from "react";
-import { CircleHelp } from "lucide-react";
+
+/*
+ * Stores
+ * */
+import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
+import { useDashboardStore } from "@/store/dashboard.store";
+
+/*
+ * UI Components
+ * */
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
-import { useDashboardStore } from "@/store/dashboard.store";
 import { Slider } from "@/components/ui/slider";
+
+/*
+ * Icons
+ * */
+import { CircleHelp } from "lucide-react";
 
 export const NumberOfImages = () => {
   const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
