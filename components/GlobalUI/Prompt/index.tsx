@@ -31,10 +31,32 @@ import { randomPrompts } from "@/constants";
  * Icons
  * */
 import { CircleHelp } from "lucide-react";
+import { GlobalTooltipContent } from "@/components/GlobalUI/TooltipContent";
 
-export const Prompt = () => {
-  const { prompt, setPrompt } = useDashboardStore();
+interface IPrompt {
+  title: string;
+  id: string;
+  showGuidToGeneratePrompt: boolean;
+  tooltipContent: string;
+  showTryAnExample: boolean;
+  value: string;
+  setValue: (value: string) => void;
+  placeholder: string;
+}
 
+export const Prompt = ({
+  showGuidToGeneratePrompt,
+  showTryAnExample,
+  tooltipContent,
+  title,
+  id,
+  value,
+  setValue,
+  placeholder,
+}: IPrompt) => {
+  const { setPrompt } = useDashboardStore();
+
+  // Only for the prompt
   const handleTryAnExamplePrompt = () => {
     const randomPatternNumber = Math.floor(
       Math.random() * randomPrompts.length,
@@ -46,17 +68,19 @@ export const Prompt = () => {
     <div>
       {/*Label & information on how to generate pattern!*/}
       <div className="flex items-center justify-between w-full">
-        <Label className="font-medium text-md" htmlFor="prompt">
-          Prompt
+        <Label className="font-medium text-md" htmlFor={id}>
+          {title}
         </Label>
         <div className="flex items-start gap-x-2">
-          <Link
-            href="https://www.patterned.ai/prompt-guide"
-            target="_blank"
-            className="text-gray-500 hover:underline"
-          >
-            How to generate a prompt?
-          </Link>
+          {showGuidToGeneratePrompt && (
+            <Link
+              href="https://www.patterned.ai/prompt-guide"
+              target="_blank"
+              className="text-gray-500 hover:underline"
+            >
+              How to generate a prompt?
+            </Link>
+          )}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -64,9 +88,7 @@ export const Prompt = () => {
               </TooltipTrigger>
 
               <TooltipContent className="max-w-md">
-                - Be as descriptive as possible, use style names, artists names,
-                colour scheme, vibe, .. etc <br />- Words at the beginning of
-                the prompt have higher affect on the final image
+                <GlobalTooltipContent content={tooltipContent} />
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -76,24 +98,26 @@ export const Prompt = () => {
       <div className="mt-2">
         <div className="relative">
           <Textarea
-            placeholder="Describe your pattern elements, colours and background..."
-            id="prompt"
-            name="prompt"
+            placeholder={placeholder}
+            id={id}
+            name={id}
             className="resize-none rounded-xl"
             rows={5}
-            defaultValue={prompt}
+            defaultValue={value}
             onChange={(e) => {
-              setPrompt(e.target.value);
+              setValue(e.target.value);
             }}
             required
           ></Textarea>
-          <Button
-            className="absolute bottom-2 right-4 z-10 rounded-full drop-shadow-sm hover:bg-secondary"
-            variant="secondary"
-            onClick={handleTryAnExamplePrompt}
-          >
-            Try an example
-          </Button>
+          {showTryAnExample && (
+            <Button
+              className="absolute bottom-2 right-4 z-10 rounded-full drop-shadow-sm hover:bg-secondary"
+              variant="secondary"
+              onClick={handleTryAnExamplePrompt}
+            >
+              Try an example
+            </Button>
+          )}
         </div>
       </div>
     </div>

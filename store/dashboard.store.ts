@@ -30,6 +30,8 @@ interface DashboardStore {
   ) => void;
   generateFromTextNumberOfImages: number;
   setGenerateFromTextNumberOfImages: (value: number) => void;
+  negativePrompt: string | undefined;
+  setNegativePrompt: (value: string | undefined) => void;
 
   // Generate image using another image
   selectedGenerateSimilarImage: string | null;
@@ -108,6 +110,8 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   generateFromTextNumberOfImages: 2,
   setGenerateFromTextNumberOfImages: (value: number) =>
     set({ generateFromTextNumberOfImages: value }),
+  negativePrompt: "",
+  setNegativePrompt: (value) => set({ prompt: value }),
 
   // Generate image using another image
   selectedGenerateSimilarImage: null,
