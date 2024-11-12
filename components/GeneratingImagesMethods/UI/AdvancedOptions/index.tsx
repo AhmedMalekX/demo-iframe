@@ -38,7 +38,7 @@ export const AdvancedOptions = () => {
   return (
     <Collapsible className="w-full py-4">
       <CollapsibleTrigger className="w-full">
-        <div className="w-full flex items-center justify-between border py-2  rounded-xl">
+        <div className="w-full flex items-center justify-between border py-2 px-3 rounded-xl">
           <h3>Advanced options</h3>
           <ChevronDownIcon />
         </div>
