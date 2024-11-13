@@ -34,7 +34,7 @@ export const GeneratingImagesMethodBar = () => {
               "border-b-4 border-appPrimaryActiveState transition-all duration-75 ease-in-out",
             activeGeneratingMethod !== method &&
               "hover:border-b-4 hover:border-appPrimaryActiveState/50 transition-all duration-75 ease-in-out",
-            "px-2 text-md font-medium text-center w-full",
+            "px-1 text-md font-medium text-center w-full",
           )}
           role="button"
           onClick={() => {

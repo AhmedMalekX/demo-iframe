@@ -36,8 +36,8 @@ interface DashboardStore {
   // Generate image using another image
   selectedGenerateSimilarImage: string | null;
   setSelectedGenerateSimilarImage: (imageUrl: string | null) => void;
-  generationMethod: "Variation" | "Image Mixing";
-  setGenerationMethod: (value: "Variation" | "Image Mixing") => void;
+  generationMethod: "Variation" | "Image mixing";
+  setGenerationMethod: (value: "Variation" | "Image mixing") => void;
   generateFromImageStyleName:
     | (typeof StylesNames)[number]["styleName"]
     | undefined;
