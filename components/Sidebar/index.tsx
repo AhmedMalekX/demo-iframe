@@ -17,7 +17,7 @@ export const Sidebar = () => {
   const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
 
   return (
-    <aside className="bg-white px-4 py-6 rounded-xl drop-shadow-sm border">
+    <aside className="bg-white px-4 pt-6 rounded-xl drop-shadow-sm border">
       <GeneratingImagesMethodBar />
 
       <div className="mt-6">
