@@ -32,6 +32,23 @@ interface IUploadImagesStore {
     imageUrl: string | null;
     uploaded: boolean;
   }) => void;
+  replacingVariationImage: boolean;
+  setReplacingVariationImage: (value: boolean) => void;
+
+  firstMixingImage: string | null;
+  setFirstMixingImage: (value: string | null) => void;
+  uploadingFirstMixingImage: boolean;
+  setUploadingFirstMixingImage: (value: boolean) => void;
+  replacingFirstMixingImage: boolean;
+  setReplacingFirstMixingImage: (value: boolean) => void;
+  secondMixingImage: string | null;
+  setSecondMixingImage: (value: string | null) => void;
+  replacingSecondMixingImage: boolean;
+  setReplacingSecondMixingImage: (value: boolean) => void;
+  uploadingSecondMixingImage: boolean;
+  setUploadingSecondMixingImage: (value: boolean) => void;
+  uploadButtonId: number | null;
+  setUploadButtonId: (id: number | null) => void;
 }
 
 export const useUploadImagesModal = create<IUploadImagesStore>((set, get) => ({
@@ -61,4 +78,26 @@ export const useUploadImagesModal = create<IUploadImagesStore>((set, get) => ({
   /*Variation Tab*/
   variationImage: { imageUrl: null, uploaded: false },
   setVariationImage: (value) => set({ variationImage: value }),
+  replacingVariationImage: false,
+  setReplacingVariationImage: (value) =>
+    set({ replacingVariationImage: value }),
+
+  firstMixingImage: null,
+  setFirstMixingImage: (value) => set({ firstMixingImage: value }),
+  uploadingFirstMixingImage: false,
+  setUploadingFirstMixingImage: (value) =>
+    set({ uploadingFirstMixingImage: value }),
+  replacingFirstMixingImage: false,
+  setReplacingFirstMixingImage: (value) =>
+    set({ replacingFirstMixingImage: value }),
+  secondMixingImage: null,
+  setSecondMixingImage: (value) => set({ secondMixingImage: value }),
+  uploadingSecondMixingImage: false,
+  setUploadingSecondMixingImage: (value) =>
+    set({ uploadingSecondMixingImage: value }),
+  replacingSecondMixingImage: false,
+  setReplacingSecondMixingImage: (value) =>
+    set({ replacingSecondMixingImage: value }),
+  uploadButtonId: null,
+  setUploadButtonId: (id: number | null) => set({ uploadButtonId: id }),
 }));

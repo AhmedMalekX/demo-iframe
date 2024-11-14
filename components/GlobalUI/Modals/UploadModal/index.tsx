@@ -1,16 +1,16 @@
 /*
  * NextJS & ReactJS components
- * */
+ */
 import React, { useEffect, useRef, useState } from "react";
 
 /*
  * Stores
- * */
+ */
 import { useUploadImagesModal } from "@/store/uploadImages.store";
 
 /*
  * Components
- * */
+ */
 import {
   Dialog,
   DialogContent,
@@ -25,9 +25,12 @@ import { cn } from "@/lib/utils";
 import { handleUploadFile } from "@/components/GlobalUI/Modals/UploadModal/helpers/handleUploadFile";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { uploadFile } from "@/components/GlobalUI/Modals/UploadModal/helpers/uploadFile";
+import { useDashboardStore } from "@/store/dashboard.store";
 
 export const UploadModal = () => {
   const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  const { generationMethod } = useDashboardStore();
 
   const {
     setIsUploadImagesModalOpen,
@@ -39,31 +42,40 @@ export const UploadModal = () => {
     setErrorAlertMessage,
     errorAlertMessage,
     setVariationImage,
+    uploadButtonId,
+    setFirstMixingImage,
+    setSecondMixingImage,
+    setUploadingFirstMixingImage,
+    setUploadingSecondMixingImage,
+    variationImage,
+    setReplacingVariationImage,
+    setReplacingFirstMixingImage,
+    setReplacingSecondMixingImage,
   } = useUploadImagesModal();
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target?.files?.[0]) return;
 
-    // Get The File
     const file = e.target.files[0];
 
-    // Handle file validation or processing (assuming `handleUploadFile` returns a promise)
     try {
       const newFile = handleUploadFile(file);
 
-      // Handle error scenario from `handleUploadFile`
       if (newFile.showErrorAlert && !newFile.success) {
         setShowErrorAlert();
         setErrorAlertMessage({
           header: newFile.errorMessage.header,
           body: newFile.errorMessage.body,
         });
+        setReplacingFirstMixingImage(false);
+        setReplacingSecondMixingImage(false);
+        setUploadingFirstMixingImage(false);
+        setUploadingSecondMixingImage(false);
         return;
       }
 
-      // Proceed if the file handling is successful
       if (newFile.success && newFile.file) {
-        setIsUploadingImage(); // toggle the previous value
+        setIsUploadingImage();
 
         try {
           const result = await uploadFile(newFile.file);
@@ -74,38 +86,113 @@ export const UploadModal = () => {
               header: result.errorMessage.header,
               body: result.errorMessage.body,
             });
-
-            setVariationImage({ imageUrl: null, uploaded: false });
+            setReplacingFirstMixingImage(false);
+            setReplacingSecondMixingImage(false);
+            setUploadingFirstMixingImage(false);
+            setUploadingSecondMixingImage(false);
+            resetStateOnError();
           } else {
-            setVariationImage({
-              imageUrl: result.cloudfrontUrl,
-              uploaded: true,
-            });
-            setIsUploadImagesModalOpen();
+            handleSuccessfulUpload(result);
           }
         } catch (error) {
-          // Handle unexpected errors during upload
           console.error("Unexpected error during file upload:", error);
-          setShowErrorAlert();
-          setErrorAlertMessage({
-            header: "Upload Error",
-            body: "An unexpected error occurred during the file upload. Please try again later.",
-          });
-          setVariationImage({ imageUrl: null, uploaded: false });
+          showErrorOnUnexpectedUpload();
+          resetStateOnError();
+          setReplacingFirstMixingImage(false);
+          setReplacingSecondMixingImage(false);
+          setUploadingFirstMixingImage(false);
+          setUploadingSecondMixingImage(false);
         } finally {
-          setIsUploadingImage();
+          cleanupStateAfterUpload();
+          setReplacingFirstMixingImage(false);
+          setReplacingSecondMixingImage(false);
+          setUploadingFirstMixingImage(false);
+          setUploadingSecondMixingImage(false);
+          setShowErrorAlert();
         }
       }
     } catch (error) {
-      // Handle unexpected errors in `handleUploadFile`
       console.error("Unexpected error during file processing:", error);
       setShowErrorAlert();
       setErrorAlertMessage({
         header: "File Handling Error",
         body: "An unexpected error occurred while processing the file. Please try again.",
       });
-      setVariationImage({ imageUrl: null, uploaded: false });
+      setReplacingFirstMixingImage(false);
+      setReplacingSecondMixingImage(false);
+      setUploadingFirstMixingImage(false);
+      setUploadingSecondMixingImage(false);
+      resetStateOnError();
     }
+  };
+
+  const resetStateOnError = () => {
+    if (generationMethod === "Variation") {
+      setVariationImage({ imageUrl: null, uploaded: false });
+    } else {
+      setFirstMixingImage(null);
+      setSecondMixingImage(null);
+      setUploadingFirstMixingImage(false);
+      setUploadingSecondMixingImage(false);
+      setReplacingFirstMixingImage(false);
+      setReplacingSecondMixingImage(false);
+    }
+  };
+
+  const handleSuccessfulUpload = (
+    result:
+      | {
+          status: number;
+          cloudfrontUrl: null;
+          success: boolean;
+          showErrorAlert: boolean;
+          errorMessage: { header: string; body: string };
+        }
+      | {
+          status: number;
+          cloudfrontUrl: string;
+          success: boolean;
+          showErrorAlert: boolean;
+          errorMessage: null;
+        },
+  ) => {
+    if (generationMethod === "Variation") {
+      setVariationImage({
+        imageUrl: result.cloudfrontUrl,
+        uploaded: true,
+      });
+      if (variationImage.imageUrl) {
+        setReplacingVariationImage(false);
+      }
+    } else {
+      if (uploadButtonId === 1) {
+        setFirstMixingImage(result.cloudfrontUrl);
+        setUploadingFirstMixingImage(false);
+        setReplacingFirstMixingImage(false);
+      } else {
+        setSecondMixingImage(result.cloudfrontUrl);
+        setUploadingSecondMixingImage(false);
+        setReplacingSecondMixingImage(false);
+      }
+    }
+    setIsUploadImagesModalOpen();
+  };
+
+  const cleanupStateAfterUpload = () => {
+    setIsUploadingImage();
+    setUploadingFirstMixingImage(false);
+    setUploadingSecondMixingImage(false);
+    setReplacingVariationImage(false);
+    setReplacingFirstMixingImage(false);
+    setReplacingSecondMixingImage(false);
+  };
+
+  const showErrorOnUnexpectedUpload = () => {
+    setShowErrorAlert();
+    setErrorAlertMessage({
+      header: "Upload Error",
+      body: "An unexpected error occurred during the file upload. Please try again later.",
+    });
   };
 
   const [isMounted, setIsMounted] = useState(false);
@@ -123,7 +210,6 @@ export const UploadModal = () => {
         <DialogContent className="max-w-5xl">
           <DialogHeader>
             <Skeleton className="h-28 w-full my-6" />
-
             <DialogDescription asChild>
               <Skeleton className="h-96 w-full" />
             </DialogDescription>
@@ -136,7 +222,17 @@ export const UploadModal = () => {
   return (
     <Dialog
       open={isUploadImagesModalOpen}
-      onOpenChange={setIsUploadImagesModalOpen}
+      onOpenChange={() => {
+        setIsUploadImagesModalOpen();
+        if (generationMethod === "Variation") {
+          setReplacingVariationImage(false);
+        } else {
+          setReplacingFirstMixingImage(false);
+          setReplacingSecondMixingImage(false);
+          setUploadingFirstMixingImage(false);
+          setUploadingSecondMixingImage(false);
+        }
+      }}
     >
       <input
         type="file"
@@ -146,30 +242,27 @@ export const UploadModal = () => {
         onChange={handleFile}
       />
 
-      {/*Error message*/}
-      {showErrorAlert && (
-        <Alert variant="destructive" className="mt-4 -mb-4 relative">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error: {errorAlertMessage?.header}</AlertTitle>
-          <AlertDescription>{errorAlertMessage?.body}</AlertDescription>
-          <div
-            className="absolute top-4 right-4 cursor-pointer"
-            onClick={() => {
-              setShowErrorAlert();
-            }}
-          >
-            <X size={20} />
-          </div>
-        </Alert>
-      )}
-
       {isUploadingImage ? (
-        <div className="flex justify-center items-center w-full">
+        <div className="hidden">
           <LoaderCircle size={30} className="animate-spin" />
         </div>
       ) : (
         <DialogContent className="max-w-5xl">
           <DialogHeader>
+            {showErrorAlert && (
+              <Alert variant="destructive" className="mt-4 mb-4 relative">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error: {errorAlertMessage?.header}</AlertTitle>
+                <AlertDescription>{errorAlertMessage?.body}</AlertDescription>
+                <div
+                  className="absolute top-4 right-4 cursor-pointer"
+                  onClick={setShowErrorAlert}
+                >
+                  <X size={20} />
+                </div>
+              </Alert>
+            )}
+
             <DialogTitle
               className={cn(
                 "text-center text-md flex justify-center items-center flex-col gap-y-1 border border-dashed my-6 py-6 cursor-pointer",
@@ -179,7 +272,6 @@ export const UploadModal = () => {
               role="button"
               onClick={() => {
                 if (isUploadingImage) return;
-
                 uploadInputRef.current?.click();
               }}
             >
@@ -189,11 +281,7 @@ export const UploadModal = () => {
             </DialogTitle>
 
             <DialogDescription asChild>
-              <ScrollArea className="min-h-96 mt-2">
-                {/*
-                 * TODO: Add previous uploaded images when integrate the app with backend
-                 */}
-              </ScrollArea>
+              <ScrollArea className="min-h-96 mt-2" />
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
