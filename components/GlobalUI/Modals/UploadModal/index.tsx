@@ -249,19 +249,21 @@ export const UploadModal = () => {
       ) : (
         <DialogContent className="max-w-5xl">
           <DialogHeader>
-            {showErrorAlert && (
-              <Alert variant="destructive" className="mt-4 mb-4 relative">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error: {errorAlertMessage?.header}</AlertTitle>
-                <AlertDescription>{errorAlertMessage?.body}</AlertDescription>
-                <div
-                  className="absolute top-4 right-4 cursor-pointer"
-                  onClick={setShowErrorAlert}
-                >
-                  <X size={20} />
-                </div>
-              </Alert>
-            )}
+            {showErrorAlert &&
+              errorAlertMessage.header &&
+              errorAlertMessage.body && (
+                <Alert variant="destructive" className="mt-4 mb-4 relative">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error: {errorAlertMessage.header}</AlertTitle>
+                  <AlertDescription>{errorAlertMessage.body}</AlertDescription>
+                  <div
+                    className="absolute top-4 right-4 cursor-pointer"
+                    onClick={setShowErrorAlert}
+                  >
+                    <X size={20} />
+                  </div>
+                </Alert>
+              )}
 
             <DialogTitle
               className={cn(
