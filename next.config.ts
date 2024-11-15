@@ -11,9 +11,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        protocol: "https",
+        hostname: "d8c4cbe2y3ofj.cloudfront.net",
+      },
     ],
   },
-  // TODO: uncomment the code before push any code to the git repo
   async headers() {
     return [
       {
