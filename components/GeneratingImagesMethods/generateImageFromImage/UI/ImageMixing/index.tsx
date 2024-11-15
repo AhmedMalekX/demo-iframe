@@ -62,6 +62,7 @@ export const ImageMixing = () => {
           alt="First mixing image"
           handleReplaceImage={() => handleReplaceVariationImage(1)}
           handleDeleteImage={() => handleDeleteVariationImage(1)}
+          id={1}
         />
       ) : (
         <UploadButton uploadButtonId={1} />
@@ -78,6 +79,7 @@ export const ImageMixing = () => {
           alt="Second mixing image"
           handleReplaceImage={() => handleReplaceVariationImage(2)}
           handleDeleteImage={() => handleDeleteVariationImage(2)}
+          id={2}
         />
       ) : (
         <UploadButton uploadButtonId={2} />

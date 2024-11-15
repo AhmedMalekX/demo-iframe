@@ -41,6 +41,7 @@ interface IUploadImagesStore {
   setUploadingFirstMixingImage: (value: boolean) => void;
   replacingFirstMixingImage: boolean;
   setReplacingFirstMixingImage: (value: boolean) => void;
+
   secondMixingImage: string | null;
   setSecondMixingImage: (value: string | null) => void;
   replacingSecondMixingImage: boolean;
@@ -49,6 +50,14 @@ interface IUploadImagesStore {
   setUploadingSecondMixingImage: (value: boolean) => void;
   uploadButtonId: number | null;
   setUploadButtonId: (id: number | null) => void;
+
+  firstMixingImageSourceType: "style" | "outline";
+  secondMixingImageSourceType: "style" | "outline";
+  firstMixingImageStrength: number;
+  setFirstMixingImageStrength: (value: number) => void;
+  secondMixingImageStrength: number;
+  setSecondMixingImageStrength: (value: number) => void;
+  setMixingImageSourceType: (id: number, value: "style" | "outline") => void;
 }
 
 export const useUploadImagesModal = create<IUploadImagesStore>((set, get) => ({
@@ -90,6 +99,7 @@ export const useUploadImagesModal = create<IUploadImagesStore>((set, get) => ({
   replacingFirstMixingImage: false,
   setReplacingFirstMixingImage: (value) =>
     set({ replacingFirstMixingImage: value }),
+
   secondMixingImage: null,
   setSecondMixingImage: (value) => set({ secondMixingImage: value }),
   uploadingSecondMixingImage: false,
@@ -100,4 +110,20 @@ export const useUploadImagesModal = create<IUploadImagesStore>((set, get) => ({
     set({ replacingSecondMixingImage: value }),
   uploadButtonId: null,
   setUploadButtonId: (id: number | null) => set({ uploadButtonId: id }),
+
+  firstMixingImageSourceType: "outline",
+  secondMixingImageSourceType: "style",
+  firstMixingImageStrength: 0.7,
+  secondMixingImageStrength: 0.7,
+  setFirstMixingImageStrength: (value: number) =>
+    set({ firstMixingImageStrength: value }),
+  setSecondMixingImageStrength: (value: number) =>
+    set({ secondMixingImageStrength: value }),
+  setMixingImageSourceType: (id: number, value: "outline" | "style") =>
+    set(() => ({
+      firstMixingImageSourceType:
+        id === 1 ? value : value === "outline" ? "style" : "outline",
+      secondMixingImageSourceType:
+        id === 2 ? value : value === "outline" ? "style" : "outline",
+    })),
 }));
