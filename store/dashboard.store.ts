@@ -36,8 +36,8 @@ interface DashboardStore {
   // Generate image using another image
   selectedGenerateSimilarImage: string | null;
   setSelectedGenerateSimilarImage: (imageUrl: string | null) => void;
-  generationMethod: "Variation" | "Image Mixing";
-  setGenerationMethod: (value: "Variation" | "Image Mixing") => void;
+  generationMethod: "Variation" | "Image mixing";
+  setGenerationMethod: (value: "Variation" | "Image mixing") => void;
   generateFromImageStyleName:
     | (typeof StylesNames)[number]["styleName"]
     | undefined;
@@ -46,6 +46,8 @@ interface DashboardStore {
   ) => void;
   generateFromImageNumberOfImages: number;
   setGenerateFromImageNumberOfImages: (value: number) => void;
+  generateFromImagePrompt: string | null;
+  setGenerateFromImagePrompt: (value: string | null) => void;
 
   // Generate image using elements
   generatingMotif: boolean;
@@ -133,6 +135,9 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   generateFromImageNumberOfImages: 2,
   setGenerateFromImageNumberOfImages: (value: number) =>
     set({ generateFromImageNumberOfImages: value }),
+  generateFromImagePrompt: null,
+  setGenerateFromImagePrompt: (value: string | null) =>
+    set({ generateFromImagePrompt: value }),
 
   // Generate image using elements
   generatingMotif: false,
