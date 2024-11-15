@@ -82,8 +82,8 @@ export const Variation = () => {
   }
 
   const tooltipContent = `
-        - Be as descriptive as possible, use style names, artists names, colour scheme, vibe, etc <br />
-        - Words at the beginning of the prompt have higher effect on the final image
+        — Be as descriptive as possible, use style names, artists' names, color scheme, vibe, etc. <br />
+        — Words at the beginning of the prompt have a higher effect on the final image
   `;
 
   return (

@@ -8,6 +8,7 @@ import Image from "next/image";
  * Stores
  * */
 import { useDashboardStore } from "@/store/dashboard.store";
+import { useUploadImagesModal } from "@/store/uploadImages.store";
 
 /*
  * UI Components
@@ -18,15 +19,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+
+/*
+ * Utils
+ * */
+import { cn } from "@/lib/utils";
 
 /*
  * Icons
  * */
 import { CircleHelp, Replace, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useUploadImagesModal } from "@/store/uploadImages.store";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 
 interface IUploadedImageProps {
   imageUrl: string;

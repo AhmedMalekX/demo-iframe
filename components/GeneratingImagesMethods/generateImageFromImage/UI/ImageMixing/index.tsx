@@ -7,15 +7,26 @@ import React from "react";
  * Stores
  */
 import { useUploadImagesModal } from "@/store/uploadImages.store";
+import { useDashboardStore } from "@/store/dashboard.store";
 
 /*
  * UI Components
  */
 import { UploadButton } from "@/components/GeneratingImagesMethods/generateImageFromImage/UI/UploadButton";
 import { UploadedImage } from "@/components/GeneratingImagesMethods/generateImageFromImage/UI/UploadedImage";
+import { Prompt } from "@/components/GlobalUI/Prompt";
+
+/*
+ * Icons
+ * */
 import { LoaderCircle } from "lucide-react";
+import { NumberOfImages } from "@/components/GlobalUI/NumberOfImages";
+import { Button } from "@/components/ui/button";
 
 export const ImageMixing = () => {
+  const { generateFromImagePrompt, setGenerateFromImagePrompt } =
+    useDashboardStore();
+
   const {
     firstMixingImage,
     secondMixingImage,
@@ -48,6 +59,11 @@ export const ImageMixing = () => {
       setSecondMixingImage(null);
     }
   };
+
+  const tooltipContent = `
+        — Be as descriptive as possible, use style names, artists' names, color scheme, vibe, etc. <br />
+        — Words at the beginning of the prompt have a higher effect on the final image
+  `;
 
   return (
     <div className="my-4">
@@ -84,6 +100,32 @@ export const ImageMixing = () => {
       ) : (
         <UploadButton uploadButtonId={2} />
       )}
+
+      <div>
+        {/*prompt*/}
+        <div>
+          <Prompt
+            title="Prompt (Optional)"
+            id="prompt"
+            showGuidToGeneratePrompt={false}
+            tooltipContent={tooltipContent}
+            showTryAnExample={false}
+            value={generateFromImagePrompt || ""}
+            setValue={setGenerateFromImagePrompt}
+            placeholder="Describe your pattern elements, colors and background..."
+          />
+        </div>
+      </div>
+
+      {/*number of images*/}
+      <div className="mt-4">
+        <NumberOfImages />
+      </div>
+
+      {/*Generate button*/}
+      <Button variant="primary" size="primary" className="mt-4 w-full">
+        Generate pattern
+      </Button>
     </div>
   );
 };
