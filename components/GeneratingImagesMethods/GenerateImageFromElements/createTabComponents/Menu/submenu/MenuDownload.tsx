@@ -3,7 +3,7 @@
  * React & Next.js components
  * */
 import React, { useContext, useState } from "react";
-import * as ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 /*
  * Components
@@ -149,15 +149,18 @@ export const MenuDownload: React.FC<MenuDownloadProps> = ({
                     finalResolutonNew,
                     upScaledFactor,
                   );
-                  // eslint-disable-next-line react/no-deprecated
-                  ReactDOM.unmountComponentAtNode(container);
+                  const root = createRoot(container); // Create a root if not already created
+                  root.unmount();
                   document.body.removeChild(container);
                 }}
               />
             </AppStateContext.Provider>
           );
           // eslint-disable-next-line react/no-deprecated
-          ReactDOM.render(element, target);
+          if (target) {
+            const root = createRoot(target); // Create a root for rendering
+            root.render(element); // Render your element
+          }
         }}
       >
         Download Repeat
@@ -205,15 +208,17 @@ export const MenuDownload: React.FC<MenuDownloadProps> = ({
                     finalResolutonNew,
                     upScaledFactor,
                   );
-                  // eslint-disable-next-line react/no-deprecated
-                  ReactDOM.unmountComponentAtNode(container);
+                  const root = createRoot(container); // Create a root if not already created
+                  root.unmount();
                   document.body.removeChild(container);
                 }}
               />
             </AppStateContext.Provider>
           );
-          // eslint-disable-next-line react/no-deprecated
-          ReactDOM.render(element, target);
+          if (target) {
+            const root = createRoot(target); // Create a root for rendering
+            root.render(element); // Render your element
+          }
         }}
       >
         Download Tilable
