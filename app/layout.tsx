@@ -9,7 +9,7 @@ import { ModalProvider } from "@/components/GlobalUI/Providers/ModalProvider";
 
 const inter = Inter({
   subsets: ["latin"], // You can add other subsets if needed
-  variable: "--font-inter", // Optional, to use with CSS variables
+  variable: "--font-inter", // Optional, to use it with CSS variables
   weight: ["400", "600", "700"], // Optional: specify weights as needed
 });
 
@@ -28,8 +28,20 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased bg-appPrimaryBackground`}
       >
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;700&family=Raleway:wght@400;700&family=Roboto:wght@400;700&family=Pixelify+Sans:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <ModalProvider />
         {children}
+        <div style={{ fontFamily: "Open Sans" }}>&nbsp;</div>
+        <div style={{ fontFamily: "Roboto" }}>&nbsp;</div>
+        <div style={{ fontFamily: "Pixelify Sans" }}>&nbsp;</div>
+        <div style={{ fontFamily: "Lato" }}>&nbsp;</div>
+        <div style={{ fontFamily: "Montserrat" }}>&nbsp;</div>
+        <div style={{ fontFamily: "Raleway" }}>&nbsp;</div>
       </body>
     </html>
   );

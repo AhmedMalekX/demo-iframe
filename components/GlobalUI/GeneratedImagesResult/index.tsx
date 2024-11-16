@@ -8,6 +8,7 @@ import Image from "next/image";
  * Stores
  * */
 import { useDashboardStore } from "@/store/dashboard.store";
+import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
 
 /*
  * UI Components
@@ -33,6 +34,7 @@ export const GeneratedImagesResult = ({ images }: IGeneratedImagesResult) => {
 
   const [isMounted, setIsMounted] = useState(false);
 
+  const { setActiveGeneratingMethod } = useActiveGeneratingMethodStore();
   const { selectedPreviewImage, setSelectedPreviewImage } = useDashboardStore();
 
   useEffect(() => {
@@ -73,6 +75,7 @@ export const GeneratedImagesResult = ({ images }: IGeneratedImagesResult) => {
           className="cursor-pointer"
           onClick={() => {
             setSelectedPreviewImage(image.url);
+            setActiveGeneratingMethod("From text");
           }}
         >
           <Image

@@ -24,6 +24,9 @@ import {
  * Icons
  * */
 import { RefreshCw } from "lucide-react";
+import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
+import { EditorPreview } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabComponents/EditorPreview";
+import { CONFIG } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabData/constants";
 
 interface IGeneratedImagePreview {
   url: string | null;
@@ -31,6 +34,18 @@ interface IGeneratedImagePreview {
 
 export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
   const { imagePreviewZoom, selectedMockup } = useDashboardStore();
+  const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
+
+  const [finalResoluton] = useState(CONFIG.STARTING_REPEAT_CANVAS_RESOLUTION);
+
+  const [pan] = useState({
+    x: 0,
+    y: 0,
+  });
+
+  const [previewZoom] = useState(1);
+
+  const [zoom] = useState(0.5);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -46,9 +61,22 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
     );
   }
 
+  if (activeGeneratingMethod === "From elements") {
+    return (
+      <div className="flex w-full justify-center h-[500px] max-h-[500px] overflow-hidden">
+        <EditorPreview
+          finalResoluton={finalResoluton}
+          pan={pan}
+          previewZoom={previewZoom}
+          zoom={zoom}
+        />
+      </div>
+    );
+  }
+
   if (!url)
     return (
-      <div className="flex w-full items-center justify-center h-[500px]">
+      <div className="flex items-center justify-center h-[500px] w-full">
         <h3 className="text-2xl font-semibold text-gray-500 text-center select-none">
           Image preview
         </h3>
