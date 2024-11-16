@@ -95,7 +95,16 @@ export const MenuSpacingControl = () => {
     dispatch({
       type: "CHANGE_SPACING",
       sizePosition: objectListRef.current
-        .filter((object) => (object as any).isBleedingElement !== true)
+        .filter(
+          (object) =>
+            !(
+              object as fabric.Object<
+                Partial<fabric.FabricObjectProps>,
+                fabric.SerializedObjectProps,
+                fabric.ObjectEvents
+              > & { isBleedingElement: boolean }
+            ).isBleedingElement,
+        )
         .map((object) => {
           return {
             size: {

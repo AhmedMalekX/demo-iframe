@@ -3,7 +3,7 @@ import { Position } from "../../../types";
 import { ISnapper } from "./ISnapper";
 
 export class NoSnapper implements ISnapper {
-  snap(soCenter: { left: number; top: number }):
+  snap():
     | {
         position: Position;
         object: fabric.Object;

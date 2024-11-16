@@ -6,6 +6,7 @@ import { CenterSnapper } from "./Snapping/CenterSnapper";
 import { NoSnapper } from "./Snapping/NoSnapper";
 import { GuideLineDrawUtil } from "./Snapping/GuideLineDrawUtil";
 import { MaxBounds, IMaxBound } from "./MaxBounds";
+import { FabricObjectProps, ObjectEvents, SerializedObjectProps } from "fabric";
 
 type Line = {
   start: Position;
@@ -65,6 +66,8 @@ export class SelectionManager {
     this.canvas.on("selection:updated", this.onSelection);
     this.canvas.on("selection:cleared", this.onSelection);
     this.canvas.on("object:moving", this.onMoving);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     this.canvas.on("mouse:down", this.onMouseDown);
     this.canvas.on("before:render", this.onBeforeRender);
     this.canvas.on("after:render", this.onAfterRender);
@@ -93,7 +96,7 @@ export class SelectionManager {
   }
 
   onSelection() {
-    let selection = this.canvas?.getActiveObject();
+    const selection = this.canvas?.getActiveObject();
     if (selection) {
       const selectedObject = selection;
       const id = selectedObject.get("elementId");
@@ -173,7 +176,7 @@ export class SelectionManager {
         left: this.startBOCenter.left + mouseOffset.left,
         top: this.startBOCenter.top + mouseOffset.top,
       };
-      let snapResult = snapper.snap(newBOCenter);
+      const snapResult = snapper.snap(newBOCenter);
 
       if (snapResult) {
         const { position } = snapResult;
@@ -189,8 +192,8 @@ export class SelectionManager {
       newPosition = maxBounds.getPosition(newPosition);
       selectedObject.set({ left: newPosition.left, top: newPosition.top });
       selectedObject.setCoords();
-      let changeX = newPosition.left - startPosition.left;
-      let changeY = newPosition.top - startPosition.top;
+      const changeX = newPosition.left - startPosition.left;
+      const changeY = newPosition.top - startPosition.top;
 
       if (originalObject) {
         originalObject.object.set({
@@ -296,7 +299,15 @@ export class SelectionManager {
     ctx.restore();
   }
 
-  onMouseDown(e: any) {
+  onMouseDown(e: {
+    target:
+      | fabric.Object<
+          Partial<FabricObjectProps>,
+          SerializedObjectProps,
+          ObjectEvents
+        >
+      | undefined;
+  }) {
     if (e.target === this.starterSnapshot?.selectedObject) {
       this.onSelection();
     }

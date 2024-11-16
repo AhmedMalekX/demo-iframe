@@ -1,4 +1,4 @@
-import { AppState } from "@/app/(routes)/dashboard/_createTab/_hooks/AppState";
+import { AppState } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabHooks/AppState";
 import { EditorElement } from "../types";
 import * as fabric from "fabric";
 
@@ -6,7 +6,7 @@ const ICONS_STRING = {
   rotate: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHYSURBVFhH7da7L2ZBHMbxt7XERifisonOFqKQdalcsv+QuAXREbuuoVCJbLEdcY3gTyAq61IRUaBwSWi24fu83jcZY845M294NZ7kk4yTc35nzJmZd1KfCUwBWtCDOSxhOdPuRSt0T06pxRDK0n+9TAWGcYLHBKcYQSWCsgoVOEK5LmTSgRvYL0pyiy54Zx3Zh4/xAwvGtVyp7lckJjsCvq5wkKG2656sHRQjNj4d0KcYQxPM/0rtZkxCQ+96dhOxievAf/yFz8T6hkW46nQiMnEd0H9eipBMwa7zANcqSyfpExzCXB0+WYFd5zecWYN9s01LVEPsG43aHcwaF3BuVpok5o1RZhCSCdg12vAq2ka1tWrdajRsuq59oQ4hqYfdgX7kLYWw94k/yGv2YXZAEz6v+dAOfPgncE3CAeQt3svwPRK0EblSg8HnZk7Rcc18uURuxXaqcQY9NK0LgXENfeyPkZnv0NnOfFi7oM6GSalC1Ekq9ufYzCxcBa4xigaYJxy1GzGOqAPJFryjybMHV6GsS/zLSDqS7cLrXGimBNtwFQyxgeCXm9GmcQ9X8Tj6FN14k2hF6MB5DtfLTFo5v6DJ+OYpwk/0YR46conautaOL/iMZ1KpJ4+IPb0lrre8AAAAAElFTkSuQmCC`,
 };
 
-let rotateImage: any = null;
+let rotateImage = null;
 
 if (typeof window !== "undefined") {
   rotateImage = new window.Image();
@@ -72,10 +72,10 @@ function renderIcon(icon: HTMLImageElement) {
     ctx: CanvasRenderingContext2D,
     left: number,
     top: number,
-    styleOverride: any,
-    fabricObject: any,
+    styleOverride: never,
+    fabricObject: fabric.Object,
   ) {
-    var size = this.sizeX;
+    const size = this.sizeX;
     ctx.save();
     ctx.translate(left, top);
     ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
@@ -89,7 +89,7 @@ function renderIcon(icon: HTMLImageElement) {
     ctx.fill();
     ctx.closePath();
 
-    // draw border around circle
+    // draw border around the circle
     ctx.beginPath();
     ctx.arc(0, 0, size / 2, 0, 2 * Math.PI, false);
     ctx.lineWidth = 1;
@@ -143,7 +143,7 @@ const objectControls = (rotation: boolean, isText: boolean) => {
             mtr: new fabric.Control({
               x: 0,
               y: 0.5,
-              render: renderIcon(ICONS.rotate),
+              render: renderIcon(ICONS.rotate!),
               actionHandler: fabric.controlsUtils.rotationWithSnapping,
               sizeX: 20,
               sizeY: 20,
@@ -186,7 +186,7 @@ const objectControls = (rotation: boolean, isText: boolean) => {
           mtr: new fabric.Control({
             x: 0,
             y: 0.5,
-            render: renderIcon(ICONS.rotate),
+            render: renderIcon(ICONS.rotate!),
             actionHandler: fabric.controlsUtils.rotationWithSnapping,
             sizeX: 20,
             sizeY: 20,
@@ -362,13 +362,13 @@ export function getObjectForElement(element: EditorElement): fabric.Object {
     });
     assignControls(fabricImage);
     fabricImage.scaleToHeight(element.size.height);
-    let scaleY = fabricImage.scaleY;
+    const scaleY = fabricImage.scaleY;
     fabricImage.scaleToWidth(element.size.width);
     fabricImage.scaleY = scaleY;
     fabricImage.angle = element.rotation;
     return fabricImage;
   } else if (element.type === "ai-motif") {
-    const imgElement = (element.properties as any).imgElement;
+    const imgElement = element.properties.imgElement;
     const fabricImage = new fabric.Image(imgElement, {
       top: element.position.top,
       left: element.position.left,
@@ -382,7 +382,7 @@ export function getObjectForElement(element: EditorElement): fabric.Object {
     });
     assignControls(fabricImage, false);
     fabricImage.scaleToHeight(element.size.height);
-    let scaleY = fabricImage.scaleY;
+    const scaleY = fabricImage.scaleY;
     fabricImage.scaleToWidth(element.size.width);
     fabricImage.scaleY = scaleY;
     fabricImage.angle = element.rotation;

@@ -11,7 +11,7 @@ export type OpacitySliderProps = {
 
 export const OpacitySlider = (props: OpacitySliderProps) => {
   useEffect(() => {
-    const dismiss = (e: MouseEvent) => {
+    const dismiss = () => {
       props.dismiss();
     };
     window.addEventListener("click", dismiss);
@@ -26,10 +26,12 @@ export const OpacitySlider = (props: OpacitySliderProps) => {
     setOpacity(props.opacity);
     props.onStart(opacity);
   }
+
   function onEnd() {
     props.onEnd(opacity);
   }
-  function onUpdate(event: any) {
+
+  function onUpdate(event: { target: { value: string } }) {
     const opacity = parseFloat(event.target.value);
     setOpacity(opacity);
     props.onUpdate(opacity);

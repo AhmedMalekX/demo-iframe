@@ -7,6 +7,7 @@ export class CenterSnapper implements ISnapper {
     center: Position;
     object: fabric.Object;
   }[] = [];
+
   constructor(
     private snappingCenterDistance: number,
     private canvas: fabric.Canvas,
@@ -32,6 +33,7 @@ export class CenterSnapper implements ISnapper {
       });
     });
   }
+
   snap(soCenter: { left: number; top: number }):
     | {
         position: Position;
@@ -47,7 +49,7 @@ export class CenterSnapper implements ISnapper {
         }
       | undefined = undefined;
     let minDistance = this.snappingCenterDistance * 2;
-    let snappingAxisDistance = this.snappingCenterDistance / 2;
+    const snappingAxisDistance = this.snappingCenterDistance / 2;
     this.positions.forEach(({ center: oCenter, object }) => {
       const distance = Math.sqrt(
         Math.pow(soCenter.left - oCenter.left, 2) +

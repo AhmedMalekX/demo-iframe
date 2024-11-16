@@ -82,7 +82,7 @@ export const TextElementProperty: React.FC<TextElementPropertyProps> = (
   //   props.editorElement.properties;
   const {
     color: originalColor,
-    properties: { fontFamily, fontSize, textAlign, fontWeight },
+    properties: { fontSize },
   } = props.editorElement;
   const [inputFontSize, setInputFontSize] = useState(fontSize);
   const [displayColor, setDisplayColor] = useState(false);
@@ -314,7 +314,7 @@ export const TextElementProperty: React.FC<TextElementPropertyProps> = (
                     text:
                       (props.editorElement.fabricObject as fabric.Text)?.text ??
                       props.editorElement.properties.text,
-                    fontFamily: value as any,
+                    fontFamily: value as never,
                   },
                 },
                 setSelection: true,

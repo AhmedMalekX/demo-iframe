@@ -29,7 +29,7 @@ export class ModifiedObject {
     this.canvas.off("mouse:up", this.onMouseUp);
   }
 
-  onMouseUp(e: fabric.TPointerEventInfo) {
+  onMouseUp() {
     const selectedObject = this.canvas.getActiveObject();
     const id = selectedObject?.get("elementId");
     // this.selectObject(id ?? null);

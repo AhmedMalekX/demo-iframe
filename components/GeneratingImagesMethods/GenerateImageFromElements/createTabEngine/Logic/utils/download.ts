@@ -48,7 +48,7 @@ export const resizeImage = (
   dimension: Size,
   upScaleFactor: number,
 ) => {
-  var c = document.createElement("canvas");
+  const c = document.createElement("canvas");
   c.width = dimension.width / upScaleFactor;
   c.height = dimension.height / upScaleFactor;
   const context = c.getContext("2d");
@@ -76,8 +76,8 @@ export const downloadCanvasBlob = (
   upscaleFactor: number,
 ) => {
   // Create a temporary canvas to apply resizing and antialiasing
-  var tempCanvas = document.createElement("canvas");
-  var ctx = tempCanvas.getContext("2d");
+  const tempCanvas = document.createElement("canvas");
+  const ctx = tempCanvas.getContext("2d");
   if (!ctx) {
     throw new Error("Context is null");
   }
@@ -87,7 +87,7 @@ export const downloadCanvasBlob = (
   tempCanvas.height = dimension.height / upscaleFactor; // Increase for higher resolution
 
   // Ensure the temporary canvas is scaled back down for display
-  // anti-aliasing
+  // antialiasing
   ctx.imageSmoothingEnabled = true;
 
   // Draw the original canvas onto the temporary one with resizing

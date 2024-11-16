@@ -36,18 +36,16 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
   const { imagePreviewZoom, selectedMockup } = useDashboardStore();
   const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
 
-  const [finalResoluton, setFinalResoluton] = useState(
-    CONFIG.STARTING_REPEAT_CANVAS_RESOLUTION,
-  );
+  const [finalResoluton] = useState(CONFIG.STARTING_REPEAT_CANVAS_RESOLUTION);
 
-  const [pan, setPan] = useState({
+  const [pan] = useState({
     x: 0,
     y: 0,
   });
 
-  const [previewZoom, setPreviewZoom] = useState(1);
+  const [previewZoom] = useState(1);
 
-  const [zoom, setZoom] = useState(0.5);
+  const [zoom] = useState(0.5);
 
   const [isMounted, setIsMounted] = useState(false);
 

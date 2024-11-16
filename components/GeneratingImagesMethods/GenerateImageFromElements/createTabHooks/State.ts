@@ -5,10 +5,10 @@ import {
   AppState as AppStateInner,
   AppStateUtils,
 } from "./AppState";
-import { EditorElement } from "@/app/(routes)/dashboard/_createTab/_Engine/types";
+import { EditorElement } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabEngine/types";
 import { Object as FabricObject } from "fabric";
 
-// type AppState  = AppState;
+// type AppState = AppState;
 
 export type AppState = AppStateInner;
 
@@ -80,7 +80,7 @@ function undoRedoReducer(state: UndoRedoState, action: Action): UndoRedoState {
 }
 
 export class StateNormaliser {
-  static DeepRecusriveCompare(a: any, b: any): boolean {
+  static DeepRecusriveCompare<T>(a: T, b: T): boolean {
     if (a === b) {
       return true;
     }
@@ -93,7 +93,12 @@ export class StateNormaliser {
     if (typeof a !== typeof b) {
       return false;
     }
-    if (typeof a !== "object") {
+    if (
+      typeof a !== "object" ||
+      typeof b !== "object" ||
+      a === null ||
+      b === null
+    ) {
       return false;
     }
     if (Array.isArray(a)) {
@@ -105,15 +110,12 @@ export class StateNormaliser {
       }
       return a.every((v, i) => StateNormaliser.DeepRecusriveCompare(v, b[i]));
     }
-    if (a === null || b === null) {
+    const aKeys = Object.keys(a) as Array<keyof T>;
+    const bKeys = Object.keys(b) as Array<keyof T>;
+    if (aKeys.length !== bKeys.length) {
       return false;
     }
-    if (Object.keys(a).length !== Object.keys(b).length) {
-      return false;
-    }
-    return Object.keys(a).every((k) =>
-      StateNormaliser.DeepRecusriveCompare(a[k], b[k]),
-    );
+    return aKeys.every((k) => StateNormaliser.DeepRecusriveCompare(a[k], b[k]));
   }
 
   static DeepCompareStates(
@@ -123,6 +125,7 @@ export class StateNormaliser {
     const result = StateNormaliser.DeepRecusriveCompare(state1, state2);
     return result;
   }
+
   static Normalize(state: AppStateInner): AppStateInner {
     return {
       ...state,

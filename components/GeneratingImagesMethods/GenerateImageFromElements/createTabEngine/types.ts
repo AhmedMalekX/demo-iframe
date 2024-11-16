@@ -40,12 +40,12 @@ export interface ImageElement extends BaseElement {
 
 export interface RectElement extends BaseElement {
   type: "rect";
-  properties: {};
+  properties: object;
 }
 
 export interface CircleElement extends BaseElement {
   type: "circle";
-  properties: {};
+  properties: object;
 }
 
 export interface TextElement extends BaseElement {

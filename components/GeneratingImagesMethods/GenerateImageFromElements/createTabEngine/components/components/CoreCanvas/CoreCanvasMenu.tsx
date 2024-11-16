@@ -274,16 +274,16 @@ function forceMenuInCoreCanvas(
   }
 }
 
-export async function AiGenerateRequest(prompt: string): Promise<string> {
-  // placeholder image
-  return new Promise((res, rej) => {
-    setTimeout(() => {
-      const seed = Math.floor(Math.random() * 1000);
-      res(`https://picsum.photos/seed/${seed}/800`);
-      // res('https://via.placeholder.com/150');
-    }, 2000);
-  });
-}
+// export async function AiGenerateRequest(prompt: string): Promise<string> {
+//   // placeholder image
+//   return new Promise((res, rej) => {
+//     setTimeout(() => {
+//       const seed = Math.floor(Math.random() * 1000);
+//       res(`https://picsum.photos/seed/${seed}/800`);
+//       // res('https://via.placeholder.com/150');
+//     }, 2000);
+//   });
+// }
 
 const convertToImage = (
   url: string,
@@ -307,7 +307,7 @@ const convertToImage = (
 export async function convertToImageAsync(
   url: string,
 ): Promise<HTMLImageElement> {
-  return new Promise((res, rej) => {
+  return new Promise((res) => {
     convertToImage(url, (img) => {
       res(img);
     });

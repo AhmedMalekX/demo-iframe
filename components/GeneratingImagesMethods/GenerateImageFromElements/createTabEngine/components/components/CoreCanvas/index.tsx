@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useRef, FC } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import * as fabric from "fabric";
 import {
   generateFabricCanvasFromAppState,
