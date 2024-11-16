@@ -8,8 +8,8 @@ import React from "react";
 /*
  * Hooks
  * */
-import { useAppStateContext } from "@/app/(routes)/dashboard/_createTab/_hooks/AppContextProvider";
-import { AppStateUtils } from "@/app/(routes)/dashboard/_createTab/_hooks/AppState";
+import { useAppStateContext } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabHooks/AppContextProvider";
+import { AppStateUtils } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabHooks/AppState";
 
 // Placeholder functions for saving and loading app state
 
