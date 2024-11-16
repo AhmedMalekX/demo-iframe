@@ -149,13 +149,15 @@ export const MenuDownload: React.FC<MenuDownloadProps> = ({
                     finalResolutonNew,
                     upScaledFactor,
                   );
-                  (ReactDOM as any).unmountComponentAtNode(container);
+                  // eslint-disable-next-line react/no-deprecated
+                  ReactDOM.unmountComponentAtNode(container);
                   document.body.removeChild(container);
                 }}
               />
             </AppStateContext.Provider>
           );
-          (ReactDOM as any).render(element, target);
+          // eslint-disable-next-line react/no-deprecated
+          ReactDOM.render(element, target);
         }}
       >
         Download Repeat
@@ -203,13 +205,15 @@ export const MenuDownload: React.FC<MenuDownloadProps> = ({
                     finalResolutonNew,
                     upScaledFactor,
                   );
-                  (ReactDOM as any).unmountComponentAtNode(container);
+                  // eslint-disable-next-line react/no-deprecated
+                  ReactDOM.unmountComponentAtNode(container);
                   document.body.removeChild(container);
                 }}
               />
             </AppStateContext.Provider>
           );
-          (ReactDOM as any).render(element, target);
+          // eslint-disable-next-line react/no-deprecated
+          ReactDOM.render(element, target);
         }}
       >
         Download Tilable
