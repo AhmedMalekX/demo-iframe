@@ -1,0 +1,80 @@
+.AiMotifPromptCoreCanvas {
+  background-color: #ffffff;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5);
+  /* modern black */
+  border-radius: 10px;
+  /* rounded corners */
+  padding: 8px;
+  /* spacing */
+  color: white;
+  /* white text */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.AiMotifPromptCoreCanvas input {
+  font-size: 12px;
+  color: black;
+  background-color: #ffffff;
+  outline: none;
+  border: none;
+  font-weight: bold;
+  padding: 5px;
+  border: 1px solid #8b3dff;
+  border-radius: 5px;
+}
+
+.AiMotifPromptCoreCanvas input:focus {
+  border: 1px solid #8b3dff;
+}
+
+.AiMotifPromptCoreCanvas input:disabled {
+  background-color: #888;
+  color: white;
+}
+
+.AiMotifPromptCoreCanvas button {
+  font-size: 14px;
+  padding: 4px;
+  min-width: 0;
+  min-height: 0;
+  border: none;
+  border-radius: 5px;
+  /* margin-left: 5px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.anim-rotation {
+  animation: rotation 2s linear infinite;
+}
+
+.AiMotifPromptCoreCanvas button:disabled {
+  background-color: #888;
+  color: white;
+}
+
+.AiMotifPromptCoreCanvas button:not(:disabled) {
+  /* background-color: #4caf50; */
+  /* green */
+  /* color: white; */
+}
+
+button .icon {
+  margin-left: 5px;
+}

@@ -1,0 +1,95 @@
+.core-floating-card {
+    background-color: white;
+    box-shadow: 0 0 0 1px rgba(64, 87, 109, .07), 0 2px 12px rgba(53, 71, 90, .2);
+    border-radius: 4px;
+}
+
+
+
+.core-canvas-menu-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 2px;
+    gap: 4px;
+    transform: translate(-50%, -50%);
+    height: 32px;
+}
+
+.core-canvas-menu-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.core-canvas-menu-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.core-canvas-action-menu-container {
+    background-color: white;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    padding: 4px;
+    gap: 4px;
+}
+
+.core-canvas-action-menu-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 2px;
+    gap: 2px;
+    cursor: pointer;
+}
+
+.core-canvas-action-menu-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.core-canvas-action-menu-button[data-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.core-canvas-action-menu-button .label {
+    padding-left: 8px;
+    font-size: 10px;
+    text-wrap: nowrap;
+}
+
+
+.opacity-slider {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    padding: 4px;
+}
+
+.opacity-slider .top-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.opacity-slider .top-row input {
+    width: 40px;
+    font-size: 14px;
+}
+
+.opacity-slider .bottom-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
