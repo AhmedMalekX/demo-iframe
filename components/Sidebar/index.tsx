@@ -12,6 +12,7 @@ import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
  * */
 import { GenerateImageFromText } from "../GeneratingImagesMethods/GenerateImageFromText";
 import { GenerateImageFromImage } from "@/components/GeneratingImagesMethods/generateImageFromImage";
+import { GenerateImageFromElements } from "@/components/GeneratingImagesMethods/GenerateImageFromElements";
 
 export const Sidebar = () => {
   const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
@@ -23,7 +24,9 @@ export const Sidebar = () => {
       <div className="mt-6">
         {activeGeneratingMethod === "From text" && <GenerateImageFromText />}
         {activeGeneratingMethod === "From image" && <GenerateImageFromImage />}
-        {activeGeneratingMethod === "From elements" && <div>From elements</div>}
+        {activeGeneratingMethod === "From elements" && (
+          <GenerateImageFromElements />
+        )}
       </div>
     </aside>
   );

@@ -27,6 +27,7 @@ import { GeneratedImages } from "@/components/GeneratedImages";
  * Icons
  * */
 import { LoaderCircle } from "lucide-react";
+import { AppStateProvider } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabHooks/AppContextProvider";
 
 export default function Parent() {
   // handle hydration state
@@ -65,33 +66,35 @@ export default function Parent() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto py-10">
-      {/*Tabs*/}
-      <HydrationWrapper loadingSkeletonClasses="h-[50px] w-full">
-        <TopBar />
-      </HydrationWrapper>
+    <AppStateProvider>
+      <main className="max-w-7xl mx-auto py-10">
+        {/*Tabs*/}
+        <HydrationWrapper loadingSkeletonClasses="h-[50px] w-full">
+          <TopBar />
+        </HydrationWrapper>
 
-      {activeTab === "Current" && (
-        <div className="mt-8 mx-auto w-full grid grid-cols-1 gap-y-4 md:grid-cols-3 md:gap-y-0 md:gap-x-4 lg:grid-cols-12">
-          <div className="md:col-span-1 lg:col-span-4 relative z-50">
-            <HydrationWrapper
-              loadingSkeletonClasses="h-[500px] w-full"
-              wrapperClasses="md:cols-1 lg:col-span-3"
-            >
-              <Sidebar />
-            </HydrationWrapper>
-          </div>
+        {activeTab === "Current" && (
+          <div className="mt-8 mx-auto w-full grid grid-cols-1 gap-y-4 md:grid-cols-3 md:gap-y-0 md:gap-x-4 lg:grid-cols-12">
+            <div className="md:col-span-1 lg:col-span-4 relative z-50">
+              <HydrationWrapper
+                loadingSkeletonClasses="h-[500px] w-full"
+                wrapperClasses="md:cols-1 lg:col-span-3"
+              >
+                <Sidebar />
+              </HydrationWrapper>
+            </div>
 
-          <div className="md:col-span-2 lg:col-span-8 relative z-0">
-            <HydrationWrapper
-              loadingSkeletonClasses="h-[500px] w-full"
-              wrapperClasses="md:cols-2 lg:col-span-9"
-            >
-              <GeneratedImages />
-            </HydrationWrapper>
+            <div className="md:col-span-2 lg:col-span-8 relative z-0">
+              <HydrationWrapper
+                loadingSkeletonClasses="h-[500px] w-full"
+                wrapperClasses="md:cols-2 lg:col-span-9"
+              >
+                <GeneratedImages />
+              </HydrationWrapper>
+            </div>
           </div>
-        </div>
-      )}
-    </main>
+        )}
+      </main>
+    </AppStateProvider>
   );
 }
