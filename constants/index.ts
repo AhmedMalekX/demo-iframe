@@ -1,9 +1,9 @@
 /*
  * Types
  * */
-import { ITabs, IGeneratingImagesMethods } from "@/types";
+import { IGeneratingImagesMethods } from "@/types";
 
-export const Tabs: ITabs[] = ["Current", "Your history", "Your favorite"];
+// export const Tabs: ITabs[] = ["Current", "Your history", "Your favorite"];
 
 export const GeneratingImagesMethods: IGeneratingImagesMethods[] = [
   "From text",
