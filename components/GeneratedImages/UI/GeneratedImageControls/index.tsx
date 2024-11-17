@@ -17,7 +17,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 
 /*
  * Icons
@@ -73,10 +72,13 @@ export const GeneratedImageControls = () => {
       <div>
         <Popover>
           <PopoverTrigger>
-            <Button variant="primary" className="rounded-2xl">
+            <p
+              className="flex items-center gap-x-2 h-9 px-4 py-2 rounded-2xl bg-[#8920ce] text-white shadow hover:bg-[#8920ce]/90"
+              role="button"
+            >
               <Download />
               <span>Download</span>
-            </Button>
+            </p>
           </PopoverTrigger>
           <PopoverContent align="end">Download options!</PopoverContent>
         </Popover>
