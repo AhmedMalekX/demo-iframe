@@ -11,7 +11,6 @@ import { useDashboardStore } from "@/store/dashboard.store";
 /*
  * UI components
  * */
-import { AdvancedOptions } from "@/components/GeneratingImagesMethods/UI/AdvancedOptions";
 import { Button } from "@/components/ui/button";
 
 /*
@@ -20,14 +19,13 @@ import { Button } from "@/components/ui/button";
 import { Styles } from "@/components/GlobalUI/Styles";
 import { NumberOfImages } from "@/components/GlobalUI/NumberOfImages";
 import { Prompt } from "@/components/GlobalUI/Prompt";
-import { RequiredCredits } from "@/components/GlobalUI/RequiredCredits";
 
 export const GenerateImageFromText = () => {
   const { prompt, setPrompt } = useDashboardStore();
 
   const tooltipContent = `
-        - Be as descriptive as possible, use style names, artists names, colour scheme, vibe, .. etc <br />
-        - Words at the beginning of the prompt have higher effect on the final image
+        — Be as descriptive as possible, use style names, artists' names, color scheme, vibe, etc. <br />
+        — Words at the beginning of the prompt have a higher effect on the final image
   `;
 
   return (
@@ -52,16 +50,8 @@ export const GenerateImageFromText = () => {
       {/*Number of images*/}
       <NumberOfImages />
 
-      <hr className="mt-6" />
-
-      {/*Advanced options*/}
-      <AdvancedOptions />
-
-      {/*Required credits*/}
-      <RequiredCredits />
-
       {/*Generate button*/}
-      <Button variant="primary" size="primary" className="my-4 w-full">
+      <Button variant="primary" size="primary" className="mb-4 mt-5 w-full">
         Generate pattern
       </Button>
     </div>
