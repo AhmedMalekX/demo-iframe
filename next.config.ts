@@ -39,17 +39,21 @@ const nextConfig: NextConfig = {
   // Production
 
   async headers() {
+    const parentUrl =
+      process.env.NODE_ENV === "production"
+        ? "https://dev-demo-iframe-parent.vercel.app"
+        : "http://localhost:3000";
     return [
       {
         source: "/:path*",
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: `${process.env.NEXT_PUBLIC_PARENT_SITE_URL}`,
+            value: parentUrl,
           },
           {
             key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' ${process.env.NEXT_PUBLIC_PARENT_SITE_URL}`,
+            value: `frame-ancestors 'self' ${parentUrl}`,
           },
         ],
       },
