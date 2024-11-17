@@ -45,11 +45,11 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://dev-demo-iframe-parent.vercel.app",
+            value: "https://dev-demo-iframe-parent.vercel.app/",
           },
           {
             key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' https://dev-demo-iframe-parent.vercel.app`,
+            value: `frame-ancestors 'self' https://dev-demo-iframe-parent.vercel.app/`,
           },
         ],
       },
