@@ -20,16 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
  * */
 import { cn } from "@/lib/utils";
 
-/*
- * Types
- * */
-import { IImage } from "@/types";
-
-interface IGeneratedImagesResult {
-  images: IImage[];
-}
-
-export const GeneratedImagesResult = ({ images }: IGeneratedImagesResult) => {
+export const GeneratedImagesResult = () => {
   const defaultGeneratedImagesNumber = new Array(4).fill(0);
 
   const [isMounted, setIsMounted] = useState(false);
@@ -57,14 +48,6 @@ export const GeneratedImagesResult = ({ images }: IGeneratedImagesResult) => {
         ))}
       </div>
     );
-
-  /*
-   * TODO:
-   *  1- Get the actual generated images from zustand storage
-   *  2- Display the actual generated images
-   *  3- Handle the case when there is no images ✅
-   *  4- Add functionality to select image and update the image preview ✅
-   * */
 
   if (!submittingFormToGetData && !generatedImages) {
     return (
