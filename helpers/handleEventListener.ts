@@ -10,6 +10,8 @@ export const handleEventListener = async (event: MessageEvent) => {
   ) {
     console.log("Message received from child:", event.data);
 
+    let token: string | null = null;
+
     if (event.data.message === "accessToken") {
       const receivedAccessToken = event.data.token;
 
@@ -38,12 +40,17 @@ export const handleEventListener = async (event: MessageEvent) => {
                 },
                 event.origin,
               );
+
+              token = null;
             } else {
               throw new Error(data.message || "Invalid access token");
             }
           } else {
             // logMessage("Access token is valid.");
+            token = receivedAccessToken;
           }
+
+          return token;
         } catch (error) {
           console.log({ error });
           // logMessage(

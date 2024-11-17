@@ -4,6 +4,7 @@ export type IGeneratingImagesMethods =
   | "From elements";
 
 export type IImage = {
-  url: string;
-  alt: string;
+  imgFileUrl: string;
+  imgUrl: string;
+  uiid: string;
 };

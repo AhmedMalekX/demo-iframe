@@ -6,9 +6,14 @@
 import React, { useEffect, useRef, useState } from "react";
 
 /*
+ * Stores
+ * */
+import { useAccessTokenStore } from "@/store/accessToken.store";
+
+/*
  * Helpers
  * */
-// import { handleEventListener } from "@/helpers";
+import { handleEventListener } from "@/helpers";
 
 /*
  * Components
@@ -28,6 +33,8 @@ export default function Parent() {
   const [isMounted, setIsMounted] = useState(false);
   const isComponentMounted = useRef(false);
 
+  const { setAccessToken, accessToken } = useAccessTokenStore();
+
   useEffect(() => {
     isComponentMounted.current = true;
     setIsMounted(true);
@@ -37,16 +44,22 @@ export default function Parent() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (!isMounted) return;
-  //
-  //   // Async handler for incoming messages
-  //   window.addEventListener("message", handleEventListener);
-  //
-  //   return () => {
-  //     window.removeEventListener("message", handleEventListener);
-  //   };
-  // }, [isMounted]);
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // Async handler for incoming messages
+    window.addEventListener("message", async (event) => {
+      const token = await handleEventListener(event);
+
+      if (token) {
+        setAccessToken(token);
+      }
+    });
+
+    return () => {
+      window.removeEventListener("message", handleEventListener);
+    };
+  }, [isMounted, setAccessToken, accessToken]);
 
   if (!isMounted) {
     return (
