@@ -41,15 +41,16 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*", // Apply to all routes
+        source: "/:path*",
         headers: [
           {
-            key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' https://dev-demo-iframe.vercel.app https://demo-iframe-ten.vercel.app https://demo-iframe-green.vercel.app https://dev-demo-iframe-parent.vercel.app`,
+            key: "Access-Control-Allow-Origin",
+            value: "https://demo-iframe-parent-roan.vercel.app/",
           },
           {
-            key: "Access-Control-Allow-Origin",
-            value: "https://dev-demo-iframe-parent.vercel.app", // Allow requests from this domain
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://demo-iframe-parent-roan.vercel.app/",
           },
         ],
       },
