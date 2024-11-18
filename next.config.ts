@@ -5,6 +5,8 @@ const parentURL =
     ? "http://localhost:3000"
     : "https://dev-demo-iframe.vercel.app/";
 
+const currentHost = "https://dev-demo-iframe.vercel.app/";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -54,7 +56,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' ${parentURL}`,
+            value: `frame-ancestors 'self' ${parentURL} ${currentHost}`,
           },
         ],
       },
