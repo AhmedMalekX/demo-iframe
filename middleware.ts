@@ -3,11 +3,11 @@ import { NextResponse } from "next/server";
 export function middleware() {
   const res = NextResponse.next();
 
-  console.log({ child: process.env.NEXT_PUBLIC_PARENT_SITE_URL });
+  console.log({ child: process.env.CHILD_SITE_URL });
 
   res.headers.set(
     "Access-Control-Allow-Origin",
-    process.env.NEXT_PUBLIC_PARENT_SITE_URL || "http://localhost:3000",
+    process.env.CHILD_SITE_URL || "http://localhost:3000",
   );
   res.headers.set(
     "Access-Control-Allow-Methods",
