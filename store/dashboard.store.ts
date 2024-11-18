@@ -7,6 +7,7 @@ import { create } from "zustand";
  * Constants
  * */
 import { StylesNames } from "@/constants";
+import { IImage } from "@/types";
 
 interface DashboardStore {
   // General options
@@ -30,8 +31,6 @@ interface DashboardStore {
   ) => void;
   generateFromTextNumberOfImages: number;
   setGenerateFromTextNumberOfImages: (value: number) => void;
-  negativePrompt: string | undefined;
-  setNegativePrompt: (value: string | undefined) => void;
 
   // Generate image using another image
   selectedGenerateSimilarImage: string | null;
@@ -64,14 +63,23 @@ interface DashboardStore {
   setShowLoadingCards: (value: boolean) => void;
   showGeneratedImages: boolean;
   setShowGeneratedImages: (value: boolean) => void;
+  generatedImages: {
+    imgs_dict_list: IImage[];
+    metadata: {
+      img_height: number;
+      img_width: number;
+      prompt: string;
+    };
+  } | null;
+  setGeneratedImages: (value: any) => void;
   keepOutline: number;
   setKeepOutline: (value: number) => void;
   keepStyle: number;
   setKeepStyle: (value: number) => void;
 
   // Submitting the form to get the data
-  submittingFromToGetData: boolean;
-  setSubmittingFromToGetData: (value: boolean) => void;
+  submittingFormToGetData: boolean;
+  setSubmittingFormToGetData: (value: boolean) => void;
 
   // Handle error
   showErrorModal: boolean;
@@ -120,8 +128,6 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   generateFromTextNumberOfImages: 2,
   setGenerateFromTextNumberOfImages: (value: number) =>
     set({ generateFromTextNumberOfImages: value }),
-  negativePrompt: "",
-  setNegativePrompt: (value) => set({ prompt: value }),
 
   // Generate image using another image
   selectedGenerateSimilarImage: null,
@@ -154,15 +160,17 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   setShowLoadingCards: (value) => set({ showLoadingCards: value }),
   showGeneratedImages: false,
   setShowGeneratedImages: (value) => set({ showGeneratedImages: value }),
+  generatedImages: null,
+  setGeneratedImages: (value) => set({ generatedImages: value }),
   keepOutline: 0.7,
   setKeepOutline: (value) => set({ keepOutline: value }),
   keepStyle: 0.7,
   setKeepStyle: (value) => set({ keepStyle: value }),
 
   // Submitting the form to get the data
-  submittingFromToGetData: false,
-  setSubmittingFromToGetData: (value) =>
-    set({ submittingFromToGetData: value }),
+  submittingFormToGetData: false,
+  setSubmittingFormToGetData: (value) =>
+    set({ submittingFormToGetData: value }),
 
   // Handle error
   showErrorModal: false,
