@@ -1,12 +1,5 @@
 import type { NextConfig } from "next";
 
-const parentURL =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:3000"
-    : "https://dev-demo-iframe.vercel.app/";
-
-const currentHost = "https://dev-demo-iframe.vercel.app/";
-
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -48,15 +41,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: "/:path*", // Apply to all routes
         headers: [
           {
-            key: "Access-Control-Allow-Origin",
-            value: parentURL,
+            key: "Content-Security-Policy",
+            value: `frame-ancestors 'self' https://dev-demo-iframe.vercel.app https://demo-iframe-ten.vercel.app https://demo-iframe-green.vercel.app https://dev-demo-iframe-parent.vercel.app`,
           },
           {
-            key: "Content-Security-Policy",
-            value: `frame-ancestors 'self' ${parentURL} ${currentHost}`,
+            key: "Access-Control-Allow-Origin",
+            value: "https://dev-demo-iframe-parent.vercel.app", // Allow requests from this domain
           },
         ],
       },
