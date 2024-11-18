@@ -7,10 +7,15 @@ import "./globals.css";
  * */
 import { ModalProvider } from "@/components/GlobalUI/Providers/ModalProvider";
 
+/*
+ * UI Components
+ * */
+import { Toaster } from "@/components/ui/sonner";
+
 const inter = Inter({
-  subsets: ["latin"], // You can add other subsets if needed
-  variable: "--font-inter", // Optional, to use it with CSS variables
-  weight: ["400", "600", "700"], // Optional: specify weights as needed
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -35,6 +40,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <ModalProvider />
+        <Toaster position="top-center" />
         {children}
         <div style={{ fontFamily: "Open Sans" }}>&nbsp;</div>
         <div style={{ fontFamily: "Roboto" }}>&nbsp;</div>
