@@ -13,6 +13,7 @@ import { useDashboardStore } from "@/store/dashboard.store";
  * Components
  * */
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /*
  * Utils
@@ -69,6 +70,16 @@ export const Styles = () => {
     }
     setGenerateFromTextStyleName(style.styleName);
   };
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <Skeleton className="w-full h-[200px] mt-4" />;
+  }
 
   return (
     <div className="mt-4">
