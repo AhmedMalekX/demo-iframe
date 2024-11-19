@@ -31,9 +31,9 @@ export const DashboardErrorModal = () => {
             {errorModalMessage.header}
           </DialogTitle>
           <DialogDescription className="text-center text-black/90">
-            <p
+            <span
               dangerouslySetInnerHTML={{ __html: errorModalMessage.body! }}
-            ></p>
+            ></span>
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

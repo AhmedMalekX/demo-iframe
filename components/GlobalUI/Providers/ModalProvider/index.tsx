@@ -16,14 +16,14 @@ import { UploadModal } from "@/components/GlobalUI/Modals/UploadModal";
  * Stores
  * */
 import { useDashboardStore } from "@/store/dashboard.store";
-import { useUploadImagesModal } from "@/store/uploadImages.store";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
 
 export const ModalProvider = () => {
   // handle hydration state
   const [isMounted, setIsMounted] = useState(false);
 
   const { showErrorModal, openStylesModal } = useDashboardStore();
-  const { isUploadImagesModalOpen } = useUploadImagesModal();
+  const { isUploadImagesModalOpen } = useUploadImagesStore();
 
   useEffect(() => {
     setIsMounted(true);

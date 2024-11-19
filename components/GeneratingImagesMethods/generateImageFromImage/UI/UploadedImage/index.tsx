@@ -8,7 +8,7 @@ import Image from "next/image";
  * Stores
  * */
 import { useDashboardStore } from "@/store/dashboard.store";
-import { useUploadImagesModal } from "@/store/uploadImages.store";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
 
 /*
  * UI Components
@@ -56,7 +56,7 @@ export const UploadedImage = ({
     secondMixingImageStrength,
     setFirstMixingImageStrength,
     setSecondMixingImageStrength,
-  } = useUploadImagesModal();
+  } = useUploadImagesStore();
 
   // Determine selected type and strength based on id
   const selectedType =

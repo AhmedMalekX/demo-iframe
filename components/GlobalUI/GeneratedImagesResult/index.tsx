@@ -81,7 +81,9 @@ export const GeneratedImagesResult = () => {
           className="cursor-pointer"
           onClick={() => {
             setSelectedPreviewImage(image.imgUrl);
-            setActiveGeneratingMethod("From text");
+            if (activeGeneratingMethod === "From elements") {
+              setActiveGeneratingMethod("From text");
+            }
           }}
         >
           <Image
