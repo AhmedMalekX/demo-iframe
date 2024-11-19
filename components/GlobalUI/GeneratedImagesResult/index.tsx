@@ -21,8 +21,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export const GeneratedImagesResult = () => {
-  const defaultGeneratedImagesNumber = new Array(4).fill(0);
-
   const [isMounted, setIsMounted] = useState(false);
 
   const { setActiveGeneratingMethod, activeGeneratingMethod } =
