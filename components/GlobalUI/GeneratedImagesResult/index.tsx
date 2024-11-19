@@ -21,8 +21,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export const GeneratedImagesResult = () => {
-  const defaultGeneratedImagesNumber = new Array(4).fill(0);
-
   const [isMounted, setIsMounted] = useState(false);
 
   const { setActiveGeneratingMethod, activeGeneratingMethod } =
@@ -43,9 +41,7 @@ export const GeneratedImagesResult = () => {
   if (!isMounted)
     return (
       <div className="flex items-center justify-center gap-x-2">
-        {defaultGeneratedImagesNumber.map((_, index) => (
-          <Skeleton key={index} className="w-[100px] h-[100px]" />
-        ))}
+        <Skeleton className="w-full h-[35px]" />
       </div>
     );
 

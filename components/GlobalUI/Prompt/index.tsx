@@ -1,7 +1,7 @@
 /*
  * NextJS & ReactJS components
  * */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 /*
@@ -16,6 +16,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
+
+/*
+ * Global UI components
+ * */
+import { GlobalTooltipContent } from "@/components/GlobalUI/TooltipContent";
 
 /*
  * Stores
@@ -31,7 +37,6 @@ import { randomPrompts } from "@/constants";
  * Icons
  * */
 import { CircleHelp } from "lucide-react";
-import { GlobalTooltipContent } from "@/components/GlobalUI/TooltipContent";
 
 interface IPrompt {
   title: string;
@@ -64,9 +69,19 @@ export const Prompt = ({
     setPrompt(randomPrompts[randomPatternNumber]);
   };
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <Skeleton className="w-full h-[200px]" />;
+  }
+
   return (
     <div>
-      {/*Label & information on how to generate pattern!*/}
+      {/*Label & information on how to generate a pattern!*/}
       <div className="flex items-center justify-between w-full">
         <Label className="font-medium text-md" htmlFor={id}>
           {title}

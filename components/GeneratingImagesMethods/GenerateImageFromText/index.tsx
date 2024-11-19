@@ -1,7 +1,7 @@
 /*
  * NextJS & ReactJS components
  * */
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 /*
  * Store
@@ -13,14 +13,15 @@ import { useAccessTokenStore } from "@/store/accessToken.store";
  * UI components
  * */
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 /*
  * Global UI Components
  * */
 import { Styles } from "@/components/GlobalUI/Styles";
-import { NumberOfImages } from "@/components/GlobalUI/NumberOfImages";
 import { Prompt } from "@/components/GlobalUI/Prompt";
-import { toast } from "sonner";
+import { NumberOfImages } from "@/components/GlobalUI/NumberOfImages";
 
 /*
  * Helpers
@@ -28,7 +29,15 @@ import { toast } from "sonner";
 import { validateAction } from "@/helpers/validateAction";
 import { getCallIdHelper } from "@/helpers/getCallIdHelper";
 import { getImageDataHelper } from "@/helpers/getImageDataHelper";
+
+/*
+ * Packages
+ * */
 import Cookies from "js-cookie";
+
+/*
+ * Icons
+ * */
 import { LoaderCircle } from "lucide-react";
 
 export const GenerateImageFromText = () => {
@@ -134,6 +143,16 @@ export const GenerateImageFromText = () => {
       setSubmittingFormToGetData(false);
     }
   };
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <Skeleton className="w-full h-[500px] mb-5" />;
+  }
 
   return (
     <div>
