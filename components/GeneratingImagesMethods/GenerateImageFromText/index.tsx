@@ -70,6 +70,12 @@ export const GenerateImageFromText = () => {
       setSubmittingFormToGetData(true);
 
       // 1- Validate access token
+      if (!accessToken) {
+        toast.error("Access token is missing!");
+        setSubmittingFormToGetData(false);
+        return;
+      }
+
       if (accessToken) {
         const { isValidToken } = await validateAction(accessToken);
 
