@@ -1,7 +1,7 @@
 /*
  * NextJS & ReactJS components
  * */
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 /*
  * Stores
@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /*
  * Icons
@@ -33,6 +34,16 @@ export const NumberOfImages = () => {
     setGenerateFromTextNumberOfImages,
     setGenerateFromImageNumberOfImages,
   } = useDashboardStore();
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <Skeleton className="w-full h-[40px] mt-4" />;
+  }
 
   return (
     <div className="mt-4">

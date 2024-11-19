@@ -43,9 +43,7 @@ export const GeneratedImagesResult = () => {
   if (!isMounted)
     return (
       <div className="flex items-center justify-center gap-x-2">
-        {defaultGeneratedImagesNumber.map((_, index) => (
-          <Skeleton key={index} className="w-[100px] h-[100px]" />
-        ))}
+        <Skeleton className="w-full h-[35px]" />
       </div>
     );
 

@@ -4,8 +4,11 @@
  * NextJS & ReactJS components
  * */
 import React from "react";
+
+/*
+ * Components
+ * */
 import { GeneratingImagesMethodBar } from "../GeneratingImagesMethodBar";
-import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
 
 /*
  * Generating images methods components
@@ -13,6 +16,11 @@ import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
 import { GenerateImageFromText } from "../GeneratingImagesMethods/GenerateImageFromText";
 import { GenerateImageFromImage } from "@/components/GeneratingImagesMethods/generateImageFromImage";
 import { GenerateImageFromElements } from "@/components/GeneratingImagesMethods/GenerateImageFromElements";
+
+/*
+ * Stores
+ * */
+import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
 
 export const Sidebar = () => {
   const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
