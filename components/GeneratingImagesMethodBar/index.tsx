@@ -3,7 +3,7 @@
 /*
  * NextJS & ReactJS components
  * */
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 /*
  * Store
@@ -19,10 +19,27 @@ import { cn } from "@/lib/utils";
  * Constants
  * */
 import { GeneratingImagesMethods } from "@/constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const GeneratingImagesMethodBar = () => {
   const { activeGeneratingMethod, setActiveGeneratingMethod } =
     useActiveGeneratingMethodStore();
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-1 w-full h-full">
+        {GeneratingImagesMethods.map((_, index) => (
+          <Skeleton key={index} className="w-full h-8" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-1 w-full h-full">
