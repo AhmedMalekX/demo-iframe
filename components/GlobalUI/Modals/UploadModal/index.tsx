@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 /*
  * Stores
  */
-import { useUploadImagesModal } from "@/store/uploadImages.store";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
 
 /*
  * Components
@@ -51,7 +51,7 @@ export const UploadModal = () => {
     setReplacingVariationImage,
     setReplacingFirstMixingImage,
     setReplacingSecondMixingImage,
-  } = useUploadImagesModal();
+  } = useUploadImagesStore();
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target?.files?.[0]) return;

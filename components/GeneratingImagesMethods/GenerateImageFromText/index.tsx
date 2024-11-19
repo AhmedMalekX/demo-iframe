@@ -31,11 +31,6 @@ import { getCallIdHelper } from "@/helpers/getCallIdHelper";
 import { getImageDataHelper } from "@/helpers/getImageDataHelper";
 
 /*
- * Packages
- * */
-import Cookies from "js-cookie";
-
-/*
  * Icons
  * */
 import { LoaderCircle } from "lucide-react";
@@ -62,7 +57,7 @@ export const GenerateImageFromText = () => {
   const handleGeneratePattern = async (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
-    /*
+    /**
      * TODO:
      *  1- Validate access token ✅
      *     -- Show alert if access token is expired! ✅
@@ -72,7 +67,7 @@ export const GenerateImageFromText = () => {
      *  5- Show loading cards while generating images ✅
      *  6- Upload images ⏳
      *  7- Update database ⏳
-     * */
+     */
 
     try {
       event.preventDefault();
@@ -124,10 +119,9 @@ export const GenerateImageFromText = () => {
       });
 
       if (getImageDataResponse?.status === 500) {
-        Cookies.remove("userGeneratingImages");
         setErrorModalMessage({
           header: "Invalid data error",
-          body: "Something went wrong, try again No credits were deducted for this request.",
+          body: "Something went wrong, please try again!",
         });
         setShowErrorModal(true);
         setSubmittingFormToGetData(false);
@@ -136,7 +130,6 @@ export const GenerateImageFromText = () => {
 
       console.log({ getImageDataResponse });
       setGeneratedImages(getImageDataResponse.data.images);
-      Cookies.remove("userGeneratingImages");
     } catch (error) {
       console.log({ error });
     } finally {

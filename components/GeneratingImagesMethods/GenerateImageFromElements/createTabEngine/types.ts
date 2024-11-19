@@ -84,3 +84,10 @@ export type EditorElement =
   | CircleElement
   | TextElement
   | AiMotifElement;
+
+export type MixingImage = {
+  url: string;
+  url_type: "data_url" | "http";
+  source_type: string;
+  strength?: number;
+};

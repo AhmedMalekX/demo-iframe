@@ -21,7 +21,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const SelectFromImageMethod = () => {
-  const { generationMethod, setGenerationMethod } = useDashboardStore();
+  const { generationMethod, setGenerationMethod, submittingFormToGetData } =
+    useDashboardStore();
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -39,6 +40,7 @@ export const SelectFromImageMethod = () => {
         setGenerationMethod(value);
       }}
       defaultValue={generationMethod}
+      disabled={submittingFormToGetData}
     >
       <SelectTrigger className="w-full py-5">
         <SelectValue placeholder={generationMethod} />
