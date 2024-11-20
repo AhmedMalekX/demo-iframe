@@ -6,8 +6,9 @@ import React from "react";
 /*
  * Stores
  */
-import { useUploadImagesModal } from "@/store/uploadImages.store";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
 import { useDashboardStore } from "@/store/dashboard.store";
+import { useAccessTokenStore } from "@/store/accessToken.store";
 
 /*
  * UI Components
@@ -21,15 +22,27 @@ import {
 } from "@/components/ui/tooltip";
 import { UploadButton } from "@/components/GeneratingImagesMethods/generateImageFromImage/UI/UploadButton";
 import { UploadedImage } from "@/components/GeneratingImagesMethods/generateImageFromImage/UI/UploadedImage";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+/*
+ * Global UI components
+ * */
+import { Prompt } from "@/components/GlobalUI/Prompt";
+import { NumberOfImages } from "@/components/GlobalUI/NumberOfImages";
+
+/*
+ * helpers
+ * */
+import { validateAction } from "@/helpers/validateAction";
+import { getFromImageCallIdHelper } from "@/helpers/getFromImageCallIdHelper";
+import { getImageDataHelper } from "@/helpers/getImageDataHelper";
 
 /*
  * Icons
  */
 import { CircleHelp, LoaderCircle } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { Prompt } from "@/components/GlobalUI/Prompt";
-import { NumberOfImages } from "@/components/GlobalUI/NumberOfImages";
-import { Button } from "@/components/ui/button";
 
 export const Variation = () => {
   const {
@@ -38,7 +51,8 @@ export const Variation = () => {
     setIsUploadImagesModalOpen,
     setReplacingVariationImage,
     replacingVariationImage,
-  } = useUploadImagesModal();
+  } = useUploadImagesStore();
+  const { accessToken } = useAccessTokenStore();
 
   const {
     generationMethod,
@@ -48,6 +62,12 @@ export const Variation = () => {
     setKeepOutline,
     generateFromImagePrompt,
     setGenerateFromImagePrompt,
+    submittingFormToGetData,
+    setSubmittingFormToGetData,
+    generateFromImageNumberOfImages,
+    setShowErrorModal,
+    setErrorModalMessage,
+    setGeneratedImages,
   } = useDashboardStore();
 
   const handleReplaceVariationImage = () => {
@@ -85,6 +105,92 @@ export const Variation = () => {
         — Be as descriptive as possible, use style names, artists' names, color scheme, vibe, etc. <br />
         — Words at the beginning of the prompt have a higher effect on the final image
   `;
+
+  const handleGeneratePattern = async (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    /**
+     * TODO:
+     *  1- Validate access token ✅
+     *     -- Show alert if access token is expired! ✅
+     *  2- Get call Id ✅
+     *  3- Get image data ✅
+     *  4- Show loading while generating images on generate button ✅
+     *  5- Show loading cards while generating images ✅
+     *  6- Upload images ⏳
+     *  7- Update database ⏳
+     */
+
+    try {
+      event.preventDefault();
+      setSubmittingFormToGetData(true);
+
+      /**
+       * TODO: UNCOMMENT THIS BEFORE MERGE TO ( DEV ) BRANCH
+       */
+
+      // 1- Validate access token
+      // if (!accessToken) {
+      //   toast.error("Access token is missing!");
+      //   setSubmittingFormToGetData(false);
+      //   return;
+      // }
+
+      if (accessToken) {
+        const { isValidToken } = await validateAction(accessToken);
+
+        // Show alert if access token is expired!
+        if (!isValidToken) {
+          toast.error("Your access token is expired, request for new one.");
+          setSubmittingFormToGetData(false);
+          return;
+        }
+      }
+
+      // 2- Get call ID
+      const { callId } = await getFromImageCallIdHelper({
+        prompt: generateFromImagePrompt || "",
+        setShowErrorModal,
+        setErrorModalMessage,
+        keepStyle,
+        keepOutline,
+        numberOfImages: generateFromImageNumberOfImages,
+        imageUrl: variationImage.imageUrl!,
+        id: "123",
+        generationMethod: "Variation",
+      });
+
+      if (callId === "0") {
+        toast.error("Something went wrong, please try again!");
+        setSubmittingFormToGetData(false);
+        return;
+      }
+
+      // 3- Get image data
+      const getImageDataResponse: any = await getImageDataHelper({
+        callId,
+        userId: "123",
+      });
+
+      if (getImageDataResponse?.status === 500) {
+        setErrorModalMessage({
+          header: "Invalid data error",
+          body: "Something went wrong, please try again!",
+        });
+        setShowErrorModal(true);
+        setSubmittingFormToGetData(false);
+        return;
+      }
+
+      console.log({ getImageDataResponse });
+      setGeneratedImages(getImageDataResponse.data.images);
+    } catch (error) {
+      console.log({ error });
+      setSubmittingFormToGetData(false);
+    } finally {
+      setSubmittingFormToGetData(false);
+    }
+  };
 
   return (
     <div>
@@ -173,8 +279,18 @@ export const Variation = () => {
         </div>
 
         {/*Generate button*/}
-        <Button variant="primary" size="primary" className="mt-4 w-full">
-          Generate pattern
+        <Button
+          variant="primary"
+          size="primary"
+          className="mt-4 w-full"
+          disabled={submittingFormToGetData}
+          onClick={handleGeneratePattern}
+        >
+          {submittingFormToGetData ? (
+            <LoaderCircle size={24} className="animate-spin !w-7 !h-7" />
+          ) : (
+            "Generate pattern"
+          )}
         </Button>
       </div>
     </div>

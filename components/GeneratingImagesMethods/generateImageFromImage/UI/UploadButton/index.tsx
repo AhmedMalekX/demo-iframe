@@ -6,7 +6,7 @@ import React from "react";
 /*
  * Stores
  */
-import { useUploadImagesModal } from "@/store/uploadImages.store";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
 import { useDashboardStore } from "@/store/dashboard.store";
 
 /*
@@ -33,7 +33,7 @@ export const UploadButton = ({ uploadButtonId }: IUploadButtonProps) => {
     uploadingSecondMixingImage,
     setUploadImagesModalState,
     setUploadButtonId,
-  } = useUploadImagesModal();
+  } = useUploadImagesStore();
   const { generationMethod } = useDashboardStore();
 
   const handleClickOnUpload = () => {
