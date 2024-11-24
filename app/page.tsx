@@ -27,6 +27,8 @@ import { GeneratedImages } from "@/components/GeneratedImages";
  * */
 import { LoaderCircle } from "lucide-react";
 import { AppStateProvider } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabHooks/AppContextProvider";
+import { useDashboardStore } from "@/store/dashboard.store";
+import { useAbortStore } from "@/store/abort.store";
 
 export default function Parent() {
   // handle hydration state
@@ -34,6 +36,8 @@ export default function Parent() {
   const isComponentMounted = useRef(false);
 
   const { setAccessToken, accessToken } = useAccessTokenStore();
+  const { setSubmittingFormToGetData } = useDashboardStore();
+  const { setShouldAbortRequests } = useAbortStore();
 
   useEffect(() => {
     isComponentMounted.current = true;
@@ -53,13 +57,45 @@ export default function Parent() {
 
       if (token) {
         setAccessToken(token);
+
+        return;
+      }
+
+      if (event.data.message === "error") {
+        useDashboardStore.setState({
+          submittingFormToGetData: false,
+          dataLoading: false,
+          generatingMotif: false,
+          showLoadingCards: false,
+          showGeneratedImages: false,
+          isAborted: true,
+        });
+
+        setShouldAbortRequests(true);
+        setSubmittingFormToGetData(false);
+        setAccessToken(null);
+
+        useDashboardStore.setState({
+          showErrorModal: true,
+          errorModalMessage: {
+            header: "Error Received",
+            body: "An error occurred while processing your request.",
+          },
+        });
       }
     });
 
     return () => {
       window.removeEventListener("message", handleEventListener);
+      setShouldAbortRequests(false);
     };
-  }, [isMounted, setAccessToken, accessToken]);
+  }, [
+    isMounted,
+    setAccessToken,
+    accessToken,
+    setShouldAbortRequests,
+    setSubmittingFormToGetData,
+  ]);
 
   if (!isMounted) {
     return (

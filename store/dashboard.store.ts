@@ -104,6 +104,9 @@ interface DashboardStore {
   setSelectedPreviewImage: (imageUrl: string | null) => void;
   selectedMockup: string | null;
   setSelectedMockup: (value: string | null) => void;
+
+  isAborted: boolean;
+  setIsAborted: (value: boolean) => void;
 }
 
 export const useDashboardStore = create<DashboardStore>((set) => ({
@@ -193,4 +196,7 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
     set({ selectedPreviewImage: imageUrl }),
   selectedMockup: null,
   setSelectedMockup: (value) => set({ selectedMockup: value }),
+
+  isAborted: false,
+  setIsAborted: (value) => set({ isAborted: value }),
 }));
