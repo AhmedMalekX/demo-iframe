@@ -47,7 +47,6 @@ export const GenerateImageFromText = () => {
     submittingFormToGetData,
     setSubmittingFormToGetData,
     setGeneratedImages,
-    isAborted,
   } = useDashboardStore();
   const { accessToken, setAccessToken } = useAccessTokenStore();
 
