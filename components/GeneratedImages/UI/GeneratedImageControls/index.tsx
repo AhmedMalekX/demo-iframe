@@ -21,8 +21,10 @@ import {
 /*
  * Icons
  * */
-import { Download } from "lucide-react";
+import { Download, Timer } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
 export const GeneratedImageControls = () => {
   const { imagePreviewZoom, setImagePreviewZoom } = useDashboardStore();
@@ -80,7 +82,47 @@ export const GeneratedImageControls = () => {
               <span>Download</span>
             </p>
           </PopoverTrigger>
-          <PopoverContent align="end">Download options!</PopoverContent>
+          <PopoverContent align="end" className="w-full">
+            <Tabs defaultValue="tile" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="tile">Pattern Tile</TabsTrigger>
+                <TabsTrigger value="repeated">Repeated Pattern</TabsTrigger>
+              </TabsList>
+              <TabsContent value="tile">
+                <div className="flex flex-col gap-y-3">
+                  <div className="flex flex-col gap-y-2">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="flex items-center w-full"
+                    >
+                      <Download /> <span>Download Standard (1024 x 1024)</span>
+                    </Button>
+                    <p className="text-gray-600 italic">
+                      Best for small images, web use, or low-resolution
+                      applications.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-y-2">
+                    <Button size="lg">
+                      <Timer />
+                      <span>
+                        Upscale and Download High Quality (4096 x 4096, ~60
+                        seconds)
+                      </span>
+                    </Button>
+                    <p className="text-gray-600 italic">
+                      Ideal for large prints, high-resolution displays, or where
+                      zooming is required.
+                    </p>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="repeated">
+                <div>repeated</div>
+              </TabsContent>
+            </Tabs>
+          </PopoverContent>
         </Popover>
       </div>
     </div>
