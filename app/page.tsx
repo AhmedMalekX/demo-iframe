@@ -55,6 +55,8 @@ export default function Parent() {
     window.addEventListener("message", async (event) => {
       const token = await handleEventListener(event);
 
+      console.log("===============> ", event.data);
+
       if (token) {
         setAccessToken(token);
 

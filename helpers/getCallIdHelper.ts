@@ -80,7 +80,10 @@ export const getCallIdHelper = async ({
   numberOfImages,
   style,
   prompt,
-}: CallIdHelperProps): Promise<{ callId: string }> => {
+}: CallIdHelperProps): Promise<{
+  callId: string;
+  messageToParent?: boolean;
+}> => {
   // Check if the global abort flag is set
   if (useAbortStore.getState().shouldAbortRequests) {
     setErrorModalMessage({
@@ -139,6 +142,14 @@ export const getCallIdHelper = async ({
       });
       setShowErrorModal(true);
       return { callId: "0" };
+    }
+
+    if (callIdResponse?.message === "Backend Error 1") {
+      return { callId: "0", messageToParent: true };
+    }
+
+    if (callIdResponse?.message === "Backend Error") {
+      return { callId: "0", messageToParent: true };
     }
 
     if (callIdResponse?.message) {
