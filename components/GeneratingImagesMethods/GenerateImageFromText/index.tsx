@@ -573,7 +573,7 @@ export const GenerateImageFromText = () => {
 
       if (messageToParent) {
         console.log(
-          "==================x messageToParent detected. Resetting process...",
+          "==================x messageToParent detected. Resetting process....",
         );
         toast.warning("Retrying due to message to parent.");
         throw new Error("Reset process due to messageToParent.");
