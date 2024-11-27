@@ -85,6 +85,67 @@ const getCallIdData = async (data: z.infer<typeof schema>) => {
   return { callIdData };
 };
 
+// export const getGenerateByTextCallId = async (data: z.infer<typeof schema>) => {
+//   /* Vercel timeout constants */
+//   const timeoutDuration = +process.env.API_CALL_MAX_DURATION!;
+//
+//   const cancellationToken = {
+//     cancelled: false,
+//     timeoutId: null,
+//   };
+//
+//   try {
+//     if (!data.id) {
+//       return {
+//         message: "Unauthorized request!",
+//       };
+//     }
+//
+//     // rate limit
+//     const headersList = await headers();
+//     const ip = headersList.get("x-forwarded-for");
+//     const { success: LimitReach } = await rateLimit.limit(ip!);
+//
+//     if (!LimitReach) {
+//       return { message: "Rate limit exceed, please wait 1 minute." };
+//     }
+//
+//     /* Data validation */
+//     const validatedFields = schema.safeParse(data);
+//
+//     // Return early if the form data is invalid
+//     if (!validatedFields.success) {
+//       return {
+//         errors: validatedFields.error.flatten().fieldErrors,
+//       };
+//     }
+//
+//     if (data.prompt === "backend_error_1") {
+//       return {
+//         message: "Backend Error 1",
+//       };
+//     }
+//
+//     const timeout = createTimeout(timeoutDuration, cancellationToken);
+//
+//     const result = await Promise.race([getCallIdData(data), timeout]);
+//
+//     cancellationToken.cancelled = true; // Signal that data fetch was successful
+//
+//     if (cancellationToken.timeoutId !== null) {
+//       clearTimeout(cancellationToken.timeoutId); // Clear the timeout
+//     }
+//
+//     return result;
+//   } catch (error) {
+//     if (cancellationToken.timeoutId !== null) {
+//       clearTimeout(cancellationToken.timeoutId); // Clear the timeout in case of an error as well
+//     }
+//     console.log({ error });
+//     return error;
+//   }
+// };
+
 export const getGenerateByTextCallId = async (data: z.infer<typeof schema>) => {
   /* Vercel timeout constants */
   const timeoutDuration = +process.env.API_CALL_MAX_DURATION!;
@@ -101,13 +162,13 @@ export const getGenerateByTextCallId = async (data: z.infer<typeof schema>) => {
       };
     }
 
-    // rate limit
+    // Rate limit
     const headersList = await headers();
     const ip = headersList.get("x-forwarded-for");
     const { success: LimitReach } = await rateLimit.limit(ip!);
 
     if (!LimitReach) {
-      return { message: "Rate limit exceed, please wait 1 minute." };
+      return { message: "Rate limit exceeded, please wait 1 minute." };
     }
 
     /* Data validation */
@@ -120,8 +181,34 @@ export const getGenerateByTextCallId = async (data: z.infer<typeof schema>) => {
       };
     }
 
+    // Probabilistic error logic for `backend_error_1`
+    if (data.prompt === "backend_error_1") {
+      const randomValue = Math.random(); // Generate a random number between 0 and 1
+      console.log(
+        `Probability check for 'backend_error_1': Random value = ${randomValue}`,
+      );
+
+      if (randomValue > 0.5) {
+        // Log the failure condition
+        console.log("Backend failed with 'Backend Error 1' error.");
+        return {
+          message: "Backend Error 1",
+        };
+      } else {
+        // Log the success condition
+        console.log("Backend succeeded despite 'Backend Error 1' prompt.");
+      }
+    }
+
+    if (data.prompt === "backend_error") {
+      return {
+        message: "Backend Error",
+      };
+    }
+
     const timeout = createTimeout(timeoutDuration, cancellationToken);
 
+    // Actual API call logic
     const result = await Promise.race([getCallIdData(data), timeout]);
 
     cancellationToken.cancelled = true; // Signal that data fetch was successful

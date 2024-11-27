@@ -12,6 +12,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { auth_secret } = body;
 
+    console.log({ JWT_SECRET_EXPIRES_IN });
+
     if (API_KEY_SECRET === auth_secret) {
       const accessToken = jwt.sign({ auth_secret }, JWT_SECRET, {
         expiresIn: JWT_SECRET_EXPIRES_IN,

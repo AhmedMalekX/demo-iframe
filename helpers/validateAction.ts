@@ -11,8 +11,6 @@ export const validateAction = async (accessToken: string) => {
 
   if (!response.ok) {
     if (response.status === 401) {
-      // logMessage("Access token is expired. Attempting to refresh...");
-
       isValidToken = false;
     } else {
       throw new Error(data.message || "Invalid access token");
