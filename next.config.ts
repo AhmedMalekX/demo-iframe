@@ -18,26 +18,6 @@ const nextConfig: NextConfig = {
     ],
   },
   // Dev
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [
-          {
-            key: "Access-Control-Allow-Origin",
-            value: "http://localhost:3000/",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: "frame-ancestors 'self' http://localhost:3000/",
-          },
-        ],
-      },
-    ];
-  },
-
-  // Production
-
   // async headers() {
   //   return [
   //     {
@@ -45,17 +25,37 @@ const nextConfig: NextConfig = {
   //       headers: [
   //         {
   //           key: "Access-Control-Allow-Origin",
-  //           value: "https://demo-iframe-parent-roan.vercel.app/",
+  //           value: "http://localhost:3000/",
   //         },
   //         {
   //           key: "Content-Security-Policy",
-  //           value:
-  //             "frame-ancestors 'self' https://demo-iframe-parent-roan.vercel.app/",
+  //           value: "frame-ancestors 'self' http://localhost:3000/",
   //         },
   //       ],
   //     },
   //   ];
   // },
+
+  // Production
+
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "https://demo-iframe-parent-roan.vercel.app/",
+          },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self' https://demo-iframe-parent-roan.vercel.app/",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
