@@ -47,6 +47,7 @@ export const GenerateImageFromText = () => {
     submittingFormToGetData,
     setSubmittingFormToGetData,
     setGeneratedImages,
+    setSelectedPreviewImage,
   } = useDashboardStore();
   const { accessToken, setAccessToken } = useAccessTokenStore();
 
@@ -603,6 +604,9 @@ export const GenerateImageFromText = () => {
 
       console.log("==================x Images retrieved successfully.");
       setGeneratedImages(getImageDataResponse.data.images);
+      setSelectedPreviewImage(
+        getImageDataResponse.data.images.imgs_dict_list[0].imgUrl,
+      );
     };
 
     // Run with timeout
