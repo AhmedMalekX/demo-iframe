@@ -47,6 +47,7 @@ export const ImageMixing = () => {
     setErrorModalMessage,
     generateFromImageNumberOfImages,
     setGeneratedImages,
+    setSelectedPreviewImage,
   } = useDashboardStore();
 
   const {
@@ -203,6 +204,9 @@ export const ImageMixing = () => {
 
       console.log({ getImageDataResponse });
       setGeneratedImages(getImageDataResponse.data.images);
+      setSelectedPreviewImage(
+        getImageDataResponse.data.images.imgs_dict_list[0].imgUrl,
+      );
     } catch (error) {
       console.log({ error });
       setSubmittingFormToGetData(false);

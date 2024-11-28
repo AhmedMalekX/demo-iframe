@@ -68,6 +68,7 @@ export const Variation = () => {
     setShowErrorModal,
     setErrorModalMessage,
     setGeneratedImages,
+    setSelectedPreviewImage,
   } = useDashboardStore();
 
   const handleReplaceVariationImage = () => {
@@ -184,6 +185,9 @@ export const Variation = () => {
 
       console.log({ getImageDataResponse });
       setGeneratedImages(getImageDataResponse.data.images);
+      setSelectedPreviewImage(
+        getImageDataResponse.data.images.imgs_dict_list[0].imgUrl,
+      );
     } catch (error) {
       console.log({ error });
       setSubmittingFormToGetData(false);
