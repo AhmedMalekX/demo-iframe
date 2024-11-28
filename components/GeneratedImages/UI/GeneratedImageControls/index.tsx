@@ -75,6 +75,8 @@ export const GeneratedImageControls = () => {
   const [dpiHigh, setDpiHigh] = useState(0);
   const [scalingFactor, setScalingFactor] = useState(1);
 
+  console.log({ downloadInfo, scalingFactor });
+
   /*
    * Canvas ref
    * */
