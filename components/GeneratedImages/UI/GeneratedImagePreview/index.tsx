@@ -119,7 +119,7 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
               height={1000}
               style={{
                 backgroundImage: `url("${url}")`,
-                backgroundSize: `${scalingFactor * imagePreviewZoom}%`,
+                backgroundSize: `${scalingFactor * 100}%`,
                 objectFit: "cover",
                 objectPosition: "center",
               }}
@@ -134,7 +134,7 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
               backgroundImage: `url(${url})`,
               height: "500px",
               width: "100%",
-              backgroundSize: `${scalingFactor * imagePreviewZoom}%`,
+              backgroundSize: `${scalingFactor * 100}%`,
               objectPosition: "center center",
             }}
           >

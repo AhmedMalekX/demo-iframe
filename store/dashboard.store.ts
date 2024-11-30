@@ -107,6 +107,9 @@ interface DashboardStore {
   scalingFactor: number;
   setScalingFactor: (value: number) => void;
 
+  isUpscalingImage: boolean;
+  setIsUpscalingImage: (value: boolean) => void;
+
   isAborted: boolean;
   setIsAborted: (value: boolean) => void;
 }
@@ -200,6 +203,9 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   setSelectedMockup: (value) => set({ selectedMockup: value }),
   scalingFactor: 1,
   setScalingFactor: (value) => set({ scalingFactor: value }),
+
+  isUpscalingImage: false,
+  setIsUpscalingImage: (value) => set({ isUpscalingImage: value }),
 
   isAborted: false,
   setIsAborted: (value) => set({ isAborted: value }),

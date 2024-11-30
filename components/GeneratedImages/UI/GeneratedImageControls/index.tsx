@@ -30,6 +30,13 @@ import { Input } from "@/components/ui/input";
 import { Download, Timer } from "lucide-react";
 
 /*
+ * Packges
+ * */
+import { v4 as uuidv4 } from "uuid";
+import { getUpscaleCallId } from "@/actions/getUpscaleCallId";
+import { getUpscaleImageDataHelper } from "@/helpers/getUpscaleImageDataHelper";
+
+/*
  * Constants
  * */
 const PREVIEW_WIDTH = 900;
@@ -49,6 +56,9 @@ export const GeneratedImageControls = () => {
     setImagePreviewZoom,
     selectedPreviewImage,
     setScalingFactor,
+    setErrorModalMessage,
+    setShowErrorModal,
+    setIsUpscalingImage,
   } = useDashboardStore();
 
   /*
@@ -175,8 +185,77 @@ export const GeneratedImageControls = () => {
 
     if (!standardImageUrl) return;
 
-    const imageUrl =
-      quality === "standard" ? standardImageUrl : HIGH_QUALITY_IMAGE_URL;
+    let imageUrl: string;
+    if (quality === "standard") {
+      imageUrl = standardImageUrl;
+    } else {
+      /*
+       * TODO: GET THE UPSCALE IMAGE URL
+       *  - Get call Id response
+       *  - Get upscale data
+       * */
+
+      setIsUpscalingImage(true);
+
+      const dataToGetUpscaleCallId = {
+        input_img_url: selectedPreviewImage!,
+        outscale: 4,
+        imageId: uuidv4(),
+      };
+
+      // get upscale call id
+      const callIdResponse: any = await getUpscaleCallId(
+        dataToGetUpscaleCallId,
+      );
+
+      // handle error for call id
+      if (callIdResponse?.errors) {
+        setErrorModalMessage({
+          header: "Server error!",
+          body: "Something went wrong, try again No credits were deducted for this request.",
+        });
+        setShowErrorModal(true);
+        setIsUpscalingImage(false);
+        return;
+      }
+
+      if (callIdResponse?.message) {
+        setErrorModalMessage({
+          header: "Something went wrong!",
+          body: "Something went wrong, try again No credits were deducted for this request.",
+        });
+        setShowErrorModal(true);
+        setIsUpscalingImage(false);
+        return;
+      }
+
+      try {
+        const getImageDataResponse: any = await getUpscaleImageDataHelper({
+          callId: callIdResponse.callIdData.call_id,
+        });
+
+        if (getImageDataResponse?.status === 500) {
+          setErrorModalMessage({
+            header: "Server error!",
+            body: "Something went wrong, try again No credits were deducted for this request.",
+          });
+          setShowErrorModal(true);
+          return;
+        }
+
+        imageUrl = getImageDataResponse.data.img_url;
+      } catch (error: any) {
+        console.log({ error });
+        setErrorModalMessage({
+          header: "Something went wrong!",
+          body: "Something went wrong, try again No credits were deducted for this request.",
+        });
+        setShowErrorModal(true);
+        return;
+      } finally {
+        setIsUpscalingImage(false);
+      }
+    }
 
     setDownloadInfo({
       dpi,
@@ -223,6 +302,7 @@ export const GeneratedImageControls = () => {
     link.click();
 
     setIsGenerating(false);
+    setIsUpscalingImage(false);
   };
 
   const handleDimensionToggle = (checked: boolean) => {
