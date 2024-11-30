@@ -33,8 +33,7 @@ interface IGeneratedImagePreview {
 }
 
 export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
-  const { imagePreviewZoom, selectedMockup, scalingFactor } =
-    useDashboardStore();
+  const { selectedMockup, scalingFactor } = useDashboardStore();
   const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
 
   const [finalResoluton] = useState(CONFIG.STARTING_REPEAT_CANVAS_RESOLUTION);
