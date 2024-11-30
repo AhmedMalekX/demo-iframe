@@ -48,7 +48,6 @@ export const GeneratedImageControls = () => {
     imagePreviewZoom,
     setImagePreviewZoom,
     selectedPreviewImage,
-    scalingFactor,
     setScalingFactor,
   } = useDashboardStore();
 
@@ -69,7 +68,6 @@ export const GeneratedImageControls = () => {
   const [usePhysicalDimensions, setUsePhysicalDimensions] = useState(true);
   const [width, setWidth] = useState(usePhysicalDimensions ? 12 : 2000);
   const [height, setHeight] = useState(usePhysicalDimensions ? 12 : 2000);
-  const [zoomLevel, setZoomLevel] = useState(50);
   const [isGenerating, setIsGenerating] = useState(false);
   const [downloadInfo, setDownloadInfo] = useState<{
     dpi: number;
@@ -132,7 +130,7 @@ export const GeneratedImageControls = () => {
 
   useEffect(() => {
     if (usePhysicalDimensions) {
-      const dpi = calculateDPI(width, height, zoomLevel);
+      const dpi = calculateDPI(width, height, imagePreviewZoom);
       setDpiStandard(dpi.small);
       setDpiHigh(dpi.large);
     }
@@ -142,10 +140,10 @@ export const GeneratedImageControls = () => {
     const newScalingFactor = calculateScalingFactor(
       designWidth,
       designHeight,
-      zoomLevel,
+      imagePreviewZoom,
     );
     setScalingFactor(newScalingFactor);
-  }, [width, height, zoomLevel, usePhysicalDimensions, dpiStandard]);
+  }, [width, height, imagePreviewZoom, usePhysicalDimensions, dpiStandard]);
 
   const generateImage = async (quality: "standard" | "high") => {
     setIsGenerating(true);
@@ -154,20 +152,20 @@ export const GeneratedImageControls = () => {
     let finalWidth: number;
     let finalHeight: number;
     let dpi: number;
-    let adjustedZoomLevel = zoomLevel;
+    let adjustedZoomLevel = imagePreviewZoom;
 
     if (activeTab === "tile") {
       finalWidth = tileSize;
       finalHeight = tileSize;
       dpi = tileSize;
     } else if (usePhysicalDimensions) {
-      const dpiValues = calculateDPI(width, height, zoomLevel);
+      const dpiValues = calculateDPI(width, height, imagePreviewZoom);
       dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
       finalWidth = Math.round(width * dpi);
       finalHeight = Math.round(height * dpi);
     } else {
       if (quality === "high") {
-        adjustedZoomLevel = zoomLevel / 4;
+        adjustedZoomLevel = imagePreviewZoom / 4;
       }
       const scaleFactor = adjustedZoomLevel / 100;
       finalWidth = width;
@@ -270,9 +268,9 @@ export const GeneratedImageControls = () => {
       <div className="w-full flex items-center gap-x-2">
         <h3>Zoom</h3>
         <Slider
-          min={10}
-          max={100}
-          step={5}
+          min={30}
+          max={400}
+          step={1}
           name="imagePreviewZoom"
           className="cursor-pointer w-1/2"
           value={[imagePreviewZoom]}
@@ -286,10 +284,10 @@ export const GeneratedImageControls = () => {
         <Popover>
           <PopoverTrigger>
             <p
-              className="flex items-center gap-x-2 h-9 px-4 py-2 rounded-2xl bg-[#8920ce] text-white shadow hover:bg-[#8920ce]/90"
+              className="flex items-start gap-x-2 h-9 px-4 py-2 rounded-2xl bg-[#8920ce] text-white shadow hover:bg-[#8920ce]/90"
               role="button"
             >
-              <Download />
+              <Download size={18} />
               <span>Download</span>
             </p>
           </PopoverTrigger>
@@ -395,15 +393,15 @@ export const GeneratedImageControls = () => {
 
                 <div className="mt-4">
                   <Label htmlFor="zoom-repeated">
-                    Zoom Level: {zoomLevel}%
+                    Zoom Level: {imagePreviewZoom}%
                   </Label>
                   <Slider
                     id="zoom-repeated"
                     min={30}
                     max={400}
                     step={1}
-                    value={[zoomLevel]}
-                    onValueChange={(value) => setZoomLevel(value[0])}
+                    value={[imagePreviewZoom]}
+                    onValueChange={(value) => setImagePreviewZoom(value[0])}
                   />
                 </div>
 
@@ -435,7 +433,7 @@ export const GeneratedImageControls = () => {
                       Upscale and Download High Quality{" "}
                       {usePhysicalDimensions
                         ? `(${dpiHigh} DPI)`
-                        : `(Zoom: ${zoomLevel / 4}%)`}
+                        : `(Zoom: ${imagePreviewZoom / 4}%)`}
                     </span>
                   </Button>
                 </div>
