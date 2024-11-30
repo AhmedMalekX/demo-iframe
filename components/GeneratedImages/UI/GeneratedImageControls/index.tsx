@@ -30,6 +30,13 @@ import { Input } from "@/components/ui/input";
 import { Download, Timer } from "lucide-react";
 
 /*
+ * Packges
+ * */
+import { v4 as uuidv4 } from "uuid";
+import { getUpscaleCallId } from "@/actions/getUpscaleCallId";
+import { getUpscaleImageDataHelper } from "@/helpers/getUpscaleImageDataHelper";
+
+/*
  * Constants
  * */
 const PREVIEW_WIDTH = 900;
@@ -37,15 +44,19 @@ const PREVIEW_HEIGHT = 600;
 
 /*
  * TODO:
- *  - REMOVE IT AFTER IMPLEMENT THE HIGH RESOLUTION IMAGE
  *  - REFACTOR THE CODE AFTER IMPLEMENT THE HIGH RESOLUTION IMAGE
  * */
-const HIGH_QUALITY_IMAGE_URL =
-  "https://s3.amazonaws.com/imgs-patternedai/large_f003f64d-6fdc-41c8-9a50-85bd96844c5f.png";
 
 export const GeneratedImageControls = () => {
-  const { imagePreviewZoom, setImagePreviewZoom, selectedPreviewImage } =
-    useDashboardStore();
+  const {
+    imagePreviewZoom,
+    setImagePreviewZoom,
+    selectedPreviewImage,
+    setScalingFactor,
+    setErrorModalMessage,
+    setShowErrorModal,
+    setIsUpscalingImage,
+  } = useDashboardStore();
 
   /*
    * Handle the selected preview image
@@ -64,7 +75,6 @@ export const GeneratedImageControls = () => {
   const [usePhysicalDimensions, setUsePhysicalDimensions] = useState(true);
   const [width, setWidth] = useState(usePhysicalDimensions ? 12 : 2000);
   const [height, setHeight] = useState(usePhysicalDimensions ? 12 : 2000);
-  const [zoomLevel, setZoomLevel] = useState(50);
   const [isGenerating, setIsGenerating] = useState(false);
   const [downloadInfo, setDownloadInfo] = useState<{
     dpi: number;
@@ -73,9 +83,8 @@ export const GeneratedImageControls = () => {
   } | null>(null);
   const [dpiStandard, setDpiStandard] = useState(0);
   const [dpiHigh, setDpiHigh] = useState(0);
-  const [scalingFactor, setScalingFactor] = useState(1);
 
-  console.log({ downloadInfo, scalingFactor });
+  console.log({ downloadInfo });
 
   /*
    * Canvas ref
@@ -128,7 +137,7 @@ export const GeneratedImageControls = () => {
 
   useEffect(() => {
     if (usePhysicalDimensions) {
-      const dpi = calculateDPI(width, height, zoomLevel);
+      const dpi = calculateDPI(width, height, imagePreviewZoom);
       setDpiStandard(dpi.small);
       setDpiHigh(dpi.large);
     }
@@ -138,10 +147,10 @@ export const GeneratedImageControls = () => {
     const newScalingFactor = calculateScalingFactor(
       designWidth,
       designHeight,
-      zoomLevel,
+      imagePreviewZoom,
     );
     setScalingFactor(newScalingFactor);
-  }, [width, height, zoomLevel, usePhysicalDimensions, dpiStandard]);
+  }, [width, height, imagePreviewZoom, usePhysicalDimensions, dpiStandard]);
 
   const generateImage = async (quality: "standard" | "high") => {
     setIsGenerating(true);
@@ -150,20 +159,20 @@ export const GeneratedImageControls = () => {
     let finalWidth: number;
     let finalHeight: number;
     let dpi: number;
-    let adjustedZoomLevel = zoomLevel;
+    let adjustedZoomLevel = imagePreviewZoom;
 
     if (activeTab === "tile") {
       finalWidth = tileSize;
       finalHeight = tileSize;
       dpi = tileSize;
     } else if (usePhysicalDimensions) {
-      const dpiValues = calculateDPI(width, height, zoomLevel);
+      const dpiValues = calculateDPI(width, height, imagePreviewZoom);
       dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
       finalWidth = Math.round(width * dpi);
       finalHeight = Math.round(height * dpi);
     } else {
       if (quality === "high") {
-        adjustedZoomLevel = zoomLevel / 4;
+        adjustedZoomLevel = imagePreviewZoom / 4;
       }
       const scaleFactor = adjustedZoomLevel / 100;
       finalWidth = width;
@@ -173,8 +182,77 @@ export const GeneratedImageControls = () => {
 
     if (!standardImageUrl) return;
 
-    const imageUrl =
-      quality === "standard" ? standardImageUrl : HIGH_QUALITY_IMAGE_URL;
+    let imageUrl: string;
+    if (quality === "standard") {
+      imageUrl = standardImageUrl;
+    } else {
+      /*
+       * TODO: GET THE UPSCALE IMAGE URL
+       *  - Get call Id response
+       *  - Get upscale data
+       * */
+
+      setIsUpscalingImage(true);
+
+      const dataToGetUpscaleCallId = {
+        input_img_url: selectedPreviewImage!,
+        outscale: 4,
+        imageId: uuidv4(),
+      };
+
+      // get upscale call id
+      const callIdResponse: any = await getUpscaleCallId(
+        dataToGetUpscaleCallId,
+      );
+
+      // handle error for call id
+      if (callIdResponse?.errors) {
+        setErrorModalMessage({
+          header: "Server error!",
+          body: "Something went wrong, try again No credits were deducted for this request.",
+        });
+        setShowErrorModal(true);
+        setIsUpscalingImage(false);
+        return;
+      }
+
+      if (callIdResponse?.message) {
+        setErrorModalMessage({
+          header: "Something went wrong!",
+          body: "Something went wrong, try again No credits were deducted for this request.",
+        });
+        setShowErrorModal(true);
+        setIsUpscalingImage(false);
+        return;
+      }
+
+      try {
+        const getImageDataResponse: any = await getUpscaleImageDataHelper({
+          callId: callIdResponse.callIdData.call_id,
+        });
+
+        if (getImageDataResponse?.status === 500) {
+          setErrorModalMessage({
+            header: "Server error!",
+            body: "Something went wrong, try again No credits were deducted for this request.",
+          });
+          setShowErrorModal(true);
+          return;
+        }
+
+        imageUrl = getImageDataResponse.data.img_url;
+      } catch (error: any) {
+        console.log({ error });
+        setErrorModalMessage({
+          header: "Something went wrong!",
+          body: "Something went wrong, try again No credits were deducted for this request.",
+        });
+        setShowErrorModal(true);
+        return;
+      } finally {
+        setIsUpscalingImage(false);
+      }
+    }
 
     setDownloadInfo({
       dpi,
@@ -221,6 +299,7 @@ export const GeneratedImageControls = () => {
     link.click();
 
     setIsGenerating(false);
+    setIsUpscalingImage(false);
   };
 
   const handleDimensionToggle = (checked: boolean) => {
@@ -266,9 +345,9 @@ export const GeneratedImageControls = () => {
       <div className="w-full flex items-center gap-x-2">
         <h3>Zoom</h3>
         <Slider
-          min={10}
-          max={100}
-          step={5}
+          min={30}
+          max={400}
+          step={1}
           name="imagePreviewZoom"
           className="cursor-pointer w-1/2"
           value={[imagePreviewZoom]}
@@ -282,10 +361,10 @@ export const GeneratedImageControls = () => {
         <Popover>
           <PopoverTrigger>
             <p
-              className="flex items-center gap-x-2 h-9 px-4 py-2 rounded-2xl bg-[#8920ce] text-white shadow hover:bg-[#8920ce]/90"
+              className="flex items-start gap-x-2 h-9 px-4 py-2 rounded-2xl bg-[#8920ce] text-white shadow hover:bg-[#8920ce]/90"
               role="button"
             >
-              <Download />
+              <Download size={18} />
               <span>Download</span>
             </p>
           </PopoverTrigger>
@@ -391,15 +470,15 @@ export const GeneratedImageControls = () => {
 
                 <div className="mt-4">
                   <Label htmlFor="zoom-repeated">
-                    Zoom Level: {zoomLevel}%
+                    Zoom Level: {imagePreviewZoom}%
                   </Label>
                   <Slider
                     id="zoom-repeated"
                     min={30}
                     max={400}
                     step={1}
-                    value={[zoomLevel]}
-                    onValueChange={(value) => setZoomLevel(value[0])}
+                    value={[imagePreviewZoom]}
+                    onValueChange={(value) => setImagePreviewZoom(value[0])}
                   />
                 </div>
 
@@ -431,7 +510,7 @@ export const GeneratedImageControls = () => {
                       Upscale and Download High Quality{" "}
                       {usePhysicalDimensions
                         ? `(${dpiHigh} DPI)`
-                        : `(Zoom: ${zoomLevel / 4}%)`}
+                        : `(Zoom: ${imagePreviewZoom / 4}%)`}
                     </span>
                   </Button>
                 </div>
