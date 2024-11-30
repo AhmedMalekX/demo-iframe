@@ -104,6 +104,8 @@ interface DashboardStore {
   setSelectedPreviewImage: (imageUrl: string | null) => void;
   selectedMockup: string | null;
   setSelectedMockup: (value: string | null) => void;
+  scalingFactor: number;
+  setScalingFactor: (value: number) => void;
 
   isAborted: boolean;
   setIsAborted: (value: boolean) => void;
@@ -196,6 +198,8 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
     set({ selectedPreviewImage: imageUrl }),
   selectedMockup: null,
   setSelectedMockup: (value) => set({ selectedMockup: value }),
+  scalingFactor: 1,
+  setScalingFactor: (value) => set({ scalingFactor: value }),
 
   isAborted: false,
   setIsAborted: (value) => set({ isAborted: value }),

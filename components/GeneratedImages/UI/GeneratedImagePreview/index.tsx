@@ -33,7 +33,8 @@ interface IGeneratedImagePreview {
 }
 
 export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
-  const { imagePreviewZoom, selectedMockup } = useDashboardStore();
+  const { imagePreviewZoom, selectedMockup, scalingFactor } =
+    useDashboardStore();
   const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
 
   const [finalResoluton] = useState(CONFIG.STARTING_REPEAT_CANVAS_RESOLUTION);
@@ -118,7 +119,7 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
               height={1000}
               style={{
                 backgroundImage: `url("${url}")`,
-                backgroundSize: `${imagePreviewZoom}%`,
+                backgroundSize: `${scalingFactor * imagePreviewZoom}%`,
                 objectFit: "cover",
                 objectPosition: "center",
               }}
@@ -133,7 +134,7 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
               backgroundImage: `url(${url})`,
               height: "500px",
               width: "100%",
-              backgroundSize: `${imagePreviewZoom}%`,
+              backgroundSize: `${scalingFactor * imagePreviewZoom}%`,
               objectPosition: "center center",
             }}
           >

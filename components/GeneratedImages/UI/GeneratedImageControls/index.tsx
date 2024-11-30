@@ -44,8 +44,13 @@ const HIGH_QUALITY_IMAGE_URL =
   "https://s3.amazonaws.com/imgs-patternedai/large_f003f64d-6fdc-41c8-9a50-85bd96844c5f.png";
 
 export const GeneratedImageControls = () => {
-  const { imagePreviewZoom, setImagePreviewZoom, selectedPreviewImage } =
-    useDashboardStore();
+  const {
+    imagePreviewZoom,
+    setImagePreviewZoom,
+    selectedPreviewImage,
+    scalingFactor,
+    setScalingFactor,
+  } = useDashboardStore();
 
   /*
    * Handle the selected preview image
@@ -73,9 +78,8 @@ export const GeneratedImageControls = () => {
   } | null>(null);
   const [dpiStandard, setDpiStandard] = useState(0);
   const [dpiHigh, setDpiHigh] = useState(0);
-  const [scalingFactor, setScalingFactor] = useState(1);
 
-  console.log({ downloadInfo, scalingFactor });
+  console.log({ downloadInfo });
 
   /*
    * Canvas ref
