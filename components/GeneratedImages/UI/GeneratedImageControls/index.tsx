@@ -44,11 +44,8 @@ const PREVIEW_HEIGHT = 600;
 
 /*
  * TODO:
- *  - REMOVE IT AFTER IMPLEMENT THE HIGH RESOLUTION IMAGE
  *  - REFACTOR THE CODE AFTER IMPLEMENT THE HIGH RESOLUTION IMAGE
  * */
-const HIGH_QUALITY_IMAGE_URL =
-  "https://s3.amazonaws.com/imgs-patternedai/large_f003f64d-6fdc-41c8-9a50-85bd96844c5f.png";
 
 export const GeneratedImageControls = () => {
   const {
