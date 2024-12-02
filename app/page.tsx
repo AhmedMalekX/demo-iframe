@@ -107,6 +107,12 @@ export default function Parent() {
     );
   }
 
+  /*
+   * TODO:
+   *  - DEBUG THE UPSCALE IMAGE DOWNLOAD FOR THE REPEATED IMAGE
+   *  - FIND A WAY TO MAKE THE DOWNLOAD IMAGE DOWNLOAD FASTER
+   * */
+
   return (
     <AppStateProvider>
       <main className="max-w-7xl mx-auto py-10">
