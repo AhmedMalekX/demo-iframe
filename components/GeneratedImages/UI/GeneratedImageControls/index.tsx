@@ -310,6 +310,7 @@ export const GeneratedImageControls = () => {
 
     setIsGenerating(false);
     setIsUpscalingImage(false);
+    setTimeLeft(60);
   };
 
   const handleDimensionToggle = (checked: boolean) => {
