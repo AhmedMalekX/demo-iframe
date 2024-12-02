@@ -83,6 +83,7 @@ export const GeneratedImageControls = () => {
   } | null>(null);
   const [dpiStandard, setDpiStandard] = useState(0);
   const [dpiHigh, setDpiHigh] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(60);
 
   console.log({ downloadInfo });
 
@@ -152,8 +153,23 @@ export const GeneratedImageControls = () => {
     setScalingFactor(newScalingFactor);
   }, [width, height, imagePreviewZoom, usePhysicalDimensions, dpiStandard]);
 
+  const startCountdown = () => {
+    setTimeLeft(60);
+
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const generateImage = async (quality: "standard" | "high") => {
     setIsGenerating(true);
+    startCountdown();
     const baseTileSize = 1024;
     const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
     let finalWidth: number;
@@ -186,12 +202,6 @@ export const GeneratedImageControls = () => {
     if (quality === "standard") {
       imageUrl = standardImageUrl;
     } else {
-      /*
-       * TODO: GET THE UPSCALE IMAGE URL
-       *  - Get call Id response
-       *  - Get upscale data
-       * */
-
       setIsUpscalingImage(true);
 
       const dataToGetUpscaleCallId = {
@@ -398,7 +408,10 @@ export const GeneratedImageControls = () => {
                       disabled={!selectedPreviewImage || isGenerating}
                       onClick={() => generateImage("standard")}
                     >
-                      <Download /> <span>Download Standard (1024 x 1024)</span>
+                      <Download className="!w-5 !h-5" />{" "}
+                      <span className="text-[1rem]">
+                        Download Standard (1024 x 1024)
+                      </span>
                     </Button>
                     <p className="text-gray-600 italic">
                       Best for small images, web use, or low-resolution
@@ -410,12 +423,19 @@ export const GeneratedImageControls = () => {
                       size="lg"
                       disabled={!selectedPreviewImage || isGenerating}
                       onClick={() => generateImage("high")}
+                      className="flex items-center justify-center gap-x-2 w-full"
                     >
-                      <Timer />
-                      <span>
-                        Upscale and Download High Quality (4096 x 4096, ~60
-                        seconds)
-                      </span>
+                      <Timer className="!w-5 !h-5" />
+                      {isGenerating ? (
+                        <span className="text-[1rem]">
+                          {isGenerating ? `${timeLeft}s left` : ""}
+                        </span>
+                      ) : (
+                        <span className="text-[1rem]">
+                          Upscale and Download High Quality (4096 x 4096, ~60
+                          seconds)
+                        </span>
+                      )}
                     </Button>
                     <p className="text-gray-600 italic">
                       Ideal for large prints, high-resolution displays, or where
@@ -490,8 +510,8 @@ export const GeneratedImageControls = () => {
                     disabled={!selectedPreviewImage || isGenerating}
                     onClick={() => generateImage("standard")}
                   >
-                    <Download />
-                    <span>
+                    <Download className="!w-5 !h-5" />
+                    <span className="text-[1rem]">
                       Download Standard{" "}
                       {usePhysicalDimensions ? `(${dpiStandard} DPI)` : ""}
                     </span>
@@ -505,13 +525,19 @@ export const GeneratedImageControls = () => {
                     disabled={!selectedPreviewImage || isGenerating}
                     onClick={() => generateImage("high")}
                   >
-                    <Timer />{" "}
-                    <span>
-                      Upscale and Download High Quality{" "}
-                      {usePhysicalDimensions
-                        ? `(${dpiHigh} DPI)`
-                        : `(Zoom: ${imagePreviewZoom / 4}%)`}
-                    </span>
+                    <Timer className="!w-5 !h-5" />{" "}
+                    {isGenerating ? (
+                      <span className="text-[1rem]">
+                        {isGenerating ? `${timeLeft}s left` : ""}
+                      </span>
+                    ) : (
+                      <span className="text-[1rem]">
+                        Upscale and Download High Quality{" "}
+                        {usePhysicalDimensions
+                          ? `(${dpiHigh} DPI)`
+                          : `(Zoom: ${imagePreviewZoom / 4}%)`}
+                      </span>
+                    )}
                   </Button>
                 </div>
               </TabsContent>
