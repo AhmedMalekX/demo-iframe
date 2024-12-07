@@ -45,6 +45,9 @@ import { Button } from "@/components/ui/button";
 // import Sketch from "@uiw/react-color-sketch";
 import { SketchPicker } from "react-color";
 
+const TypedSketchPicker =
+  SketchPicker as unknown as React.JSXElementConstructor<any>;
+
 export const MenuElementProperty = () => {
   const context = useContext(AppStateContext)!;
   const state = context.appState;
@@ -401,9 +404,9 @@ export const TextElementProperty: React.FC<TextElementPropertyProps> = (
           </div>
           {displayColor ? (
             <>
-              <SketchPicker
+              <TypedSketchPicker
                 color={color}
-                onChange={(color) => {
+                onChange={(color: any) => {
                   const fabricObject = props.editorElement.fabricObject;
                   if (fabricObject instanceof fabric.Text) {
                     setColor(color.hex);
