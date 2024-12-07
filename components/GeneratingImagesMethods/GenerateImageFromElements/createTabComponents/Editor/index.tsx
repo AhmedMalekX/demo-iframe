@@ -40,8 +40,7 @@ import { convertImageToBase64 } from "@/components/GeneratingImagesMethods/Gener
  * Libs
  * */
 import * as fabric from "fabric";
-// import { SketchPicker, SketchPickerProps } from "react-color";
-import * as ReactColor from "react-color";
+import { SketchPicker } from "react-color";
 import { useWindowSize } from "usehooks-ts";
 
 /*
@@ -63,7 +62,9 @@ import { useCreateTabStore } from "@/store/createTab.store";
  * */
 import { cn } from "@/lib/utils";
 
-const SketchPicker = ReactColor.SketchPicker;
+const TypedSketchPicker = SketchPicker as React.ComponentType<
+  React.ComponentProps<typeof SketchPicker>
+>;
 
 export const Editor: React.FC = () => {
   // const router = useRouter();
@@ -745,7 +746,7 @@ export const Editor: React.FC = () => {
             className="w-8 h-8 rounded-md drop-shadow-none hover:drop-shadow-md cursor-pointer transition-all ease outline outline-1 outline-offset-1 outline-gray-400"
           />
 
-          <SketchPicker
+          <TypedSketchPicker
             color={appState.backgroundColor}
             onChange={(color) => {
               console.log({ color });
