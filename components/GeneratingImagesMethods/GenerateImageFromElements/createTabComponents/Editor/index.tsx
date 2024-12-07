@@ -40,7 +40,8 @@ import { convertImageToBase64 } from "@/components/GeneratingImagesMethods/Gener
  * Libs
  * */
 import * as fabric from "fabric";
-import { SketchPicker, SketchPickerProps } from "react-color";
+// import { SketchPicker, SketchPickerProps } from "react-color";
+import * as ReactColor from "react-color";
 import { useWindowSize } from "usehooks-ts";
 
 /*
@@ -61,6 +62,8 @@ import { useCreateTabStore } from "@/store/createTab.store";
  * Icons
  * */
 import { cn } from "@/lib/utils";
+
+const SketchPicker = ReactColor.SketchPicker;
 
 export const Editor: React.FC = () => {
   // const router = useRouter();
@@ -319,17 +322,6 @@ export const Editor: React.FC = () => {
     context.appState.selectedElementId,
     autoEditText,
   ]);
-
-  const pickerProps: SketchPickerProps = {
-    color: appState.backgroundColor,
-    onChange: (color) => {
-      console.log({ color });
-      context.dispatch({
-        type: "UPDATE_EDITOR_PROPERTIES",
-        properties: { backgroundColor: color.hex },
-      });
-    },
-  };
 
   useUndoRedoKeyboardShortcuts();
 
@@ -754,7 +746,6 @@ export const Editor: React.FC = () => {
           />
 
           <SketchPicker
-            {...pickerProps}
             color={appState.backgroundColor}
             onChange={(color) => {
               console.log({ color });
