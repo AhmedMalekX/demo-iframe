@@ -62,6 +62,9 @@ import { useCreateTabStore } from "@/store/createTab.store";
  * */
 import { cn } from "@/lib/utils";
 
+const TypedSketchPicker =
+  SketchPicker as unknown as React.JSXElementConstructor<any>;
+
 export const Editor: React.FC = () => {
   // const router = useRouter();
 
@@ -742,9 +745,9 @@ export const Editor: React.FC = () => {
             className="w-8 h-8 rounded-md drop-shadow-none hover:drop-shadow-md cursor-pointer transition-all ease outline outline-1 outline-offset-1 outline-gray-400"
           />
 
-          <SketchPicker
+          <TypedSketchPicker
             color={appState.backgroundColor}
-            onChange={(color) => {
+            onChange={(color: any) => {
               console.log({ color });
               context.dispatch({
                 type: "UPDATE_EDITOR_PROPERTIES",

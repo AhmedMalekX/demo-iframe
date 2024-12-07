@@ -35,6 +35,7 @@ import { Download, Timer } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { getUpscaleCallId } from "@/actions/getUpscaleCallId";
 import { getUpscaleImageDataHelper } from "@/helpers/getUpscaleImageDataHelper";
+import { useCountdown } from "@/hooks/useCountdown";
 
 /*
  * Constants
@@ -76,16 +77,60 @@ export const GeneratedImageControls = () => {
   const [width, setWidth] = useState(usePhysicalDimensions ? 12 : 2000);
   const [height, setHeight] = useState(usePhysicalDimensions ? 12 : 2000);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [downloadInfo, setDownloadInfo] = useState<{
-    dpi: number;
-    resolution: { width: number; height: number };
-    imageUrl: string;
-  } | null>(null);
+  // const [downloadInfo, setDownloadInfo] = useState<{
+  //   dpi: number;
+  //   resolution: { width: number; height: number };
+  //   imageUrl: string;
+  // } | null>(null);
   const [dpiStandard, setDpiStandard] = useState(0);
   const [dpiHigh, setDpiHigh] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60);
+  // const [timeLeft, setTimeLeft] = useState(60);
 
-  console.log({ downloadInfo });
+  const [timeLeft, startCountdown, stopCountdown] = useCountdown(60); // Start the countdown with 60 seconds
+
+  useEffect(() => {
+    console.log({ imagePreviewZoom });
+  }, [imagePreviewZoom]);
+
+  useEffect(() => {
+    console.log({ selectedPreviewImage });
+  }, [selectedPreviewImage]);
+
+  useEffect(() => {
+    console.log({ standardImageUrl });
+  }, [standardImageUrl]);
+
+  useEffect(() => {
+    console.log({ activeTab });
+  }, [activeTab]);
+
+  useEffect(() => {
+    console.log({ usePhysicalDimensions });
+  }, [usePhysicalDimensions]);
+
+  useEffect(() => {
+    console.log({ width });
+  }, [width]);
+
+  useEffect(() => {
+    console.log({ height });
+  }, [height]);
+
+  useEffect(() => {
+    console.log({ isGenerating });
+  }, [isGenerating]);
+
+  useEffect(() => {
+    console.log({ dpiStandard });
+  }, [dpiStandard]);
+
+  useEffect(() => {
+    console.log({ dpiHigh });
+  }, [dpiHigh]);
+
+  useEffect(() => {
+    console.log({ timeLeft });
+  }, [timeLeft]);
 
   /*
    * Canvas ref
@@ -153,23 +198,362 @@ export const GeneratedImageControls = () => {
     setScalingFactor(newScalingFactor);
   }, [width, height, imagePreviewZoom, usePhysicalDimensions, dpiStandard]);
 
-  const startCountdown = () => {
-    setTimeLeft(60);
+  // const startCountdown = () => {
+  //   setTimeLeft(60);
+  //
+  //   const interval = setInterval(() => {
+  //     setTimeLeft((prev) => {
+  //       if (prev <= 1) {
+  //         clearInterval(interval);
+  //         return 0;
+  //       }
+  //       return prev - 1;
+  //     });
+  //   }, 1000);
+  // };
 
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
+  // OLD CODE
+  // const generateImage = async (quality: "standard" | "high") => {
+  //   setIsGenerating(true);
+  //   startCountdown();
+  //   const baseTileSize = 1024;
+  //   const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
+  //   let finalWidth: number;
+  //   let finalHeight: number;
+  //   let dpi: number;
+  //   let adjustedZoomLevel = imagePreviewZoom;
+  //
+  //   if (activeTab === "tile") {
+  //     finalWidth = tileSize;
+  //     finalHeight = tileSize;
+  //     dpi = tileSize;
+  //   } else if (usePhysicalDimensions) {
+  //     const dpiValues = calculateDPI(width, height, imagePreviewZoom);
+  //     dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
+  //     finalWidth = Math.round(width * dpi);
+  //     finalHeight = Math.round(height * dpi);
+  //   } else {
+  //     if (quality === "high") {
+  //       adjustedZoomLevel = imagePreviewZoom / 4;
+  //     }
+  //     const scaleFactor = adjustedZoomLevel / 100;
+  //     finalWidth = width;
+  //     finalHeight = height;
+  //     dpi = Math.round(tileSize / scaleFactor);
+  //   }
+  //
+  //   if (!standardImageUrl) return;
+  //
+  //   let imageUrl: string;
+  //   if (quality === "standard") {
+  //     imageUrl = standardImageUrl;
+  //   } else {
+  //     setIsUpscalingImage(true);
+  //
+  //     const dataToGetUpscaleCallId = {
+  //       input_img_url: selectedPreviewImage!,
+  //       outscale: 4,
+  //       imageId: uuidv4(),
+  //     };
+  //
+  //     // get upscale call id
+  //     const callIdResponse: any = await getUpscaleCallId(
+  //       dataToGetUpscaleCallId,
+  //     );
+  //
+  //     // handle error for call id
+  //     if (callIdResponse?.errors) {
+  //       setErrorModalMessage({
+  //         header: "Server error!",
+  //         body: "Something went wrong, try again No credits were deducted for this request.",
+  //       });
+  //       setShowErrorModal(true);
+  //       setIsUpscalingImage(false);
+  //       return;
+  //     }
+  //
+  //     if (callIdResponse?.message) {
+  //       setErrorModalMessage({
+  //         header: "Something went wrong!",
+  //         body: "Something went wrong, try again No credits were deducted for this request.",
+  //       });
+  //       setShowErrorModal(true);
+  //       setIsUpscalingImage(false);
+  //       return;
+  //     }
+  //
+  //     try {
+  //       const getImageDataResponse: any = await getUpscaleImageDataHelper({
+  //         callId: callIdResponse.callIdData.call_id,
+  //       });
+  //
+  //       if (getImageDataResponse?.status === 500) {
+  //         setErrorModalMessage({
+  //           header: "Server error!",
+  //           body: "Something went wrong, try again No credits were deducted for this request.",
+  //         });
+  //         setShowErrorModal(true);
+  //         return;
+  //       }
+  //
+  //       imageUrl = getImageDataResponse.data.img_url;
+  //     } catch (error: any) {
+  //       console.log({ error });
+  //       setErrorModalMessage({
+  //         header: "Something went wrong!",
+  //         body: "Something went wrong, try again No credits were deducted for this request.",
+  //       });
+  //       setShowErrorModal(true);
+  //       return;
+  //     } finally {
+  //       setIsUpscalingImage(false);
+  //     }
+  //   }
+  //
+  //   setDownloadInfo({
+  //     dpi,
+  //     resolution: { width: finalWidth, height: finalHeight },
+  //     imageUrl,
+  //   });
+  //
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
+  //
+  //   canvas.width = finalWidth;
+  //   canvas.height = finalHeight;
+  //   const ctx = canvas.getContext("2d");
+  //   if (!ctx) return;
+  //
+  //   const img = new Image();
+  //   img.crossOrigin = "anonymous";
+  //   img.src = imageUrl;
+  //
+  //   await new Promise((resolve) => {
+  //     img.onload = () => {
+  //       if (activeTab === "tile" || usePhysicalDimensions) {
+  //         for (let y = 0; y < finalHeight; y += tileSize) {
+  //           for (let x = 0; x < finalWidth; x += tileSize) {
+  //             ctx.drawImage(img, x, y, tileSize, tileSize);
+  //           }
+  //         }
+  //       } else {
+  //         const scaleFactor = adjustedZoomLevel / 100;
+  //         const effectiveTileSize = Math.round(tileSize * scaleFactor);
+  //         for (let y = 0; y < finalHeight; y += effectiveTileSize) {
+  //           for (let x = 0; x < finalWidth; x += effectiveTileSize) {
+  //             ctx.drawImage(img, x, y, effectiveTileSize, effectiveTileSize);
+  //           }
+  //         }
+  //       }
+  //       resolve(null);
+  //     };
+  //   });
+  //
+  //   const link = document.createElement("a");
+  //   link.download = `repeated-pattern-${quality}.png`;
+  //   link.href = canvas.toDataURL();
+  //   link.click();
+  //
+  //   setIsGenerating(false);
+  //   setIsUpscalingImage(false);
+  //   setTimeLeft(60);
+  // };
+
+  // MAXIMIZE IMAGE WIDTH & HEIGHT
+  // const generateImage = async (quality: "standard" | "high") => {
+  //   setIsGenerating(true);
+  //   startCountdown();
+  //   const baseTileSize = 1024;
+  //   const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
+  //   let finalWidth: number;
+  //   let finalHeight: number;
+  //   let dpi: number;
+  //   let adjustedZoomLevel = imagePreviewZoom;
+  //
+  //   if (activeTab === "tile") {
+  //     finalWidth = tileSize;
+  //     finalHeight = tileSize;
+  //     dpi = tileSize;
+  //   } else if (usePhysicalDimensions) {
+  //     const dpiValues = calculateDPI(width, height, imagePreviewZoom);
+  //     dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
+  //     finalWidth = Math.round(width * dpi);
+  //     finalHeight = Math.round(height * dpi);
+  //   } else {
+  //     if (quality === "high") {
+  //       adjustedZoomLevel = imagePreviewZoom / 4;
+  //     }
+  //     const scaleFactor = adjustedZoomLevel / 100;
+  //     finalWidth = width;
+  //     finalHeight = height;
+  //     dpi = Math.round(tileSize / scaleFactor);
+  //   }
+  //
+  //   if (!standardImageUrl) return;
+  //
+  //   let imageUrl: string;
+  //   if (quality === "standard") {
+  //     imageUrl = standardImageUrl;
+  //   } else {
+  //     setIsUpscalingImage(true);
+  //
+  //     const dataToGetUpscaleCallId = {
+  //       input_img_url: selectedPreviewImage!,
+  //       outscale: 4,
+  //       imageId: uuidv4(),
+  //     };
+  //
+  //     // get upscale call id
+  //     const callIdResponse: any = await getUpscaleCallId(
+  //       dataToGetUpscaleCallId,
+  //     );
+  //
+  //     if (callIdResponse?.errors || callIdResponse?.message) {
+  //       setErrorModalMessage({
+  //         header: "Error!",
+  //         body: "Something went wrong. No credits were deducted for this request.",
+  //       });
+  //       setShowErrorModal(true);
+  //       setIsUpscalingImage(false);
+  //       return;
+  //     }
+  //
+  //     try {
+  //       const getImageDataResponse: any = await getUpscaleImageDataHelper({
+  //         callId: callIdResponse.callIdData.call_id,
+  //       });
+  //
+  //       if (getImageDataResponse?.status === 500) {
+  //         setErrorModalMessage({
+  //           header: "Server error!",
+  //           body: "Something went wrong. No credits were deducted for this request.",
+  //         });
+  //         setShowErrorModal(true);
+  //         return;
+  //       }
+  //
+  //       imageUrl = getImageDataResponse.data.img_url;
+  //     } catch (error: any) {
+  //       console.error({ error });
+  //       setErrorModalMessage({
+  //         header: "Something went wrong!",
+  //         body: "Something went wrong. No credits were deducted for this request.",
+  //       });
+  //       setShowErrorModal(true);
+  //       return;
+  //     } finally {
+  //       setIsUpscalingImage(false);
+  //     }
+  //   }
+  //
+  //   setDownloadInfo({
+  //     dpi,
+  //     resolution: { width: finalWidth, height: finalHeight },
+  //     imageUrl,
+  //   });
+  //
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
+  //
+  //   // Scale down canvas for large resolutions
+  //   const maxCanvasSize = 4096;
+  //   if (finalWidth > maxCanvasSize || finalHeight > maxCanvasSize) {
+  //     const scaleFactor = Math.min(
+  //       maxCanvasSize / finalWidth,
+  //       maxCanvasSize / finalHeight,
+  //     );
+  //     finalWidth = Math.round(finalWidth * scaleFactor);
+  //     finalHeight = Math.round(finalHeight * scaleFactor);
+  //     dpi = Math.round(dpi * scaleFactor);
+  //   }
+  //
+  //   canvas.width = finalWidth;
+  //   canvas.height = finalHeight;
+  //   const ctx = canvas.getContext("2d");
+  //   if (!ctx) return;
+  //
+  //   const img = new Image();
+  //   img.crossOrigin = "anonymous";
+  //   img.src = imageUrl;
+  //
+  //   await new Promise((resolve) => {
+  //     img.onload = () => {
+  //       if (activeTab === "tile" || usePhysicalDimensions) {
+  //         for (let y = 0; y < finalHeight; y += tileSize) {
+  //           for (let x = 0; x < finalWidth; x += tileSize) {
+  //             ctx.drawImage(img, x, y, tileSize, tileSize);
+  //           }
+  //         }
+  //       } else {
+  //         const scaleFactor = adjustedZoomLevel / 100;
+  //         const effectiveTileSize = Math.round(tileSize * scaleFactor);
+  //         for (let y = 0; y < finalHeight; y += effectiveTileSize) {
+  //           for (let x = 0; x < finalWidth; x += effectiveTileSize) {
+  //             ctx.drawImage(img, x, y, effectiveTileSize, effectiveTileSize);
+  //           }
+  //         }
+  //       }
+  //       resolve(null);
+  //     };
+  //   });
+  //
+  //   const link = document.createElement("a");
+  //   link.download = `repeated-pattern-${quality}.jpeg`;
+  //   const imageQuality = 0.7; // Adjust for smaller file size
+  //   link.href = canvas.toDataURL("image/jpeg", imageQuality);
+  //   link.click();
+  //
+  //   setIsGenerating(false);
+  //   setIsUpscalingImage(false);
+  //   setTimeLeft(60);
+  // };
+
+  function createShader(
+    gl: WebGLRenderingContext,
+    type: number,
+    source: string,
+  ): WebGLShader {
+    const shader = gl.createShader(type);
+    if (!shader) throw new Error("Unable to create shader.");
+
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const error = gl.getShaderInfoLog(shader);
+      gl.deleteShader(shader);
+      throw new Error("Shader compilation error: " + error);
+    }
+
+    return shader;
+  }
+
+  function createProgram(
+    gl: WebGLRenderingContext,
+    vertexShader: WebGLShader,
+    fragmentShader: WebGLShader,
+  ): WebGLProgram {
+    const program = gl.createProgram();
+    if (!program) throw new Error("Unable to create program.");
+
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const error = gl.getProgramInfoLog(program);
+      gl.deleteProgram(program);
+      throw new Error("Program linking error: " + error);
+    }
+
+    return program;
+  }
 
   const generateImage = async (quality: "standard" | "high") => {
+    if (isGenerating) return;
     setIsGenerating(true);
     startCountdown();
+
     const baseTileSize = 1024;
     const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
     let finalWidth: number;
@@ -198,7 +582,7 @@ export const GeneratedImageControls = () => {
 
     if (!standardImageUrl) return;
 
-    let imageUrl: string;
+    let imageUrl: string | null;
     if (quality === "standard") {
       imageUrl = standardImageUrl;
     } else {
@@ -210,26 +594,14 @@ export const GeneratedImageControls = () => {
         imageId: uuidv4(),
       };
 
-      // get upscale call id
       const callIdResponse: any = await getUpscaleCallId(
         dataToGetUpscaleCallId,
       );
 
-      // handle error for call id
-      if (callIdResponse?.errors) {
+      if (callIdResponse?.errors || callIdResponse?.message) {
         setErrorModalMessage({
-          header: "Server error!",
-          body: "Something went wrong, try again No credits were deducted for this request.",
-        });
-        setShowErrorModal(true);
-        setIsUpscalingImage(false);
-        return;
-      }
-
-      if (callIdResponse?.message) {
-        setErrorModalMessage({
-          header: "Something went wrong!",
-          body: "Something went wrong, try again No credits were deducted for this request.",
+          header: "Error!",
+          body: "An error occurred during upscaling. No credits were deducted.",
         });
         setShowErrorModal(true);
         setIsUpscalingImage(false);
@@ -243,8 +615,8 @@ export const GeneratedImageControls = () => {
 
         if (getImageDataResponse?.status === 500) {
           setErrorModalMessage({
-            header: "Server error!",
-            body: "Something went wrong, try again No credits were deducted for this request.",
+            header: "Server Error!",
+            body: "An error occurred during image retrieval. No credits were deducted.",
           });
           setShowErrorModal(true);
           return;
@@ -252,10 +624,10 @@ export const GeneratedImageControls = () => {
 
         imageUrl = getImageDataResponse.data.img_url;
       } catch (error: any) {
-        console.log({ error });
+        console.log(error);
         setErrorModalMessage({
-          header: "Something went wrong!",
-          body: "Something went wrong, try again No credits were deducted for this request.",
+          header: "Error!",
+          body: "An error occurred. No credits were deducted.",
         });
         setShowErrorModal(true);
         return;
@@ -264,30 +636,139 @@ export const GeneratedImageControls = () => {
       }
     }
 
-    setDownloadInfo({
-      dpi,
-      resolution: { width: finalWidth, height: finalHeight },
-      imageUrl,
-    });
+    // setDownloadInfo({
+    //   dpi,
+    //   resolution: { width: finalWidth, height: finalHeight },
+    //   imageUrl,
+    // });
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     canvas.width = finalWidth;
     canvas.height = finalHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
 
+    const gl = canvas.getContext("webgl");
+    if (!gl) {
+      console.error("WebGL not supported");
+      return;
+    }
+
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const vertexShaderSource = `
+        attribute vec2 a_position;
+        attribute vec2 a_texCoord;
+        uniform vec2 u_resolution;
+        varying vec2 v_texCoord;
+
+        void main() {
+            vec2 zeroToOne = a_position / u_resolution;
+            vec2 zeroToTwo = zeroToOne * 2.0;
+            vec2 clipSpace = zeroToTwo - 1.0;
+
+            gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+            v_texCoord = a_texCoord;
+        }
+    `;
+
+    const fragmentShaderSource = `
+        precision mediump float;
+        uniform sampler2D u_texture;
+        varying vec2 v_texCoord;
+
+        void main() {
+            gl_FragColor = texture2D(u_texture, v_texCoord);
+        }
+    `;
+
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = createShader(
+      gl,
+      gl.FRAGMENT_SHADER,
+      fragmentShaderSource,
+    );
+    const program = createProgram(gl, vertexShader, fragmentShader);
+
+    const positionLocation = gl.getAttribLocation(program, "a_position");
+    const texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
+    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const textureLocation = gl.getUniformLocation(program, "u_texture");
+
+    const positions = new Float32Array([
+      0,
+      0,
+      finalWidth,
+      0,
+      0,
+      finalHeight,
+      0,
+      finalHeight,
+      finalWidth,
+      0,
+      finalWidth,
+      finalHeight,
+    ]);
+
+    const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+    const texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+
+    const texture = gl.createTexture();
     const img = new Image();
     img.crossOrigin = "anonymous";
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     img.src = imageUrl;
 
     await new Promise((resolve) => {
       img.onload = () => {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          img,
+        );
+
+        if (
+          (img.width & (img.width - 1)) === 0 &&
+          (img.height & (img.height - 1)) === 0
+        ) {
+          gl.generateMipmap(gl.TEXTURE_2D);
+        } else {
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+
+        gl.useProgram(program);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.uniform1i(textureLocation, 0);
+
         if (activeTab === "tile" || usePhysicalDimensions) {
           for (let y = 0; y < finalHeight; y += tileSize) {
             for (let x = 0; x < finalWidth; x += tileSize) {
-              ctx.drawImage(img, x, y, tileSize, tileSize);
+              gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
           }
         } else {
@@ -295,28 +776,42 @@ export const GeneratedImageControls = () => {
           const effectiveTileSize = Math.round(tileSize * scaleFactor);
           for (let y = 0; y < finalHeight; y += effectiveTileSize) {
             for (let x = 0; x < finalWidth; x += effectiveTileSize) {
-              ctx.drawImage(img, x, y, effectiveTileSize, effectiveTileSize);
+              gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
           }
         }
+
         resolve(null);
       };
     });
 
-    const link = document.createElement("a");
-    link.download = `repeated-pattern-${quality}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
+    try {
+      const link = document.createElement("a");
+      link.download = `repeated-pattern-${quality}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
 
-    setIsGenerating(false);
-    setIsUpscalingImage(false);
+      setIsGenerating(false);
+      setIsUpscalingImage(false);
+      gl.deleteTexture(texture);
+      gl.deleteBuffer(positionBuffer);
+      gl.deleteBuffer(texCoordBuffer);
+      gl.deleteProgram(program);
+      canvas.width = 0;
+      canvas.height = 0;
+      setIsGenerating(false);
+      setIsUpscalingImage(false);
+      imageUrl = null;
+    } finally {
+      stopCountdown();
+    }
   };
+  //=================
 
   const handleDimensionToggle = (checked: boolean) => {
     setUsePhysicalDimensions(checked);
     setWidth(checked ? 12 : 2000);
     setHeight(checked ? 12 : 2000);
-    setDownloadInfo(null);
   };
 
   // const previewStyle = {
