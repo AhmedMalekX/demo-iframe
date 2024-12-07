@@ -29,10 +29,33 @@ export const GeneratedImagesResult = () => {
     selectedPreviewImage,
     setSelectedPreviewImage,
     generatedImages,
+    setGeneratedImages,
     submittingFormToGetData,
     generateFromImageNumberOfImages,
     generateFromTextNumberOfImages,
   } = useDashboardStore();
+
+  useEffect(() => {
+    if (!generatedImages?.imgs_dict_list.length) {
+      setGeneratedImages({
+        imgs_dict_list: [
+          {
+            imgFileUrl:
+              "http://cdn.patterned.ai.s3-website-us-east-1.amazonaws.com/b60437a6-b8a8-44f5-9b68-56ac4566c847.png",
+
+            imgUrl:
+              "https://dsm6fpp1ioao4.cloudfront.net/b60437a6-b8a8-44f5-9b68-56ac4566c847.png",
+
+            uiid: "d723a3ab-d8d9-4d05-8996-16fde86a43dd",
+          },
+        ],
+        metadata: {
+          prompt:
+            "Embodying the essence of ethnic elegance, this mesmerizing watercolor artwork showcases a detailed botanical scene with beautifully rendered floral and leaf elements. The soft pastel color palette is accentuated by bold strokes and delicate shading, creating a visually striking balance between sophistication and natural beauty.",
+        },
+      });
+    }
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);

@@ -57,7 +57,10 @@ export const GeneratedImageControls = () => {
     setErrorModalMessage,
     setShowErrorModal,
     setIsUpscalingImage,
+    generatedImages,
   } = useDashboardStore();
+
+  console.log({ generatedImages });
 
   /*
    * Handle the selected preview image
@@ -549,6 +552,19 @@ export const GeneratedImageControls = () => {
     return program;
   }
 
+  const [upscaledImages, setUpscaledImages] = useState<any>();
+
+  useEffect(() => {
+    setUpscaledImages(
+      generatedImages?.imgs_dict_list.map((img) => ({
+        imageUrl: img.imgUrl,
+        upscaleImageUrl: null,
+      })),
+    );
+  }, [generatedImages]);
+
+  console.log({ upscaledImages });
+
   const generateImage = async (quality: "standard" | "high") => {
     if (isGenerating) return;
     setIsGenerating(true);
@@ -586,53 +602,79 @@ export const GeneratedImageControls = () => {
     if (quality === "standard") {
       imageUrl = standardImageUrl;
     } else {
-      setIsUpscalingImage(true);
+      if (
+        upscaledImages.find(
+          (img: any) =>
+            img.imageUrl ===
+            "https://dsm6fpp1ioao4.cloudfront.net/b60437a6-b8a8-44f5-9b68-56ac4566c847.png",
+        )
+      ) {
+        imageUrl =
+          "https://s3.amazonaws.com/imgs-patternedai/large_b22d6fb8-1a11-4bca-aea5-d2cdae32d81d.png";
+      } else {
+        const foundImage = upscaledImages.find(
+          (img: { imageUrl: string }) => img.imageUrl === selectedPreviewImage,
+        );
 
-      const dataToGetUpscaleCallId = {
-        input_img_url: selectedPreviewImage!,
-        outscale: 4,
-        imageId: uuidv4(),
-      };
+        if (!foundImage?.upscaleImageUrl) {
+          setIsUpscalingImage(true);
 
-      const callIdResponse: any = await getUpscaleCallId(
-        dataToGetUpscaleCallId,
-      );
+          const dataToGetUpscaleCallId = {
+            input_img_url: selectedPreviewImage!,
+            outscale: 4,
+            imageId: uuidv4(),
+          };
 
-      if (callIdResponse?.errors || callIdResponse?.message) {
-        setErrorModalMessage({
-          header: "Error!",
-          body: "An error occurred during upscaling. No credits were deducted.",
-        });
-        setShowErrorModal(true);
-        setIsUpscalingImage(false);
-        return;
-      }
+          const callIdResponse: any = await getUpscaleCallId(
+            dataToGetUpscaleCallId,
+          );
 
-      try {
-        const getImageDataResponse: any = await getUpscaleImageDataHelper({
-          callId: callIdResponse.callIdData.call_id,
-        });
+          if (callIdResponse?.errors || callIdResponse?.message) {
+            setErrorModalMessage({
+              header: "Error!",
+              body: "An error occurred during upscaling. No credits were deducted.",
+            });
+            setShowErrorModal(true);
+            setIsUpscalingImage(false);
+            return;
+          }
 
-        if (getImageDataResponse?.status === 500) {
-          setErrorModalMessage({
-            header: "Server Error!",
-            body: "An error occurred during image retrieval. No credits were deducted.",
-          });
-          setShowErrorModal(true);
-          return;
+          try {
+            const getImageDataResponse: any = await getUpscaleImageDataHelper({
+              callId: callIdResponse.callIdData.call_id,
+            });
+
+            if (getImageDataResponse?.status === 500) {
+              setErrorModalMessage({
+                header: "Server Error!",
+                body: "An error occurred during image retrieval. No credits were deducted.",
+              });
+              setShowErrorModal(true);
+              return;
+            }
+
+            imageUrl = getImageDataResponse.data.img_url;
+            setUpscaledImages((prevImages: any) =>
+              prevImages.map((img: any) =>
+                img.imageUrl === selectedPreviewImage
+                  ? { ...img, upscaleImageUrl: imageUrl }
+                  : img,
+              ),
+            );
+          } catch (error: any) {
+            console.log(error);
+            setErrorModalMessage({
+              header: "Error!",
+              body: "An error occurred. No credits were deducted.",
+            });
+            setShowErrorModal(true);
+            return;
+          } finally {
+            setIsUpscalingImage(false);
+          }
+        } else {
+          imageUrl = foundImage?.upscaleImageUrl;
         }
-
-        imageUrl = getImageDataResponse.data.img_url;
-      } catch (error: any) {
-        console.log(error);
-        setErrorModalMessage({
-          header: "Error!",
-          body: "An error occurred. No credits were deducted.",
-        });
-        setShowErrorModal(true);
-        return;
-      } finally {
-        setIsUpscalingImage(false);
       }
     }
 
@@ -765,9 +807,12 @@ export const GeneratedImageControls = () => {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.uniform1i(textureLocation, 0);
 
-        if (activeTab === "tile" || usePhysicalDimensions) {
+        gl.uniform2f(resolutionLocation, finalWidth, finalHeight);
+
+        if (activeTab === "tile") {
           for (let y = 0; y < finalHeight; y += tileSize) {
             for (let x = 0; x < finalWidth; x += tileSize) {
+              gl.uniform2f(resolutionLocation, tileSize, tileSize);
               gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
           }
@@ -780,6 +825,78 @@ export const GeneratedImageControls = () => {
             }
           }
         }
+
+        // if (activeTab === "tile" || usePhysicalDimensions) {
+        //   for (let y = 0; y < finalHeight; y += tileSize) {
+        //     for (let x = 0; x < finalWidth; x += tileSize) {
+        //       const xOffset = x / finalWidth;
+        //       const yOffset = y / finalHeight;
+        //       const xScale = tileSize / finalWidth;
+        //       const yScale = tileSize / finalHeight;
+        //
+        //       // Adjust texture coordinates for this tile
+        //       const tileTexCoords = new Float32Array([
+        //         xOffset,
+        //         yOffset, // Bottom-left
+        //         xOffset + xScale,
+        //         yOffset, // Bottom-right
+        //         xOffset,
+        //         yOffset + yScale, // Top-left
+        //         xOffset,
+        //         yOffset + yScale, // Top-left
+        //         xOffset + xScale,
+        //         yOffset, // Bottom-right
+        //         xOffset + xScale,
+        //         yOffset + yScale, // Top-right
+        //       ]);
+        //
+        //       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        //       gl.bufferData(gl.ARRAY_BUFFER, tileTexCoords, gl.STATIC_DRAW);
+        //
+        //       gl.drawArrays(gl.TRIANGLES, 0, 6);
+        //     }
+        //   }
+        // } else {
+        //   const scaleFactor = adjustedZoomLevel / 100;
+        //   const effectiveTileSize = Math.round(tileSize * scaleFactor);
+        //
+        //   // Ensure canvas resolution adjusts for the zoom level
+        //   gl.uniform2f(
+        //     resolutionLocation,
+        //     finalWidth * scaleFactor,
+        //     finalHeight * scaleFactor,
+        //   );
+        //
+        //   for (let y = 0; y < finalHeight; y += effectiveTileSize) {
+        //     for (let x = 0; x < finalWidth; x += effectiveTileSize) {
+        //       const xOffset = (x / finalWidth) * scaleFactor;
+        //       const yOffset = (y / finalHeight) * scaleFactor;
+        //       const xScale = (effectiveTileSize / finalWidth) * scaleFactor;
+        //       const yScale = (effectiveTileSize / finalHeight) * scaleFactor;
+        //
+        //       // Adjust texture coordinates to reflect zoom
+        //       const tileTexCoords = new Float32Array([
+        //         xOffset,
+        //         yOffset, // Bottom-left
+        //         xOffset + xScale,
+        //         yOffset, // Bottom-right
+        //         xOffset,
+        //         yOffset + yScale, // Top-left
+        //         xOffset,
+        //         yOffset + yScale, // Top-left
+        //         xOffset + xScale,
+        //         yOffset, // Bottom-right
+        //         xOffset + xScale,
+        //         yOffset + yScale, // Top-right
+        //       ]);
+        //
+        //       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        //       gl.bufferData(gl.ARRAY_BUFFER, tileTexCoords, gl.STATIC_DRAW);
+        //
+        //       gl.drawArrays(gl.TRIANGLES, 0, 6);
+        //     }
+        //   }
+        // }
 
         resolve(null);
       };
