@@ -27,14 +27,18 @@ import { RefreshCw } from "lucide-react";
 import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
 import { EditorPreview } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabComponents/EditorPreview";
 import { CONFIG } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabData/constants";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
 
 interface IGeneratedImagePreview {
   url: string | null;
 }
 
 export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
-  const { selectedMockup, scalingFactor } = useDashboardStore();
-  const { activeGeneratingMethod } = useActiveGeneratingMethodStore();
+  const { selectedMockup, scalingFactor, setGenerationMethod } =
+    useDashboardStore();
+  const { activeGeneratingMethod, setActiveGeneratingMethod } =
+    useActiveGeneratingMethodStore();
+  const { setVariationImage } = useUploadImagesStore();
 
   const [finalResoluton] = useState(CONFIG.STARTING_REPEAT_CANVAS_RESOLUTION);
 
@@ -83,6 +87,12 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
       </div>
     );
 
+  const handleGenerateSimilar = () => {
+    setActiveGeneratingMethod("From image");
+    setGenerationMethod("Variation");
+    setVariationImage({ imageUrl: url, uploaded: true });
+  };
+
   const renderImageContent = () => (
     <TooltipProvider>
       <Tooltip delayDuration={0}>
@@ -91,6 +101,8 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
             className="bg-black bg-opacity-50 rounded-lg p-1 backdrop-blur-sm"
             stroke="white"
             size={30}
+            role="button"
+            onClick={handleGenerateSimilar}
           />
         </TooltipTrigger>
         <TooltipContent
