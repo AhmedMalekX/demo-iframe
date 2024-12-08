@@ -29,6 +29,8 @@ import {
  * Icons
  * */
 import { RefreshCw } from "lucide-react";
+import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
 
 /*
  * Types
@@ -54,8 +56,15 @@ export const EditorPreview = ({
 }: IEditorPreview) => {
   // hooks
   const { appState } = useAppStateContext();
-  const { imagePreviewZoom, selectedMockup, setSelectedPreviewImage } =
-    useDashboardStore();
+  const {
+    imagePreviewZoom,
+    selectedMockup,
+    setSelectedPreviewImage,
+    setGenerationMethod,
+  } = useDashboardStore();
+  const { setActiveGeneratingMethod } = useActiveGeneratingMethodStore();
+  const { setVariationImage } = useUploadImagesStore();
+
   const [url, setUrl] = useState<string | null>(null);
 
   const handleGeneratedImageUrl = (imageUrl: string) => {
@@ -63,6 +72,12 @@ export const EditorPreview = ({
     // You can set this URL to state or use it as needed
     setUrl(imageUrl);
     setSelectedPreviewImage(imageUrl);
+  };
+
+  const handleGenerateSimilar = () => {
+    setActiveGeneratingMethod("From image");
+    setGenerationMethod("Variation");
+    setVariationImage({ imageUrl: url, uploaded: true });
   };
 
   const renderImageContent = () => (
@@ -73,6 +88,8 @@ export const EditorPreview = ({
             className="bg-black bg-opacity-50 rounded-lg p-1 backdrop-blur-sm"
             stroke="white"
             size={30}
+            role="button"
+            onClick={handleGenerateSimilar}
           />
         </TooltipTrigger>
         <TooltipContent
