@@ -990,8 +990,8 @@ export const GeneratedImageControls = () => {
               <span>Download</span>
             </p>
           </PopoverTrigger>
-          <PopoverContent align="end" className="w-full">
-            <Tabs defaultValue="tile" className="w-full">
+          <PopoverContent align="end" className="w-full max-w-md">
+            <Tabs defaultValue="tile" className="w-full max-w-md">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger
                   value="tile"
@@ -1021,11 +1021,11 @@ export const GeneratedImageControls = () => {
                       onClick={() => generateImage("standard")}
                     >
                       <Download className="!w-5 !h-5" />{" "}
-                      <span className="text-[1rem]">
+                      <span className="text-[0.9rem]">
                         Download Standard (1024 x 1024)
                       </span>
                     </Button>
-                    <p className="text-gray-600 italic">
+                    <p className="text-gray-600 italic text-[0.9rem]">
                       Best for small images, web use, or low-resolution
                       applications.
                     </p>
@@ -1035,21 +1035,23 @@ export const GeneratedImageControls = () => {
                       size="lg"
                       disabled={!selectedPreviewImage || isGenerating}
                       onClick={() => generateImage("high")}
-                      className="flex items-center justify-center gap-x-2 w-full"
+                      className="flex items-center justify-center gap-x-2 w-full !h-14"
                     >
-                      <Timer className="!w-5 !h-5" />
+                      <Timer className="!w-7 !h-7" />
                       {isGenerating ? (
-                        <span className="text-[1rem]">
+                        <span className="text-[0.9rem]">
                           {isGenerating ? `${timeLeft}s left` : ""}
                         </span>
                       ) : (
-                        <span className="text-[1rem]">
-                          Upscale and Download High Quality (4096 x 4096, ~60
-                          seconds)
+                        <span className="text-[1rem] flex flex-col gap-y-0.5">
+                          <span>Upscale and Download High Quality</span>
+                          <span className="text-sm">
+                            (4096 x 4096, ~60 seconds)
+                          </span>
                         </span>
                       )}
                     </Button>
-                    <p className="text-gray-600 italic">
+                    <p className="text-gray-600 italic text-[0.9rem]">
                       Ideal for large prints, high-resolution displays, or where
                       zooming is required.
                     </p>
@@ -1123,7 +1125,7 @@ export const GeneratedImageControls = () => {
                     onClick={() => generateImage("standard")}
                   >
                     <Download className="!w-5 !h-5" />
-                    <span className="text-[1rem]">
+                    <span className="text-sm">
                       Download Standard{" "}
                       {usePhysicalDimensions ? `(${dpiStandard} DPI)` : ""}
                     </span>
@@ -1139,11 +1141,11 @@ export const GeneratedImageControls = () => {
                   >
                     <Timer className="!w-5 !h-5" />{" "}
                     {isGenerating ? (
-                      <span className="text-[1rem]">
+                      <span className="text-[0.9rem]">
                         {isGenerating ? `${timeLeft}s left` : ""}
                       </span>
                     ) : (
-                      <span className="text-[1rem]">
+                      <span className="text-sm">
                         Upscale and Download High Quality{" "}
                         {usePhysicalDimensions
                           ? `(${dpiHigh} DPI)`
