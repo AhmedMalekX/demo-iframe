@@ -589,9 +589,15 @@ export const GeneratedImageControls = () => {
         let dpi: number;
 
         if (currentTab === "tile") {
-          finalWidth = img.width;
-          finalHeight = img.height;
-          dpi = img.width;
+          if (quality === "standard") {
+            finalWidth = img.width;
+            finalHeight = img.height;
+            dpi = img.width;
+          } else {
+            finalWidth = img.width * 4;
+            finalHeight = img.height * 4;
+            dpi = img.width * 4;
+          }
         } else if (usePhysicalDimensions) {
           const dpiValues = calculateDPI(img.width, img.height, zoom); // Assuming calculateDPI is defined elsewhere
           dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
@@ -1163,12 +1169,6 @@ export const GeneratedImageControls = () => {
                             zoom: imagePreviewZoom,
                             quality: "standard",
                           });
-
-                          // await generateImageWebgl(
-                          //   "standard",
-                          //   selectedPreviewImage,
-                          //   imagePreviewZoom,
-                          // );
                         }
                       }}
                     >
@@ -1199,12 +1199,6 @@ export const GeneratedImageControls = () => {
                             zoom: imagePreviewZoom,
                             quality: "high",
                           });
-
-                          // await generateImageWebgl(
-                          //   "high",
-                          //   selectedPreviewImage,
-                          //   imagePreviewZoom,
-                          // );
                         }
                       }}
                       className="flex items-center justify-center gap-x-2 w-full !h-14"
@@ -1307,12 +1301,6 @@ export const GeneratedImageControls = () => {
                           zoom: imagePreviewZoom,
                           quality: "standard",
                         });
-
-                        // await generateImageWebgl(
-                        //   "standard",
-                        //   selectedPreviewImage,
-                        //   imagePreviewZoom,
-                        // );
                       }
                     }}
                   >
@@ -1342,12 +1330,6 @@ export const GeneratedImageControls = () => {
                           zoom: imagePreviewZoom,
                           quality: "high",
                         });
-
-                        // await generateImageWebgl(
-                        //   "high",
-                        //   selectedPreviewImage,
-                        //   imagePreviewZoom,
-                        // );
                       }
                     }}
                   >
