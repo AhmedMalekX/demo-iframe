@@ -145,7 +145,7 @@ export const EditorPreview = ({
                   height={1000}
                   style={{
                     backgroundImage: `url("${url}")`,
-                    backgroundSize: `20%`,
+                    backgroundSize: `${imagePreviewZoom}%`,
                     objectFit: "cover",
                     objectPosition: "center",
                   }}
