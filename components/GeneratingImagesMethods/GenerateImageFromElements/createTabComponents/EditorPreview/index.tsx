@@ -117,7 +117,7 @@ export const EditorPreview = ({
         onAfterRender={handleGeneratedImageUrl} // Pass the callback
       />
     );
-  }, [zoom, finalResoluton, previewZoom, pan]);
+  }, [pan, zoom, finalResoluton, previewZoom]);
 
   return (
     <div

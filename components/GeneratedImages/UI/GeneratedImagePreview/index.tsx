@@ -8,6 +8,9 @@ import Image from "next/image";
  * Stores
  * */
 import { useDashboardStore } from "@/store/dashboard.store";
+import { useUploadImagesStore } from "@/store/uploadImages.store";
+import { useCreateTabStore } from "@/store/createTab.store";
+import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
 
 /*
  * UI Components
@@ -19,15 +22,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { EditorPreview } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabComponents/EditorPreview";
 
 /*
  * Icons
  * */
 import { RefreshCw } from "lucide-react";
-import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
-import { EditorPreview } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabComponents/EditorPreview";
-import { CONFIG } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabData/constants";
-import { useUploadImagesStore } from "@/store/uploadImages.store";
 
 interface IGeneratedImagePreview {
   url: string | null;
@@ -39,17 +39,7 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
   const { activeGeneratingMethod, setActiveGeneratingMethod } =
     useActiveGeneratingMethodStore();
   const { setVariationImage } = useUploadImagesStore();
-
-  const [finalResoluton] = useState(CONFIG.STARTING_REPEAT_CANVAS_RESOLUTION);
-
-  const [pan] = useState({
-    x: 0,
-    y: 0,
-  });
-
-  const [previewZoom] = useState(1);
-
-  const [zoom] = useState(0.5);
+  const { previewZoom, zoom, pan, finalResoluton } = useCreateTabStore();
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -64,6 +54,8 @@ export const GeneratedImagePreview = ({ url }: IGeneratedImagePreview) => {
       </div>
     );
   }
+
+  console.log({ finalResoluton, pan, previewZoom, zoom });
 
   if (activeGeneratingMethod === "From elements") {
     return (
