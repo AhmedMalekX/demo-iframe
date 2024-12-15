@@ -551,44 +551,78 @@ export const GeneratedImageControls = () => {
 
   console.log({ upscaledImages });
 
-  const calculateFinalSize = ({
+  const calculateFinalSize = async ({
     currentTab,
     quality,
     zoom,
+    currentSelectedImage,
   }: {
     currentTab: "tile" | "repeated";
     quality: "standard" | "high";
     zoom: number;
+    currentSelectedImage: string;
   }) => {
-    const baseTileSize = 1024;
-
-    let finalWidth: number;
-    let finalHeight: number;
-    let dpi: number;
+    if (!currentSelectedImage) {
+      console.error("No image URL provided.");
+      return;
+    }
 
     let adjustedZoomLevel = zoom;
 
-    const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
+    // Use a Promise to wait for the image to load
+    const { finalWidth, finalHeight, dpi, tileSize } = await new Promise<{
+      finalWidth: number;
+      finalHeight: number;
+      dpi: number;
+      tileSize: number;
+    }>((resolve, reject) => {
+      const img = new Image();
+      img.src = currentSelectedImage;
 
-    if (currentTab === "tile") {
-      finalWidth = tileSize;
-      finalHeight = tileSize;
-    } else {
-      if (usePhysicalDimensions) {
-        const dpiValues = calculateDPI(width, height, zoom);
-        dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
-        finalWidth = Math.round(width * dpi);
-        finalHeight = Math.round(height * dpi);
-      } else {
-        if (quality === "high") {
-          adjustedZoomLevel = zoom / 4;
+      img.onload = () => {
+        const baseTileSize = img.width;
+        const tileSize =
+          quality === "standard" ? baseTileSize : baseTileSize * 4;
+
+        let finalWidth: number;
+        let finalHeight: number;
+        let dpi: number;
+
+        if (currentTab === "tile") {
+          finalWidth = img.width;
+          finalHeight = img.height;
+          dpi = img.width;
+        } else if (usePhysicalDimensions) {
+          const dpiValues = calculateDPI(img.width, img.height, zoom); // Assuming calculateDPI is defined elsewhere
+          dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
+          finalWidth = Math.round(img.width * dpi);
+          finalHeight = Math.round(img.height * dpi);
+        } else {
+          if (quality === "high") {
+            adjustedZoomLevel = zoom / 4;
+          }
+          const scaleFactor = adjustedZoomLevel / 100;
+          finalWidth = img.width;
+          finalHeight = img.height;
+          dpi = Math.round(tileSize / scaleFactor);
         }
-        const scaleFactor = adjustedZoomLevel / 100;
-        finalWidth = width;
-        finalHeight = height;
-        dpi = Math.round(tileSize / scaleFactor);
-      }
-    }
+
+        resolve({ finalWidth, finalHeight, dpi, tileSize });
+      };
+
+      img.onerror = (err) => {
+        console.error("Failed to load image.", err);
+        reject(err);
+      };
+    });
+
+    console.log({
+      finalWidth,
+      finalHeight,
+      adjustedZoomLevel,
+      tileSize,
+      dpi,
+    });
 
     return { finalWidth, finalHeight, adjustedZoomLevel, tileSize };
   };
@@ -601,6 +635,8 @@ export const GeneratedImageControls = () => {
     quality: "standard" | "high";
   }): Promise<{ finalImageUrl: string } | null> => {
     let finalImageUrl: string | null = null;
+
+    console.log({ imageUrl, quality });
 
     if (quality === "standard") {
       finalImageUrl = imageUrl;
@@ -661,7 +697,7 @@ export const GeneratedImageControls = () => {
             setUpscaledImages((prevImages: any) =>
               prevImages.map((img: any) =>
                 img.imageUrl === selectedPreviewImage
-                  ? { ...img, upscaleImageUrl: imageUrl }
+                  ? { ...img, upscaleImageUrl: finalImageUrl }
                   : img,
               ),
             );
@@ -686,232 +722,6 @@ export const GeneratedImageControls = () => {
 
     return { finalImageUrl };
   };
-
-  // const drawImageOnCanvasWithWebgl = async ({
-  //   canvasWidth,
-  //   canvasHeight,
-  //   imageUrl,
-  //   currentTab,
-  //   tileSize,
-  //   zoom,
-  //   canvas,
-  // }: {
-  //   canvasWidth: number;
-  //   canvasHeight: number;
-  //   imageUrl: string;
-  //   currentTab: "tile" | "repeated";
-  //   tileSize: number;
-  //   zoom: number;
-  //   canvas: HTMLCanvasElement;
-  // }) => {
-  //   // const canvas = canvasRef.current;
-  //   // if (!canvas) return;
-  //
-  //   canvas.width = canvasWidth;
-  //   canvas.height = canvasHeight;
-  //
-  //   document.body.appendChild(canvas);
-  //
-  //   const gl = canvas.getContext("webgl");
-  //   if (!gl) {
-  //     console.error("WebGL not supported");
-  //     return;
-  //   }
-  //
-  //   gl.clearColor(0.0, 0.0, 0.0, 0.0);
-  //   gl.clear(gl.COLOR_BUFFER_BIT);
-  //
-  //   const vertexShaderSource = `
-  //       attribute vec2 a_position;
-  //       attribute vec2 a_texCoord;
-  //       uniform vec2 u_resolution;
-  //       varying vec2 v_texCoord;
-  //
-  //       void main() {
-  //           vec2 zeroToOne = a_position / u_resolution;
-  //           vec2 zeroToTwo = zeroToOne * 2.0;
-  //           vec2 clipSpace = zeroToTwo - 1.0;
-  //
-  //           gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-  //           v_texCoord = a_texCoord;
-  //       }
-  //   `;
-  //
-  //   const fragmentShaderSource = `
-  //       precision mediump float;
-  //       uniform sampler2D u_texture;
-  //       varying vec2 v_texCoord;
-  //
-  //       void main() {
-  //           gl_FragColor = texture2D(u_texture, v_texCoord);
-  //       }
-  //   `;
-  //
-  //   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  //   const fragmentShader = createShader(
-  //     gl,
-  //     gl.FRAGMENT_SHADER,
-  //     fragmentShaderSource,
-  //   );
-  //   const program = createProgram(gl, vertexShader, fragmentShader);
-  //
-  //   const positionLocation = gl.getAttribLocation(program, "a_position");
-  //   const texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
-  //   const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  //   const textureLocation = gl.getUniformLocation(program, "u_texture");
-  //
-  //   const positions = new Float32Array([
-  //     0,
-  //     0,
-  //     width,
-  //     0,
-  //     0,
-  //     height,
-  //     0,
-  //     height,
-  //     width,
-  //     0,
-  //     width,
-  //     height,
-  //   ]);
-  //
-  //   const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
-  //
-  //   const positionBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-  //
-  //   const texCoordBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-  //
-  //   const texture = gl.createTexture();
-  //   const img = new Image();
-  //   img.crossOrigin = "anonymous";
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   img.src = imageUrl;
-  //
-  //   await new Promise((resolve) => {
-  //     // if (!img.width || !img.height) {
-  //     //   console.error("Invalid image dimensions:", img.width, img.height);
-  //     //   return;
-  //     // }
-  //     img.onload = () => {
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.texImage2D(
-  //         gl.TEXTURE_2D,
-  //         0,
-  //         gl.RGBA,
-  //         gl.RGBA,
-  //         gl.UNSIGNED_BYTE,
-  //         img,
-  //       );
-  //
-  //       if (
-  //         (img.width & (img.width - 1)) === 0 &&
-  //         (img.height & (img.height - 1)) === 0
-  //       ) {
-  //         gl.generateMipmap(gl.TEXTURE_2D);
-  //       } else {
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  //       }
-  //
-  //       gl.useProgram(program);
-  //       gl.enableVertexAttribArray(positionLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.enableVertexAttribArray(texCoordLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //       gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //       gl.activeTexture(gl.TEXTURE0);
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.uniform1i(textureLocation, 0);
-  //
-  //       gl.uniform2f(resolutionLocation, width, height);
-  //
-  //       if (currentTab === "tile") {
-  //         console.log("777777777777", canvas.width, canvas.height);
-  //         // for (let y = 0; y < finalHeight; y += tileSize) {
-  //         //   for (let x = 0; x < finalWidth; x += tileSize) {
-  //         //     gl.uniform2f(resolutionLocation, tileSize, tileSize);
-  //         //     gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //         //   }
-  //         // }
-  //         for (let y = 0; y < height; y += tileSize) {
-  //           for (let x = 0; x < width; x += tileSize) {
-  //             // Set resolution to the full canvas size
-  //             gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //
-  //             // Translate the current tile's position
-  //             const translation = [
-  //               (x / width) * 2 - 1, // Normalize x to clip space (-1 to 1)
-  //               -((y / height) * 2 - 1), // Normalize y to clip space (-1 to 1 and flip)
-  //             ];
-  //             const translationLocation = gl.getUniformLocation(
-  //               program,
-  //               "u_translation",
-  //             );
-  //             gl.uniform2fv(translationLocation, translation);
-  //
-  //             // Draw the tile
-  //             gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //           }
-  //         }
-  //       } else {
-  //         const scaleFactor = zoom / 100; // For example, 50% zoom will make scaleFactor = 0.5
-  //
-  //         // Calculate the size of the scaled image
-  //         const scaledImageWidth = img.width * scaleFactor; // Scale the width of the image
-  //         const scaledImageHeight = img.height * scaleFactor; // Scale the height of the image
-  //
-  //         // Iterate through the canvas height and width to repeat the scaled image
-  //         for (let y = 0; y < height; y += scaledImageHeight) {
-  //           for (let x = 0; x < width; x += scaledImageWidth) {
-  //             // Set the resolution for the current tile (scaled image size)
-  //             gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //
-  //             // Calculate normalized translation for the current tile in clip space (-1 to 1)
-  //             const translationX = (x / width) * 2 - 1; // Normalize X to clip space
-  //             const translationY = -((y / height) * 2 - 1); // Normalize Y to clip space and flip
-  //
-  //             // Set translation uniform to move the image tile into the correct position
-  //             const translationLocation = gl.getUniformLocation(
-  //               program,
-  //               "u_translation",
-  //             );
-  //             gl.uniform2fv(translationLocation, [translationX, translationY]);
-  //
-  //             // Set texture coordinates to draw the scaled image
-  //             const texCoordLocation = gl.getUniformLocation(
-  //               program,
-  //               "u_texCoords",
-  //             );
-  //             const texCoords = [
-  //               0,
-  //               0, // Top-left corner of the texture
-  //               scaledImageWidth / img.width,
-  //               0, // Top-right corner
-  //               scaledImageWidth / img.width,
-  //               scaledImageHeight / img.height, // Bottom-right corner
-  //               0,
-  //               scaledImageHeight / img.height, // Bottom-left corner
-  //             ];
-  //             gl.uniform4fv(texCoordLocation, texCoords);
-  //
-  //             // Draw the tile (scaled image)
-  //             gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //           }
-  //         }
-  //       }
-  //       resolve(null);
-  //     };
-  //   });
-  // };
 
   const drawImageOnCanvasWithWebgl = async ({
     canvasWidth,
@@ -1059,7 +869,6 @@ export const GeneratedImageControls = () => {
 
         // Handle "tile" tab logic
         if (currentTab === "tile") {
-          // Tiling logic (keep your existing "tile" code here)
           for (let y = 0; y < canvasHeight; y += tileSize) {
             for (let x = 0; x < canvasWidth; x += tileSize) {
               gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
@@ -1155,156 +964,6 @@ export const GeneratedImageControls = () => {
               gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
           }
-
-          // // Scaling the image according to zoom
-          // const scaleFactor = zoom / 100;
-          // const scaledImageWidth = img.width * scaleFactor;
-          // const scaledImageHeight = img.height * scaleFactor;
-          //
-          // // Log the new image size
-          // console.log("Scaled Image Width:", scaledImageWidth);
-          // console.log("Scaled Image Height:", scaledImageHeight);
-          //
-          // // Calculate how many tiles are needed to fill the canvas
-          // const tilesX = Math.ceil(canvasWidth / scaledImageWidth);
-          // const tilesY = Math.ceil(canvasHeight / scaledImageHeight);
-          //
-          // console.log("Tiles needed along X:", tilesX);
-          // console.log("Tiles needed along Y:", tilesY);
-          //
-          // // Create a buffer for the position of a single tile
-          // const positions = new Float32Array([
-          //   0,
-          //   0, // Top-left corner
-          //   scaledImageWidth,
-          //   0, // Top-right corner
-          //   0,
-          //   scaledImageHeight, // Bottom-left corner
-          //   0,
-          //   scaledImageHeight, // Bottom-left corner
-          //   scaledImageWidth,
-          //   0, // Top-right corner
-          //   scaledImageWidth,
-          //   scaledImageHeight, // Bottom-right corner
-          // ]);
-          //
-          // const positionBuffer = gl.createBuffer();
-          // gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-          // gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-          // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-          // gl.enableVertexAttribArray(positionLocation);
-          //
-          // // Create a buffer for the texture coordinates of a single tile
-          // const texCoords = new Float32Array([
-          //   0,
-          //   0, // Top-left corner
-          //   1,
-          //   0, // Top-right corner
-          //   0,
-          //   1, // Bottom-left corner
-          //   0,
-          //   1, // Bottom-left corner
-          //   1,
-          //   0, // Top-right corner
-          //   1,
-          //   1, // Bottom-right corner
-          // ]);
-          //
-          // const texCoordBuffer = gl.createBuffer();
-          // gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-          // gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-          // gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-          // gl.enableVertexAttribArray(texCoordLocation);
-          //
-          // // Loop through each tile position
-          // for (let row = 0; row < tilesY; row++) {
-          //   for (let col = 0; col < tilesX; col++) {
-          //     // Calculate the translation for the current tile
-          //     const translationX = col * scaledImageWidth;
-          //     const translationY = row * scaledImageHeight;
-          //
-          //     // Normalize the translation to clip space (-1 to 1 range)
-          //     const normalizedTranslationX =
-          //       (translationX / canvasWidth) * 2 - 1;
-          //     const normalizedTranslationY = -(
-          //       (translationY / canvasHeight) * 2 -
-          //       1
-          //     );
-          //
-          //     // Set translation uniform
-          //     const translationLocation = gl.getUniformLocation(
-          //       program,
-          //       "u_translation",
-          //     );
-          //     gl.uniform2fv(translationLocation, [
-          //       normalizedTranslationX,
-          //       normalizedTranslationY,
-          //     ]);
-          //
-          //     // Draw the current tile
-          //     gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-          //     gl.drawArrays(gl.TRIANGLES, 0, 6);
-          //   }
-          // }
-
-          // // Scaling the image according to zoom
-          // const scaleFactor = zoom / 100;
-          // const scaledImageWidth = img.width * scaleFactor;
-          // const scaledImageHeight = img.height * scaleFactor;
-          //
-          // // Log the new image size
-          // console.log("Scaled Image Width:", scaledImageWidth);
-          // console.log("Scaled Image Height:", scaledImageHeight);
-          //
-          // // Update positions for top-left alignment with scaled size
-          // const positions = new Float32Array([
-          //   0,
-          //   0, // Top-left corner
-          //   scaledImageWidth,
-          //   0, // Top-right corner
-          //   0,
-          //   scaledImageHeight, // Bottom-left corner
-          //   0,
-          //   scaledImageHeight, // Bottom-left corner
-          //   scaledImageWidth,
-          //   0, // Top-right corner
-          //   scaledImageWidth,
-          //   scaledImageHeight, // Bottom-right corner
-          // ]);
-          //
-          // // Update position buffer
-          // const positionBuffer = gl.createBuffer();
-          // gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-          // gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-          // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-          // gl.enableVertexAttribArray(positionLocation);
-          //
-          // // Update texture coordinates for the scaled image
-          // const texCoords = new Float32Array([
-          //   0,
-          //   0, // Top-left corner
-          //   1,
-          //   0, // Top-right corner
-          //   0,
-          //   1, // Bottom-left corner
-          //   0,
-          //   1, // Bottom-left corner
-          //   1,
-          //   0, // Top-right corner
-          //   1,
-          //   1, // Bottom-right corner
-          // ]);
-          //
-          // // Update texture coordinate buffer
-          // const texCoordBuffer = gl.createBuffer();
-          // gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-          // gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-          // gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-          // gl.enableVertexAttribArray(texCoordLocation);
-          //
-          // // Draw the image (no translation needed since it aligns to top-left by default)
-          // gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-          // gl.drawArrays(gl.TRIANGLES, 0, 6);
         }
 
         resolve(null);
@@ -1312,674 +971,6 @@ export const GeneratedImageControls = () => {
     });
   };
 
-  // const generateImageWebgl = async (
-  //   quality: "standard" | "high",
-  //   url: string,
-  //   zoom: number,
-  // ) => {
-  //   if (isGenerating) return;
-  //   setIsGenerating(true);
-  //   startCountdown();
-  //
-  //   const baseTileSize = 1024;
-  //   const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
-  //   let finalWidth: number;
-  //   let finalHeight: number;
-  //   let dpi: number;
-  //   let adjustedZoomLevel = zoom;
-  //
-  //   if (activeTab === "tile") {
-  //     finalWidth = tileSize;
-  //     finalHeight = tileSize;
-  //   } else {
-  //     if (usePhysicalDimensions) {
-  //       const dpiValues = calculateDPI(width, height, zoom);
-  //       dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
-  //       finalWidth = Math.round(width * dpi);
-  //       finalHeight = Math.round(height * dpi);
-  //     } else {
-  //       if (quality === "high") {
-  //         adjustedZoomLevel = zoom / 4;
-  //       }
-  //       const scaleFactor = adjustedZoomLevel / 100;
-  //       finalWidth = width;
-  //       finalHeight = height;
-  //       dpi = Math.round(tileSize / scaleFactor);
-  //     }
-  //   }
-  //
-  //   // if (activeTab === "tile") {
-  //   //   finalWidth = tileSize;
-  //   //   finalHeight = tileSize;
-  //   //   dpi = tileSize;
-  //   // } else if (usePhysicalDimensions) {
-  //   //   const dpiValues = calculateDPI(width, height, zoom);
-  //   //   dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
-  //   //   finalWidth = Math.round(width * dpi);
-  //   //   finalHeight = Math.round(height * dpi);
-  //   // } else {
-  //   //   if (quality === "high") {
-  //   //     adjustedZoomLevel = zoom / 4;
-  //   //   }
-  //   //   const scaleFactor = adjustedZoomLevel / 100;
-  //   //   finalWidth = width;
-  //   //   finalHeight = height;
-  //   //   dpi = Math.round(tileSize / scaleFactor);
-  //   // }
-  //
-  //   if (!url) return;
-  //
-  //   let imageUrl: string | null;
-  //
-  //   if (quality === "standard") {
-  //     imageUrl = url;
-  //   } else {
-  //     if (
-  //       upscaledImages.find(
-  //         (img: any) =>
-  //           img.imageUrl ===
-  //           "https://dsm6fpp1ioao4.cloudfront.net/b60437a6-b8a8-44f5-9b68-56ac4566c847.png",
-  //       )
-  //     ) {
-  //       imageUrl =
-  //         "https://s3.amazonaws.com/imgs-patternedai/large_b22d6fb8-1a11-4bca-aea5-d2cdae32d81d.png";
-  //     } else {
-  //       const foundImage = upscaledImages.find(
-  //         (img: { imageUrl: string }) => img.imageUrl === url,
-  //       );
-  //
-  //       if (!foundImage?.upscaleImageUrl) {
-  //         setIsUpscalingImage(true);
-  //
-  //         const dataToGetUpscaleCallId = {
-  //           input_img_url: url!,
-  //           outscale: 4,
-  //           imageId: uuidv4(),
-  //         };
-  //
-  //         const callIdResponse: any = await getUpscaleCallId(
-  //           dataToGetUpscaleCallId,
-  //         );
-  //
-  //         if (callIdResponse?.errors || callIdResponse?.message) {
-  //           setErrorModalMessage({
-  //             header: "Error!",
-  //             body: "An error occurred during upscaling. No credits were deducted.",
-  //           });
-  //           setShowErrorModal(true);
-  //           setIsUpscalingImage(false);
-  //           return;
-  //         }
-  //
-  //         try {
-  //           const getImageDataResponse: any = await getUpscaleImageDataHelper({
-  //             callId: callIdResponse.callIdData.call_id,
-  //           });
-  //
-  //           if (getImageDataResponse?.status === 500) {
-  //             setErrorModalMessage({
-  //               header: "Server Error!",
-  //               body: "An error occurred during image retrieval. No credits were deducted.",
-  //             });
-  //             setShowErrorModal(true);
-  //             return;
-  //           }
-  //
-  //           imageUrl = getImageDataResponse.data.img_url;
-  //           setUpscaledImages((prevImages: any) =>
-  //             prevImages.map((img: any) =>
-  //               img.imageUrl === selectedPreviewImage
-  //                 ? { ...img, upscaleImageUrl: imageUrl }
-  //                 : img,
-  //             ),
-  //           );
-  //         } catch (error: any) {
-  //           console.log(error);
-  //           setErrorModalMessage({
-  //             header: "Error!",
-  //             body: "An error occurred. No credits were deducted.",
-  //           });
-  //           setShowErrorModal(true);
-  //           return;
-  //         } finally {
-  //           setIsUpscalingImage(false);
-  //         }
-  //       } else {
-  //         imageUrl = foundImage?.upscaleImageUrl;
-  //       }
-  //     }
-  //   }
-  //
-  //   // setDownloadInfo({
-  //   //   dpi,
-  //   //   resolution: { width: finalWidth, height: finalHeight },
-  //   //   imageUrl,
-  //   // });
-  //
-  //   // const canvas = canvasRef.current;
-  //   const canvas = document.createElement("canvas");
-  //   if (!canvas) return;
-  //
-  //   console.log({ finalWidth, finalHeight });
-  //
-  //   canvas.width = finalWidth;
-  //   canvas.height = finalHeight;
-  //
-  //   const gl = canvas.getContext("webgl");
-  //   if (!gl) {
-  //     console.error("WebGL not supported");
-  //     return;
-  //   }
-  //
-  //   gl.clearColor(0.0, 0.0, 0.0, 0.0);
-  //   gl.clear(gl.COLOR_BUFFER_BIT);
-  //
-  //   const vertexShaderSource = `
-  //       attribute vec2 a_position;
-  //       attribute vec2 a_texCoord;
-  //       uniform vec2 u_resolution;
-  //       varying vec2 v_texCoord;
-  //
-  //       void main() {
-  //           vec2 zeroToOne = a_position / u_resolution;
-  //           vec2 zeroToTwo = zeroToOne * 2.0;
-  //           vec2 clipSpace = zeroToTwo - 1.0;
-  //
-  //           gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-  //           v_texCoord = a_texCoord;
-  //       }
-  //   `;
-  //
-  //   const fragmentShaderSource = `
-  //       precision mediump float;
-  //       uniform sampler2D u_texture;
-  //       varying vec2 v_texCoord;
-  //
-  //       void main() {
-  //           gl_FragColor = texture2D(u_texture, v_texCoord);
-  //       }
-  //   `;
-  //
-  //   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  //   const fragmentShader = createShader(
-  //     gl,
-  //     gl.FRAGMENT_SHADER,
-  //     fragmentShaderSource,
-  //   );
-  //   const program = createProgram(gl, vertexShader, fragmentShader);
-  //
-  //   const positionLocation = gl.getAttribLocation(program, "a_position");
-  //   const texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
-  //   const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  //   const textureLocation = gl.getUniformLocation(program, "u_texture");
-  //
-  //   const positions = new Float32Array([
-  //     0,
-  //     0,
-  //     finalWidth,
-  //     0,
-  //     0,
-  //     finalHeight,
-  //     0,
-  //     finalHeight,
-  //     finalWidth,
-  //     0,
-  //     finalWidth,
-  //     finalHeight,
-  //   ]);
-  //
-  //   const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
-  //
-  //   const positionBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-  //
-  //   const texCoordBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-  //
-  //   const texture = gl.createTexture();
-  //   const img = new Image();
-  //   img.crossOrigin = "anonymous";
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-expect-error
-  //   img.src = imageUrl;
-  //
-  //   await new Promise((resolve) => {
-  //     // if (!img.width || !img.height) {
-  //     //   console.error("Invalid image dimensions:", img.width, img.height);
-  //     //   return;
-  //     // }
-  //     img.onload = () => {
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.texImage2D(
-  //         gl.TEXTURE_2D,
-  //         0,
-  //         gl.RGBA,
-  //         gl.RGBA,
-  //         gl.UNSIGNED_BYTE,
-  //         img,
-  //       );
-  //
-  //       if (
-  //         (img.width & (img.width - 1)) === 0 &&
-  //         (img.height & (img.height - 1)) === 0
-  //       ) {
-  //         gl.generateMipmap(gl.TEXTURE_2D);
-  //       } else {
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  //       }
-  //
-  //       gl.useProgram(program);
-  //       gl.enableVertexAttribArray(positionLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.enableVertexAttribArray(texCoordLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //       gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //       gl.activeTexture(gl.TEXTURE0);
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.uniform1i(textureLocation, 0);
-  //
-  //       gl.uniform2f(resolutionLocation, finalWidth, finalHeight);
-  //
-  //       if (activeTab === "tile") {
-  //         console.log("777777777777", canvas.width, canvas.height);
-  //         // for (let y = 0; y < finalHeight; y += tileSize) {
-  //         //   for (let x = 0; x < finalWidth; x += tileSize) {
-  //         //     gl.uniform2f(resolutionLocation, tileSize, tileSize);
-  //         //     gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //         //   }
-  //         // }
-  //         for (let y = 0; y < finalHeight; y += tileSize) {
-  //           for (let x = 0; x < finalWidth; x += tileSize) {
-  //             // Set resolution to the full canvas size
-  //             gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //
-  //             // Translate the current tile's position
-  //             const translation = [
-  //               (x / finalWidth) * 2 - 1, // Normalize x to clip space (-1 to 1)
-  //               -((y / finalHeight) * 2 - 1), // Normalize y to clip space (-1 to 1 and flip)
-  //             ];
-  //             const translationLocation = gl.getUniformLocation(
-  //               program,
-  //               "u_translation",
-  //             );
-  //             gl.uniform2fv(translationLocation, translation);
-  //
-  //             // Draw the tile
-  //             gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //           }
-  //         }
-  //       } else {
-  //         const scaleFactor = adjustedZoomLevel / 100;
-  //         const effectiveTileSize = Math.round(tileSize * scaleFactor);
-  //         for (let y = 0; y < finalHeight; y += effectiveTileSize) {
-  //           for (let x = 0; x < finalWidth; x += effectiveTileSize) {
-  //             gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //           }
-  //         }
-  //       }
-  //       resolve(null);
-  //     };
-  //   });
-  //
-  //   try {
-  //     const link = document.createElement("a");
-  //     link.download = `repeated-pattern-${quality}.png`;
-  //     link.href = canvas.toDataURL();
-  //     link.click();
-  //
-  //     setIsGenerating(false);
-  //     setIsUpscalingImage(false);
-  //     gl.deleteTexture(texture);
-  //     gl.deleteBuffer(positionBuffer);
-  //     gl.deleteBuffer(texCoordBuffer);
-  //     gl.deleteProgram(program);
-  //     canvas.width = 0;
-  //     canvas.height = 0;
-  //     setIsGenerating(false);
-  //     setIsUpscalingImage(false);
-  //     imageUrl = null;
-  //   } finally {
-  //     stopCountdown();
-  //   }
-  // };
-
-  // const generateImageWebgl = async (
-  //   quality: "standard" | "high",
-  //   url: string,
-  //   zoom: number
-  // ) => {
-  //   if (isGenerating) return;
-  //   setIsGenerating(true);
-  //   startCountdown();
-  //
-  //   const baseTileSize = 1024;
-  //   const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
-  //   let finalWidth, finalHeight, dpi;
-  //   let adjustedZoomLevel = zoom;
-  //
-  //   if (activeTab === "tile") {
-  //     finalWidth = tileSize;
-  //     finalHeight = tileSize;
-  //   } else {
-  //     const scaleFactor = adjustedZoomLevel / 100;
-  //     if (usePhysicalDimensions) {
-  //       const dpiValues = calculateDPI(width, height, zoom);
-  //       dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
-  //       finalWidth = Math.round(width * dpi);
-  //       finalHeight = Math.round(height * dpi);
-  //     } else {
-  //       finalWidth = Math.round(width * scaleFactor);
-  //       finalHeight = Math.round(height * scaleFactor);
-  //       dpi = Math.round(tileSize / scaleFactor);
-  //     }
-  //   }
-  //
-  //   if (!url) return;
-  //
-  //   let imageUrl = url;
-  //
-  //   const canvas = document.createElement("canvas");
-  //   if (!canvas) return;
-  //
-  //   canvas.width = finalWidth;
-  //   canvas.height = finalHeight;
-  //
-  //   const gl = canvas.getContext("webgl");
-  //   if (!gl) {
-  //     console.error("WebGL not supported");
-  //     return;
-  //   }
-  //
-  //   gl.clearColor(0.0, 0.0, 0.0, 0.0);
-  //   gl.clear(gl.COLOR_BUFFER_BIT);
-  //
-  //   const vertexShaderSource = `
-  //   attribute vec2 a_position;
-  //   attribute vec2 a_texCoord;
-  //   uniform vec2 u_resolution;
-  //   uniform float u_zoom;
-  //   varying vec2 v_texCoord;
-  //
-  //   void main() {
-  //     vec2 zeroToOne = a_position / u_resolution;
-  //     vec2 zeroToTwo = zeroToOne * 2.0;
-  //     vec2 clipSpace = (zeroToTwo - 1.0) * u_zoom;
-  //     gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-  //     v_texCoord = a_texCoord;
-  //   }
-  // `;
-  //
-  //   const fragmentShaderSource = `
-  //   precision mediump float;
-  //   uniform sampler2D u_texture;
-  //   varying vec2 v_texCoord;
-  //
-  //   void main() {
-  //     gl_FragColor = texture2D(u_texture, v_texCoord);
-  //   }
-  // `;
-  //
-  //   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  //   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-  //   const program = createProgram(gl, vertexShader, fragmentShader);
-  //
-  //   const positionLocation = gl.getAttribLocation(program, "a_position");
-  //   const texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
-  //   const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  //   const zoomLocation = gl.getUniformLocation(program, "u_zoom");
-  //   const textureLocation = gl.getUniformLocation(program, "u_texture");
-  //
-  //   const positions = new Float32Array([
-  //     0, 0,
-  //     finalWidth, 0,
-  //     0, finalHeight,
-  //     0, finalHeight,
-  //     finalWidth, 0,
-  //     finalWidth, finalHeight
-  //   ]);
-  //
-  //   const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
-  //
-  //   const positionBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-  //
-  //   const texCoordBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-  //
-  //   const texture = gl.createTexture();
-  //   const img = new Image();
-  //   img.crossOrigin = "anonymous";
-  //   img.src = imageUrl;
-  //
-  //   await new Promise((resolve) => {
-  //     img.onload = () => {
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-  //
-  //       if ((img.width & (img.width - 1)) === 0 && (img.height & (img.height - 1)) === 0) {
-  //         gl.generateMipmap(gl.TEXTURE_2D);
-  //       } else {
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  //       }
-  //
-  //       gl.useProgram(program);
-  //       gl.enableVertexAttribArray(positionLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.enableVertexAttribArray(texCoordLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //       gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //       gl.uniform1f(zoomLocation, adjustedZoomLevel / 100);
-  //
-  //       gl.activeTexture(gl.TEXTURE0);
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.uniform1i(textureLocation, 0);
-  //
-  //       gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //       resolve(null);
-  //     };
-  //   });
-  //
-  //   try {
-  //     const link = document.createElement("a");
-  //     link.download = `repeated-pattern-${quality}.png`;
-  //     link.href = canvas.toDataURL();
-  //     link.click();
-  //
-  //     setIsGenerating(false);
-  //     gl.deleteTexture(texture);
-  //     gl.deleteBuffer(positionBuffer);
-  //     gl.deleteBuffer(texCoordBuffer);
-  //     gl.deleteProgram(program);
-  //     canvas.width = 0;
-  //     canvas.height = 0;
-  //   } finally {
-  //     stopCountdown();
-  //   }
-  // };
-
-  // zoom
-  // const generateImageWebgl = async (
-  //   quality: "standard" | "high",
-  //   url: string,
-  //   zoom: number
-  // ) => {
-  //   if (isGenerating) return;
-  //   setIsGenerating(true);
-  //   startCountdown();
-  //
-  //   const baseTileSize = 1024;
-  //   const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
-  //   let finalWidth, finalHeight, dpi;
-  //   let adjustedZoomLevel = zoom;
-  //
-  //   if (activeTab === "tile") {
-  //     finalWidth = tileSize;
-  //     finalHeight = tileSize;
-  //     adjustedZoomLevel = 100; // No zoom for tile mode
-  //   } else {
-  //     const scaleFactor = adjustedZoomLevel / 100;
-  //     if (usePhysicalDimensions) {
-  //       const dpiValues = calculateDPI(width, height, zoom);
-  //       dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
-  //       finalWidth = Math.round(width * dpi);
-  //       finalHeight = Math.round(height * dpi);
-  //     } else {
-  //       finalWidth = Math.round(width * scaleFactor);
-  //       finalHeight = Math.round(height * scaleFactor);
-  //       dpi = Math.round(tileSize / scaleFactor);
-  //     }
-  //   }
-  //
-  //   if (!url) return;
-  //
-  //   let imageUrl = url;
-  //
-  //   const canvas = document.createElement("canvas");
-  //   if (!canvas) return;
-  //
-  //   canvas.width = finalWidth;
-  //   canvas.height = finalHeight;
-  //
-  //   const gl = canvas.getContext("webgl");
-  //   if (!gl) {
-  //     console.error("WebGL not supported");
-  //     return;
-  //   }
-  //
-  //   gl.clearColor(0.0, 0.0, 0.0, 0.0);
-  //   gl.clear(gl.COLOR_BUFFER_BIT);
-  //
-  //   const vertexShaderSource = `
-  //   attribute vec2 a_position;
-  //   attribute vec2 a_texCoord;
-  //   uniform vec2 u_resolution;
-  //   uniform float u_zoom;
-  //   varying vec2 v_texCoord;
-  //
-  //   void main() {
-  //     vec2 zeroToOne = a_position / u_resolution;
-  //     vec2 zeroToTwo = zeroToOne * 2.0;
-  //     vec2 clipSpace = (zeroToTwo - 1.0) * u_zoom;
-  //     gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-  //     v_texCoord = a_texCoord;
-  //   }
-  // `;
-  //
-  //   const fragmentShaderSource = `
-  //   precision mediump float;
-  //   uniform sampler2D u_texture;
-  //   varying vec2 v_texCoord;
-  //
-  //   void main() {
-  //     gl_FragColor = texture2D(u_texture, v_texCoord);
-  //   }
-  // `;
-  //
-  //   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  //   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-  //   const program = createProgram(gl, vertexShader, fragmentShader);
-  //
-  //   const positionLocation = gl.getAttribLocation(program, "a_position");
-  //   const texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
-  //   const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  //   const zoomLocation = gl.getUniformLocation(program, "u_zoom");
-  //   const textureLocation = gl.getUniformLocation(program, "u_texture");
-  //
-  //   const positions = new Float32Array([
-  //     0, 0,
-  //     finalWidth, 0,
-  //     0, finalHeight,
-  //     0, finalHeight,
-  //     finalWidth, 0,
-  //     finalWidth, finalHeight
-  //   ]);
-  //
-  //   const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
-  //
-  //   const positionBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-  //
-  //   const texCoordBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-  //
-  //   const texture = gl.createTexture();
-  //   const img = new Image();
-  //   img.crossOrigin = "anonymous";
-  //   img.src = imageUrl;
-  //
-  //   await new Promise((resolve) => {
-  //     img.onload = () => {
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-  //
-  //       if ((img.width & (img.width - 1)) === 0 && (img.height & (img.height - 1)) === 0) {
-  //         gl.generateMipmap(gl.TEXTURE_2D);
-  //       } else {
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  //       }
-  //
-  //       gl.useProgram(program);
-  //       gl.enableVertexAttribArray(positionLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.enableVertexAttribArray(texCoordLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //       gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //       gl.uniform1f(zoomLocation, adjustedZoomLevel / 100);
-  //
-  //       gl.activeTexture(gl.TEXTURE0);
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.uniform1i(textureLocation, 0);
-  //
-  //       gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //       resolve(null);
-  //     };
-  //   });
-  //
-  //   try {
-  //     const link = document.createElement("a");
-  //     link.download = `repeated-pattern-${quality}.png`;
-  //     link.href = canvas.toDataURL();
-  //     link.click();
-  //
-  //     setIsGenerating(false);
-  //     gl.deleteTexture(texture);
-  //     gl.deleteBuffer(positionBuffer);
-  //     gl.deleteBuffer(texCoordBuffer);
-  //     gl.deleteProgram(program);
-  //     canvas.width = 0;
-  //     canvas.height = 0;
-  //   } finally {
-  //     stopCountdown();
-  //   }
-  // };
-  //
-  // //=================
-  //
-  // // --------------------- new
   const newGenerateImageWebgl = async ({
     currentTab,
     quality,
@@ -1996,15 +987,29 @@ export const GeneratedImageControls = () => {
     startCountdown();
 
     // calculate the size
+    const finalSizeResult = await calculateFinalSize({
+      currentTab,
+      quality,
+      zoom,
+      currentSelectedImage: selectedPreviewImage!,
+    });
+
+    if (
+      !finalSizeResult?.finalWidth ||
+      !finalSizeResult?.finalHeight ||
+      !finalSizeResult?.adjustedZoomLevel ||
+      !finalSizeResult.tileSize
+    ) {
+      return;
+    }
+
     const { finalWidth, finalHeight, adjustedZoomLevel, tileSize } =
-      calculateFinalSize({
-        currentTab,
-        quality,
-        zoom,
-      });
+      finalSizeResult;
 
     // Get final image url
     if (!imageUrl) return;
+
+    console.log("xxxxxxxxxxxxxxxxxxxxx", imageUrl);
 
     const getFinalImageUrlResult = await getFinalImageUrl({
       imageUrl,
@@ -2024,7 +1029,7 @@ export const GeneratedImageControls = () => {
       zoom: adjustedZoomLevel,
       currentTab,
       tileSize,
-      imageUrl,
+      imageUrl: getFinalImageUrlResult?.finalImageUrl,
       canvas,
     });
 
@@ -2041,193 +1046,14 @@ export const GeneratedImageControls = () => {
 
       const selectedCanvas = document.getElementById(canvasId);
       console.log({ selectedCanvas });
-      document.body.removeChild(selectedCanvas!);
+
+      if (selectedCanvas) {
+        document.body.removeChild(selectedCanvas);
+      }
     } finally {
       stopCountdown();
     }
   };
-
-  // const generateImageWebgl = async (
-  //   quality: "standard" | "high",
-  //   url: string,
-  //   zoom: number,
-  // ) => {
-  //   if (isGenerating) return;
-  //   setIsGenerating(true);
-  //   startCountdown();
-  //
-  //   const baseTileSize = 1024;
-  //   const tileSize = quality === "standard" ? baseTileSize : baseTileSize * 4;
-  //   let finalWidth, finalHeight, dpi;
-  //   let adjustedZoomLevel = zoom;
-  //
-  //   if (activeTab === "tile") {
-  //     finalWidth = tileSize;
-  //     finalHeight = tileSize;
-  //     adjustedZoomLevel = 100; // No zoom for tile mode
-  //   } else {
-  //     const scaleFactor = adjustedZoomLevel / 100;
-  //     if (usePhysicalDimensions) {
-  //       const dpiValues = calculateDPI(width, height, zoom);
-  //       dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
-  //       finalWidth = Math.round(width * dpi);
-  //       finalHeight = Math.round(height * dpi);
-  //     } else {
-  //       finalWidth = Math.round(width * scaleFactor);
-  //       finalHeight = Math.round(height * scaleFactor);
-  //       dpi = Math.round(tileSize / scaleFactor);
-  //     }
-  //   }
-  //
-  //   if (!url) return;
-  //
-  //   let imageUrl = url;
-  //
-  //   const canvas = document.createElement("canvas");
-  //   if (!canvas) return;
-  //
-  //   canvas.width = finalWidth;
-  //   canvas.height = finalHeight;
-  //
-  //   const gl = canvas.getContext("webgl");
-  //   if (!gl) {
-  //     console.error("WebGL not supported");
-  //     return;
-  //   }
-  //
-  //   gl.clearColor(0.0, 0.0, 0.0, 0.0);
-  //   gl.clear(gl.COLOR_BUFFER_BIT);
-  //
-  //   const vertexShaderSource = `
-  //   attribute vec2 a_position;
-  //   attribute vec2 a_texCoord;
-  //   uniform vec2 u_resolution;
-  //   uniform float u_zoom;
-  //   varying vec2 v_texCoord;
-  //
-  //   void main() {
-  //     vec2 scaledPosition = a_position * u_zoom; // Apply zoom
-  //     vec2 clipSpace = (scaledPosition / u_resolution) * 2.0 - 1.0; // Map to clip space
-  //     gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1); // Flip Y-axis
-  //     v_texCoord = a_position / u_resolution * u_zoom; // Scale texture coordinates
-  //   }
-  // `;
-  //
-  //   const fragmentShaderSource = `
-  //   precision mediump float;
-  //   uniform sampler2D u_texture;
-  //   varying vec2 v_texCoord;
-  //
-  //   void main() {
-  //     gl_FragColor = texture2D(u_texture, v_texCoord);
-  //   }
-  // `;
-  //
-  //   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  //   const fragmentShader = createShader(
-  //     gl,
-  //     gl.FRAGMENT_SHADER,
-  //     fragmentShaderSource,
-  //   );
-  //   const program = createProgram(gl, vertexShader, fragmentShader);
-  //
-  //   const positionLocation = gl.getAttribLocation(program, "a_position");
-  //   const texCoordLocation = gl.getAttribLocation(program, "a_texCoord");
-  //   const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  //   const zoomLocation = gl.getUniformLocation(program, "u_zoom");
-  //   const textureLocation = gl.getUniformLocation(program, "u_texture");
-  //
-  //   const positions = new Float32Array([
-  //     0,
-  //     0,
-  //     finalWidth,
-  //     0,
-  //     0,
-  //     finalHeight,
-  //     0,
-  //     finalHeight,
-  //     finalWidth,
-  //     0,
-  //     finalWidth,
-  //     finalHeight,
-  //   ]);
-  //
-  //   const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
-  //
-  //   const positionBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-  //
-  //   const texCoordBuffer = gl.createBuffer();
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //   gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
-  //
-  //   const texture = gl.createTexture();
-  //   const img = new Image();
-  //   img.crossOrigin = "anonymous";
-  //   img.src = imageUrl;
-  //
-  //   await new Promise((resolve) => {
-  //     img.onload = () => {
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.texImage2D(
-  //         gl.TEXTURE_2D,
-  //         0,
-  //         gl.RGBA,
-  //         gl.RGBA,
-  //         gl.UNSIGNED_BYTE,
-  //         img,
-  //       );
-  //
-  //       if (
-  //         (img.width & (img.width - 1)) === 0 &&
-  //         (img.height & (img.height - 1)) === 0
-  //       ) {
-  //         gl.generateMipmap(gl.TEXTURE_2D);
-  //       } else {
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  //         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  //       }
-  //
-  //       gl.useProgram(program);
-  //       gl.enableVertexAttribArray(positionLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  //       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.enableVertexAttribArray(texCoordLocation);
-  //       gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-  //       gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-  //
-  //       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-  //       gl.uniform1f(zoomLocation, adjustedZoomLevel / 100);
-  //
-  //       gl.activeTexture(gl.TEXTURE0);
-  //       gl.bindTexture(gl.TEXTURE_2D, texture);
-  //       gl.uniform1i(textureLocation, 0);
-  //
-  //       gl.drawArrays(gl.TRIANGLES, 0, 6);
-  //       resolve(null);
-  //     };
-  //   });
-  //
-  //   try {
-  //     const link = document.createElement("a");
-  //     link.download = `repeated-pattern-${quality}.png`;
-  //     link.href = canvas.toDataURL();
-  //     link.click();
-  //
-  //     setIsGenerating(false);
-  //     gl.deleteTexture(texture);
-  //     gl.deleteBuffer(positionBuffer);
-  //     gl.deleteBuffer(texCoordBuffer);
-  //     gl.deleteProgram(program);
-  //     canvas.width = 0;
-  //     canvas.height = 0;
-  //   } finally {
-  //     stopCountdown();
-  //   }
-  // };
 
   //--------------------------------
 
