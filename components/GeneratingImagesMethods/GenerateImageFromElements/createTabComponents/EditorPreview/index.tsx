@@ -117,7 +117,7 @@ export const EditorPreview = ({
         onAfterRender={handleGeneratedImageUrl} // Pass the callback
       />
     );
-  }, [zoom, finalResoluton, previewZoom, pan]);
+  }, [pan, zoom, finalResoluton, previewZoom]);
 
   return (
     <div
@@ -145,7 +145,7 @@ export const EditorPreview = ({
                   height={1000}
                   style={{
                     backgroundImage: `url("${url}")`,
-                    backgroundSize: `${imagePreviewZoom}%`,
+                    backgroundSize: `20%`,
                     objectFit: "cover",
                     objectPosition: "center",
                   }}
