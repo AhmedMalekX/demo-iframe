@@ -36,6 +36,7 @@ import { MixingImage } from "@/components/GeneratingImagesMethods/GenerateImageF
  * Icons
  * */
 import { LoaderCircle } from "lucide-react";
+import { useAbortStore } from "@/store/abort.store";
 
 export const ImageMixing = () => {
   const {
@@ -66,7 +67,7 @@ export const ImageMixing = () => {
     replacingFirstMixingImage,
     replacingSecondMixingImage,
   } = useUploadImagesStore();
-  const { accessToken } = useAccessTokenStore();
+  const { accessToken, setAccessToken } = useAccessTokenStore();
 
   const handleReplaceVariationImage = (id: number) => {
     setUploadButtonId(id);
@@ -88,6 +89,84 @@ export const ImageMixing = () => {
     }
   };
 
+  function waitForToken(timeout = 120000): Promise<string> {
+    return new Promise((resolve, reject) => {
+      let timeoutId: ReturnType<typeof setTimeout>;
+
+      window.addEventListener("message", (event) => {
+        console.log("==================x Received message:", event.data);
+      });
+
+      const expectedOrigin =
+        process.env.NEXT_PUBLIC_PARENT_SITE_URL || "http://localhost:3000";
+
+      function handleMessage(event: MessageEvent) {
+        console.log("==================x Received message:", event);
+
+        // Validate origin
+        if (event.origin !== expectedOrigin) {
+          console.warn(
+            `==================x Ignored message from unexpected origin: ${event.origin}`,
+          );
+          return;
+        }
+
+        const { message, token } = event.data || {};
+        console.log(
+          `==================x Message data: ${JSON.stringify(event.data)}`,
+        );
+
+        // Abort check
+        if (useAbortStore.getState().shouldAbortRequests) {
+          console.log(
+            "==================x Aborting token retrieval due to abort condition.",
+          );
+          cleanupListeners();
+          reject(new Error("Aborted due to error condition"));
+          return;
+        }
+
+        if (message === "accessToken") {
+          console.log("==================x Validating received token...");
+
+          validateAction(token)
+            .then(({ isValidToken }) => {
+              if (isValidToken) {
+                console.log("==================x Token is valid:", token);
+                cleanupListeners();
+                resolve(token);
+              } else {
+                console.warn(
+                  "==================x Invalid token received. Waiting for a valid token...",
+                );
+              }
+            })
+            .catch((err) => {
+              console.error(
+                "==================x Error during token validation:",
+                err,
+              );
+            });
+        }
+      }
+
+      function cleanupListeners() {
+        window.removeEventListener("message", handleMessage);
+        if (timeoutId) clearTimeout(timeoutId);
+      }
+
+      // Attach message listener
+      window.addEventListener("message", handleMessage);
+
+      // Set up timeout
+      timeoutId = setTimeout(() => {
+        console.error("==================x Timeout: No valid token received.");
+        cleanupListeners();
+        reject(new Error("Timeout: No valid token received"));
+      }, timeout);
+    });
+  }
+
   const tooltipContent = `
         — Be as descriptive as possible, use style names, artists' names, color scheme, vibe, etc. <br />
         — Words at the beginning of the prompt have a higher effect on the final image
@@ -108,31 +187,90 @@ export const ImageMixing = () => {
      *  7- Update database ⏳
      */
 
-    try {
+    const TIMEOUT = 2 * 60 * 1000; // 2 minutes
+    const RETRY_DELAY = 2000; // 2 seconds
+
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    const retryWithDelay = async (
+      fn: () => Promise<any>,
+      delay: number,
+      signal: AbortSignal,
+    ) => {
+      while (true) {
+        if (signal.aborted) {
+          throw new Error("Process aborted by timeout or user action.");
+        }
+        try {
+          return await fn();
+        } catch (err) {
+          console.error("==================x Retrying due to error:", err);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
+      }
+    };
+
+    const ensureValidToken = async (): Promise<string> => {
+      while (true) {
+        console.log("==================x Ensuring valid token...");
+        let validToken = accessToken;
+
+        if (validToken && (await validateAction(validToken)).isValidToken) {
+          console.log("==================x Valid token found.");
+          return validToken;
+        }
+
+        const message = { message: "tokenExpired" };
+        window.parent.postMessage(message, "*");
+
+        toast.warning("Waiting for a valid token...");
+        console.log("==================x Step: Valid token obtained.");
+        validToken = await waitForToken(TIMEOUT);
+        console.log(
+          "==================x Step: Proceeding with token:",
+          validToken,
+        );
+
+        if (useAbortStore.getState().shouldAbortRequests) {
+          throw new Error("Process aborted during token refresh.");
+        }
+
+        setAccessToken(validToken);
+        console.log(
+          "==================x Token refreshed successfully:",
+          validToken,
+        );
+
+        console.log("before finish the ensureValidToken function");
+        return validToken;
+      }
+    };
+
+    const executeProcess = async () => {
+      console.log("==================x Starting executeProcess...");
       event.preventDefault();
       setSubmittingFormToGetData(true);
 
-      /**
-       * TODO: UNCOMMENT THIS BEFORE MERGE TO ( DEV ) BRANCH
-       */
-
-      // 1- Validate access token
-      // if (!accessToken) {
-      //   toast.error("Access token is missing!");
-      //   setSubmittingFormToGetData(false);
-      //   return;
-      // }
-
-      if (accessToken) {
-        const { isValidToken } = await validateAction(accessToken);
-
-        // Show alert if access token is expired!
-        if (!isValidToken) {
-          toast.error("Your access token is expired, request for new one.");
-          setSubmittingFormToGetData(false);
-          return;
-        }
+      if (useAbortStore.getState().shouldAbortRequests) {
+        toast.error("Process aborted.");
+        console.log("==================x Process aborted early.");
+        return;
       }
+
+      console.log("==================x Access token:", { accessToken });
+
+      // Step 2: Validate and retrieve token
+      console.log("==================x Step: Valid token obtained.");
+      // const token = await retryWithDelay(() => ensureValidToken(), RETRY_DELAY);
+      const token = await retryWithDelay(
+        () => ensureValidToken(),
+        RETRY_DELAY,
+        signal,
+      );
+      console.log("==================x Step: Proceeding with token:", token);
+
+      console.log({ token });
 
       if (!firstMixingImage && !secondMixingImage) {
         setErrorModalMessage({
@@ -207,10 +345,40 @@ export const ImageMixing = () => {
       setSelectedPreviewImage(
         getImageDataResponse.data.images.imgs_dict_list[0].imgUrl,
       );
-    } catch (error) {
-      console.log({ error });
-      setSubmittingFormToGetData(false);
+    };
+
+    try {
+      console.log("==================x Starting handleGeneratePattern...");
+      await Promise.race([
+        // retryWithDelay(() => executeProcess(), RETRY_DELAY),
+        retryWithDelay(() => executeProcess(), RETRY_DELAY, signal),
+        new Promise((_, reject) =>
+          setTimeout(() => {
+            controller.abort(); // Abort retries when timeout is reached
+            const timeoutMessage = { message: "stopProcess" };
+            window.parent.postMessage(timeoutMessage, "*");
+            reject(new Error("Process timed out"));
+          }, TIMEOUT),
+        ),
+        // new Promise((_, reject) =>
+        //   setTimeout(() => {
+        //     // Notify parent to stop the process
+        //     const timeoutMessage = { message: "stopProcess" };
+        //     window.parent.postMessage(timeoutMessage, "*");
+        //     reject(new Error("Process timed out"));
+        //   }, TIMEOUT),
+        // ),
+      ]);
+      console.log(
+        "==================x handleGeneratePattern completed successfully.",
+      );
+    } catch (error: any) {
+      console.error("==================x Process error:", error);
+      toast.error(error.message || "Process failed.");
     } finally {
+      console.log(
+        "==================x handleGeneratePattern finished execution.",
+      );
       setSubmittingFormToGetData(false);
     }
   };
