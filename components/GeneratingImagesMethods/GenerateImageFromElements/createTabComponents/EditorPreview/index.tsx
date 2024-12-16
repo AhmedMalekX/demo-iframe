@@ -67,6 +67,7 @@ export const EditorPreview = ({
   const { setVariationImage } = useUploadImagesStore();
 
   const [url, setUrl] = useState<string | null>(null);
+  const [tileImage, setTileImage] = useState<string | null>(null);
 
   const handleGeneratedImageUrl = (imageUrl: string) => {
     console.log("Generated Image URL:", imageUrl);
@@ -75,10 +76,14 @@ export const EditorPreview = ({
     setSelectedPreviewImage(imageUrl);
   };
 
+  const handleGeneratedTileImageUrl = (imageUrl: string) => {
+    setTileImage(imageUrl);
+  };
+
   const handleGenerateSimilar = () => {
     setActiveGeneratingMethod("From image");
     setGenerationMethod("Variation");
-    setVariationImage({ imageUrl: url, uploaded: true });
+    setVariationImage({ imageUrl: tileImage, uploaded: true });
   };
 
   const renderImageContent = () => (
@@ -123,6 +128,23 @@ export const EditorPreview = ({
     );
   }, [appState.patternOffset, pan, zoom, finalResoluton, previewZoom]);
 
+  const generatedSimilarTilableCanvas = useMemo(() => {
+    return (
+      <RepeatCanvas
+        zoom={TILABLE_CANVAS_CONSTANTS.zoom}
+        pan={TILABLE_CANVAS_CONSTANTS.pan}
+        canvasSize={{
+          width: appState.patternOffset.x * 2,
+          height: appState.patternOffset.y * 2,
+        }}
+        canvasId="tilable-canvas-img"
+        previewZoom={TILABLE_CANVAS_CONSTANTS.previewZoom}
+        parentZoom={TILABLE_CANVAS_CONSTANTS.parentZoom}
+        onAfterRender={handleGeneratedTileImageUrl}
+      />
+    );
+  }, [appState.patternOffset]);
+
   // const repeatCanvasPreviewWindow = useMemo(() => {
   //   return (
   //     <RepeatCanvas
@@ -156,6 +178,7 @@ export const EditorPreview = ({
           >
             {/*<div className="hidden">{repeatCanvasPreviewWindow}</div>*/}
             <div className="hidden">{tilableCanvas}</div>
+            <div className="hidden">{generatedSimilarTilableCanvas}</div>
             {selectedMockup ? (
               <div className="w-full h-full flex justify-center bg-[#f8f8f8]">
                 <Image
