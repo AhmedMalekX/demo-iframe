@@ -46,7 +46,7 @@ import { useWindowSize } from "usehooks-ts";
 /*
  * Stores
  * */
-// import { useDashboardStore } from "@/store/dashboard.store";
+import { useDashboardStore } from "@/store/dashboard.store";
 import { useCreateTabStore } from "@/store/createTab.store";
 
 /*
@@ -69,8 +69,8 @@ export const Editor: React.FC = () => {
   // const router = useRouter();
 
   const {
-    zoom,
-    setZoom,
+    // zoom,
+    // setZoom,
     previewZoom,
     finalResoluton,
     setFinalResoluton,
@@ -83,7 +83,7 @@ export const Editor: React.FC = () => {
   const [autoEditText, setAutoEditText] = useState<number>(0);
   const lastAutoEditTextRun = useRef<number>(0);
 
-  // const { setGenerationMethod } = useDashboardStore();
+  const { imagePreviewZoom, setImagePreviewZoom } = useDashboardStore();
 
   const size = useWindowSize();
 
@@ -133,13 +133,13 @@ export const Editor: React.FC = () => {
       <RepeatCanvas
         previewZoom={1}
         pan={pan}
-        zoom={zoom}
+        zoom={imagePreviewZoom}
         canvasId="repeat-canvas"
         canvasSize={finalResoluton}
         parentZoom={previewZoom}
       />
     );
-  }, [zoom, finalResoluton, previewZoom, pan]);
+  }, [imagePreviewZoom, finalResoluton, previewZoom, pan]);
 
   // const tilableCanvasDimensions = { width: 1024, height: 1024 };
 
@@ -771,12 +771,12 @@ export const Editor: React.FC = () => {
           <div className="flex w-full justify-start">
             <div className="flex-1 mt-1.5">
               <Slider
-                min={0.2}
-                max={4}
-                step={0.1}
-                defaultValue={[zoom]}
+                min={30}
+                max={400}
+                step={1}
+                defaultValue={[imagePreviewZoom]}
                 onValueChange={(value) => {
-                  setZoom(value[0]);
+                  setImagePreviewZoom(value[0]);
                 }}
                 disabled={appState.elements.length === 0}
                 className="data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"

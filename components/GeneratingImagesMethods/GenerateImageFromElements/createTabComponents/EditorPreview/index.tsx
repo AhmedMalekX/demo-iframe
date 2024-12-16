@@ -31,6 +31,7 @@ import {
 import { RefreshCw } from "lucide-react";
 import { useActiveGeneratingMethodStore } from "@/store/generatingImages.store";
 import { useUploadImagesStore } from "@/store/uploadImages.store";
+import { TILABLE_CANVAS_CONSTANTS } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabData/constants";
 
 /*
  * Types
@@ -105,19 +106,37 @@ export const EditorPreview = ({
     </TooltipProvider>
   );
 
-  const repeatCanvasPreviewWindow = useMemo(() => {
+  const tilableCanvas = useMemo(() => {
     return (
       <RepeatCanvas
-        previewZoom={1}
-        pan={pan}
         zoom={zoom}
-        canvasId="repeat-canvas"
-        canvasSize={finalResoluton}
-        parentZoom={previewZoom}
-        onAfterRender={handleGeneratedImageUrl} // Pass the callback
+        pan={pan}
+        canvasSize={{
+          width: appState.patternOffset.x * 2,
+          height: appState.patternOffset.y * 2,
+        }}
+        canvasId="tilable-canvas"
+        previewZoom={previewZoom}
+        parentZoom={TILABLE_CANVAS_CONSTANTS.parentZoom}
+        onAfterRender={handleGeneratedImageUrl}
       />
     );
-  }, [pan, zoom, finalResoluton, previewZoom]);
+  }, [appState.patternOffset, pan, zoom, finalResoluton, previewZoom]);
+
+  // const repeatCanvasPreviewWindow = useMemo(() => {
+  //   return (
+  //     <RepeatCanvas
+  //       previewZoom={1}
+  //       pan={pan}
+  //       zoom={zoom}
+  //       // canvasId="repeat-canvas"
+  //       canvasId="tilable-canvas"
+  //       canvasSize={finalResoluton}
+  //       parentZoom={previewZoom}
+  //       onAfterRender={handleGeneratedImageUrl} // Pass the callback
+  //     />
+  //   );
+  // }, [pan, zoom, finalResoluton, previewZoom]);
 
   return (
     <div
@@ -125,7 +144,7 @@ export const EditorPreview = ({
       style={{
         backgroundImage: url ? `url(${url})` : "none",
         backgroundSize: `${imagePreviewZoom}%`,
-        backgroundPosition: "center center",
+        backgroundPosition: "top left",
         backgroundRepeat: "repeat",
       }}
     >
@@ -135,7 +154,8 @@ export const EditorPreview = ({
             id="repeat-canvas-container"
             className="w-full relative bg-[#f8f8f8]"
           >
-            <div className="hidden">{repeatCanvasPreviewWindow}</div>
+            {/*<div className="hidden">{repeatCanvasPreviewWindow}</div>*/}
+            <div className="hidden">{tilableCanvas}</div>
             {selectedMockup ? (
               <div className="w-full h-full flex justify-center bg-[#f8f8f8]">
                 <Image
@@ -148,6 +168,7 @@ export const EditorPreview = ({
                     backgroundSize: `${imagePreviewZoom}%`,
                     objectFit: "cover",
                     objectPosition: "center",
+                    backgroundPosition: "top left",
                   }}
                   className="w-auto max-h-[500px] object-cover object-center"
                 />
@@ -159,7 +180,7 @@ export const EditorPreview = ({
                 style={{
                   backgroundImage: url ? `url(${url})` : "none",
                   backgroundSize: `${imagePreviewZoom}%`,
-                  backgroundPosition: "center center",
+                  backgroundPosition: "top left",
                   backgroundRepeat: "no-repeat",
                 }}
               >
