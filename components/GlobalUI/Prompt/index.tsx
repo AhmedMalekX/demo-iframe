@@ -124,16 +124,17 @@ export const Prompt = ({
             }}
             required
           ></Textarea>
-          {showTryAnExample && (
-            <Button
-              className="absolute bottom-2 right-4 z-10 rounded-full drop-shadow-sm hover:bg-secondary"
-              variant="secondary"
-              onClick={handleTryAnExamplePrompt}
-            >
-              Try an example
-            </Button>
-          )}
         </div>
+        {showTryAnExample && (
+          <Button
+            // className="absolute bottom-2 right-4 z-10 rounded-full drop-shadow-sm hover:bg-secondary"
+            className="w-full mt-2 drop-shadow-sm"
+            variant="secondary"
+            onClick={handleTryAnExamplePrompt}
+          >
+            Try an example
+          </Button>
+        )}
       </div>
     </div>
   );
