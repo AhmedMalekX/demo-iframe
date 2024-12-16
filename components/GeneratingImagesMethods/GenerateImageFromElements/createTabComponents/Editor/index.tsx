@@ -69,8 +69,8 @@ export const Editor: React.FC = () => {
   // const router = useRouter();
 
   const {
-    zoom,
-    setZoom,
+    // zoom,
+    // setZoom,
     previewZoom,
     finalResoluton,
     setFinalResoluton,
