@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from "uuid";
 import { getUpscaleCallId } from "@/actions/getUpscaleCallId";
 import { getUpscaleImageDataHelper } from "@/helpers/getUpscaleImageDataHelper";
 import { saveAs } from "file-saver";
+import { useDebounceValue } from "usehooks-ts";
 
 /*
  * Hooks
@@ -95,6 +96,15 @@ export const GeneratedImageControls = () => {
   // const [timeLeft, setTimeLeft] = useState(60);
 
   const [timeLeft, startCountdown, stopCountdown] = useCountdown(60); // Start the countdown with 60 seconds
+
+  const [zoom, setZoom] = useState(imagePreviewZoom);
+  const debouncedZoom = useDebounceValue(zoom, 300);
+
+  useEffect(() => {
+    if (debouncedZoom[0] !== imagePreviewZoom) {
+      setImagePreviewZoom(debouncedZoom[0]); // Update the store with the new debounced zoom value
+    }
+  }, [debouncedZoom, imagePreviewZoom, setImagePreviewZoom]); // We use imagePreviewZoom as a dependency to track changes
 
   useEffect(() => {
     console.log({ imagePreviewZoom });
@@ -191,7 +201,7 @@ export const GeneratedImageControls = () => {
 
   useEffect(() => {
     if (usePhysicalDimensions) {
-      const dpi = calculateDPI(width, height, imagePreviewZoom);
+      const dpi = calculateDPI(width, height, zoom);
       setDpiStandard(dpi.small);
       setDpiHigh(dpi.large);
     }
@@ -201,10 +211,10 @@ export const GeneratedImageControls = () => {
     const newScalingFactor = calculateScalingFactor(
       designWidth,
       designHeight,
-      imagePreviewZoom,
+      zoom,
     );
     setScalingFactor(newScalingFactor);
-  }, [width, height, imagePreviewZoom, usePhysicalDimensions, dpiStandard]);
+  }, [width, height, zoom, usePhysicalDimensions, dpiStandard]);
 
   // OLD CODE
   // const generateImage = async (quality: "standard" | "high") => {
@@ -1126,9 +1136,9 @@ export const GeneratedImageControls = () => {
           step={1}
           name="imagePreviewZoom"
           className="cursor-pointer w-1/2"
-          value={[imagePreviewZoom]}
+          value={[zoom]}
           onValueChange={(value) => {
-            setImagePreviewZoom(value[0]);
+            setZoom(value[0]);
           }}
         />
         <Input
@@ -1137,7 +1147,7 @@ export const GeneratedImageControls = () => {
           min={30}
           max={400}
           step={1}
-          value={+imagePreviewZoom}
+          value={+zoom}
           onChange={(event) => {
             const value = +event.target.value;
 
@@ -1145,7 +1155,7 @@ export const GeneratedImageControls = () => {
               return;
             }
 
-            setImagePreviewZoom(+event.target.value);
+            setZoom(+event.target.value);
           }}
         />
         {/*<span className="font-medium">{imagePreviewZoom}%</span>*/}
@@ -1199,7 +1209,7 @@ export const GeneratedImageControls = () => {
                           await newGenerateImageWebgl({
                             currentTab: activeTab,
                             imageUrl: selectedPreviewImage,
-                            zoom: imagePreviewZoom,
+                            zoom: zoom,
                             quality: "standard",
                           });
                         }
@@ -1229,7 +1239,7 @@ export const GeneratedImageControls = () => {
                           await newGenerateImageWebgl({
                             currentTab: activeTab,
                             imageUrl: selectedPreviewImage,
-                            zoom: imagePreviewZoom,
+                            zoom: zoom,
                             quality: "high",
                           });
                         }
@@ -1302,16 +1312,14 @@ export const GeneratedImageControls = () => {
                 </div>
 
                 <div className="mt-4">
-                  <Label htmlFor="zoom-repeated">
-                    Zoom Level: {imagePreviewZoom}%
-                  </Label>
+                  <Label htmlFor="zoom-repeated">Zoom Level: {zoom}%</Label>
                   <Slider
                     id="zoom-repeated"
                     min={30}
                     max={400}
                     step={1}
-                    value={[imagePreviewZoom]}
-                    onValueChange={(value) => setImagePreviewZoom(value[0])}
+                    value={[zoom]}
+                    onValueChange={(value) => setZoom(value[0])}
                   />
                 </div>
 
@@ -1331,7 +1339,7 @@ export const GeneratedImageControls = () => {
                         await newGenerateImageWebgl({
                           currentTab: activeTab,
                           imageUrl: selectedPreviewImage,
-                          zoom: imagePreviewZoom,
+                          zoom: zoom,
                           quality: "standard",
                         });
                       }
@@ -1360,7 +1368,7 @@ export const GeneratedImageControls = () => {
                         await newGenerateImageWebgl({
                           currentTab: activeTab,
                           imageUrl: selectedPreviewImage,
-                          zoom: imagePreviewZoom,
+                          zoom: zoom,
                           quality: "high",
                         });
                       }
@@ -1376,7 +1384,7 @@ export const GeneratedImageControls = () => {
                         Upscale and Download High Quality{" "}
                         {usePhysicalDimensions
                           ? `(${dpiHigh} DPI)`
-                          : `(Zoom: ${imagePreviewZoom / 4}%)`}
+                          : `(Zoom: ${zoom / 4}%)`}
                       </span>
                     )}
                   </Button>
