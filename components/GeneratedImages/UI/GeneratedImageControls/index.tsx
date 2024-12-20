@@ -35,6 +35,11 @@ import { Download, Timer } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { getUpscaleCallId } from "@/actions/getUpscaleCallId";
 import { getUpscaleImageDataHelper } from "@/helpers/getUpscaleImageDataHelper";
+import { saveAs } from "file-saver";
+
+/*
+ * Hooks
+ * */
 import { useCountdown } from "@/hooks/useCountdown";
 
 /*
@@ -648,15 +653,11 @@ export const GeneratedImageControls = () => {
       finalImageUrl = imageUrl;
     } else {
       if (
-        upscaledImages.find(
-          (img: any) =>
-            img.imageUrl ===
-            "https://dsm6fpp1ioao4.cloudfront.net/b60437a6-b8a8-44f5-9b68-56ac4566c847.png",
-        )
+        imageUrl ===
+        "https://dsm6fpp1ioao4.cloudfront.net/b60437a6-b8a8-44f5-9b68-56ac4566c847.png"
       ) {
-        imageUrl =
+        finalImageUrl =
           "https://s3.amazonaws.com/imgs-patternedai/large_b22d6fb8-1a11-4bca-aea5-d2cdae32d81d.png";
-        finalImageUrl = imageUrl;
       } else {
         const foundImage = upscaledImages.find(
           (img: { imageUrl: string }) => img.imageUrl === imageUrl,
@@ -1021,43 +1022,58 @@ export const GeneratedImageControls = () => {
       imageUrl,
       quality,
     });
+
     if (!getFinalImageUrlResult?.finalImageUrl) return null;
 
-    const canvas = document.createElement("canvas");
-    const canvasId = uuidv4();
-    console.log({ canvasId });
-    canvas.id = canvasId;
+    if (currentTab !== "tile") {
+      const canvas = document.createElement("canvas");
+      const canvasId = uuidv4();
+      console.log({ canvasId });
+      canvas.id = canvasId;
 
-    // Draw the image
-    await drawImageOnCanvasWithWebgl({
-      canvasWidth: finalWidth,
-      canvasHeight: finalHeight,
-      zoom: adjustedZoomLevel,
-      currentTab,
-      tileSize,
-      imageUrl: getFinalImageUrlResult?.finalImageUrl,
-      canvas,
-    });
+      // Draw the image
+      await drawImageOnCanvasWithWebgl({
+        canvasWidth: finalWidth,
+        canvasHeight: finalHeight,
+        zoom: adjustedZoomLevel,
+        currentTab,
+        tileSize,
+        imageUrl: getFinalImageUrlResult?.finalImageUrl,
+        canvas,
+      });
 
-    // Download the image
-    try {
-      const link = document.createElement("a");
-      link.download = `${currentTab}-pattern-${quality}.png`;
-      link.href = canvas.toDataURL();
-      console.log({ link: link.href });
-      link.click();
+      // Download the image
+      try {
+        const link = document.createElement("a");
+        link.download = `${currentTab}-pattern-${quality}.png`;
+        link.href = canvas.toDataURL();
+        console.log({ link: link.href });
+        link.click();
 
-      setIsGenerating(false);
-      setIsUpscalingImage(false);
+        setIsGenerating(false);
+        setIsUpscalingImage(false);
 
-      const selectedCanvas = document.getElementById(canvasId);
-      console.log({ selectedCanvas });
+        const selectedCanvas = document.getElementById(canvasId);
+        console.log({ selectedCanvas });
 
-      if (selectedCanvas) {
-        document.body.removeChild(selectedCanvas);
+        if (selectedCanvas) {
+          document.body.removeChild(selectedCanvas);
+        }
+      } finally {
+        stopCountdown();
       }
-    } finally {
-      stopCountdown();
+
+      return;
+    } else {
+      // Download the image
+      try {
+        saveAs(imageUrl, `${currentTab}-pattern-${quality}.png`);
+
+        setIsGenerating(false);
+        setIsUpscalingImage(false);
+      } finally {
+        stopCountdown();
+      }
     }
   };
 
