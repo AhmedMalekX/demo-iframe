@@ -1115,7 +1115,24 @@ export const GeneratedImageControls = () => {
             setImagePreviewZoom(value[0]);
           }}
         />
-        <span className="font-medium">{imagePreviewZoom}%</span>
+        <Input
+          type="number"
+          className="w-[4.2rem]"
+          min={30}
+          max={400}
+          step={1}
+          value={+imagePreviewZoom}
+          onChange={(event) => {
+            const value = +event.target.value;
+
+            if (isNaN(value) || value < 30 || value > 400) {
+              return;
+            }
+
+            setImagePreviewZoom(+event.target.value);
+          }}
+        />
+        {/*<span className="font-medium">{imagePreviewZoom}%</span>*/}
       </div>
       <div>
         <Popover>
