@@ -35,6 +35,7 @@ import { AppStateContext } from "@/components/GeneratingImagesMethods/GenerateIm
  * Utils
  * */
 import { convertImageToBase64 } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabEngine/Logic/utils/imageToDataUrl";
+import { cn } from "@/lib/utils";
 
 /*
  * Libs
@@ -50,17 +51,17 @@ import { useDashboardStore } from "@/store/dashboard.store";
 import { useCreateTabStore } from "@/store/createTab.store";
 
 /*
+ * Packages
+ * */
+import { useDebounceValue } from "usehooks-ts";
+
+/*
  * Helps
  * */
 // import {
 //   downloadCanvas,
 //   getCanvasDataUrl,
 // } from "@/components/GeneratingImagesMethods/GenerateImageFromElements/createTabEngine/Logic";
-
-/*
- * Icons
- * */
-import { cn } from "@/lib/utils";
 
 const TypedSketchPicker =
   SketchPicker as unknown as React.JSXElementConstructor<any>;
@@ -84,6 +85,15 @@ export const Editor: React.FC = () => {
   const lastAutoEditTextRun = useRef<number>(0);
 
   const { imagePreviewZoom, setImagePreviewZoom } = useDashboardStore();
+
+  const [zoom, setZoom] = useState(imagePreviewZoom);
+  const debouncedZoom = useDebounceValue(zoom, 300);
+
+  useEffect(() => {
+    if (debouncedZoom[0] !== imagePreviewZoom) {
+      setImagePreviewZoom(debouncedZoom[0]); // Update the store with the new debounced zoom value
+    }
+  }, [debouncedZoom, imagePreviewZoom, setImagePreviewZoom]); // We use imagePreviewZoom as a dependency to track changes
 
   const size = useWindowSize();
 
@@ -133,13 +143,13 @@ export const Editor: React.FC = () => {
       <RepeatCanvas
         previewZoom={1}
         pan={pan}
-        zoom={imagePreviewZoom}
+        zoom={zoom}
         canvasId="repeat-canvas"
         canvasSize={finalResoluton}
         parentZoom={previewZoom}
       />
     );
-  }, [imagePreviewZoom, finalResoluton, previewZoom, pan]);
+  }, [zoom, finalResoluton, previewZoom, pan]);
 
   // const tilableCanvasDimensions = { width: 1024, height: 1024 };
 
@@ -774,9 +784,9 @@ export const Editor: React.FC = () => {
                 min={30}
                 max={400}
                 step={1}
-                defaultValue={[imagePreviewZoom]}
+                defaultValue={[zoom]}
                 onValueChange={(value) => {
-                  setImagePreviewZoom(value[0]);
+                  setZoom(value[0]);
                 }}
                 disabled={appState.elements.length === 0}
                 className="data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed"
