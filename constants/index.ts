@@ -127,3 +127,8 @@ export const mockups = [
   "8_throw_pillow",
   "9_socks",
 ];
+
+export const STANDARD_IMAGE_URL =
+  "https://dsm6fpp1ioao4.cloudfront.net/09858e1e-8e47-4517-b832-eef0bfeff810.png";
+export const HIGH_QUALITY_IMAGE_URL =
+  "https://s3.amazonaws.com/imgs-patternedai/large_f003f64d-6fdc-41c8-9a50-85bd96844c5f.png";

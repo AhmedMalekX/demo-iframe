@@ -46,6 +46,8 @@ import { useCountdown } from "@/hooks/useCountdown";
 /*
  * Constants
  * */
+import { HIGH_QUALITY_IMAGE_URL, STANDARD_IMAGE_URL } from "@/constants";
+
 const PREVIEW_WIDTH = 900;
 const PREVIEW_HEIGHT = 600;
 
@@ -102,9 +104,9 @@ export const GeneratedImageControls = () => {
 
   useEffect(() => {
     if (debouncedZoom[0] !== imagePreviewZoom) {
-      setImagePreviewZoom(debouncedZoom[0]); // Update the store with the new debounced zoom value
+      setImagePreviewZoom(debouncedZoom[0]);
     }
-  }, [debouncedZoom, imagePreviewZoom, setImagePreviewZoom]); // We use imagePreviewZoom as a dependency to track changes
+  }, [debouncedZoom, imagePreviewZoom, setImagePreviewZoom]);
 
   useEffect(() => {
     console.log({ imagePreviewZoom });
@@ -662,12 +664,8 @@ export const GeneratedImageControls = () => {
     if (quality === "standard") {
       finalImageUrl = imageUrl;
     } else {
-      if (
-        imageUrl ===
-        "https://dsm6fpp1ioao4.cloudfront.net/b60437a6-b8a8-44f5-9b68-56ac4566c847.png"
-      ) {
-        finalImageUrl =
-          "https://s3.amazonaws.com/imgs-patternedai/large_b22d6fb8-1a11-4bca-aea5-d2cdae32d81d.png";
+      if (imageUrl === STANDARD_IMAGE_URL) {
+        finalImageUrl = HIGH_QUALITY_IMAGE_URL;
       } else {
         const foundImage = upscaledImages.find(
           (img: { imageUrl: string }) => img.imageUrl === imageUrl,

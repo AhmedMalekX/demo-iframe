@@ -91,9 +91,9 @@ export const Editor: React.FC = () => {
 
   useEffect(() => {
     if (debouncedZoom[0] !== imagePreviewZoom) {
-      setImagePreviewZoom(debouncedZoom[0]); // Update the store with the new debounced zoom value
+      setImagePreviewZoom(debouncedZoom[0]);
     }
-  }, [debouncedZoom, imagePreviewZoom, setImagePreviewZoom]); // We use imagePreviewZoom as a dependency to track changes
+  }, [debouncedZoom, imagePreviewZoom, setImagePreviewZoom]);
 
   const size = useWindowSize();
 
