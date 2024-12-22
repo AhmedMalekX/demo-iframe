@@ -1021,6 +1021,8 @@ export const GeneratedImageControls = () => {
     const { finalWidth, finalHeight, adjustedZoomLevel, tileSize } =
       finalSizeResult;
 
+    console.log({ finalWidth, finalHeight, adjustedZoomLevel, tileSize });
+
     // Get final image url
     if (!imageUrl) return;
 
@@ -1030,6 +1032,8 @@ export const GeneratedImageControls = () => {
       imageUrl,
       quality,
     });
+
+    console.log({ finalImageUrl: getFinalImageUrlResult?.finalImageUrl });
 
     if (!getFinalImageUrlResult?.finalImageUrl) return null;
 
@@ -1075,7 +1079,10 @@ export const GeneratedImageControls = () => {
     } else {
       // Download the image
       try {
-        saveAs(imageUrl, `${currentTab}-pattern-${quality}.png`);
+        saveAs(
+          getFinalImageUrlResult?.finalImageUrl,
+          `${currentTab}-pattern-${quality}.png`,
+        );
 
         setIsGenerating(false);
         setIsUpscalingImage(false);
