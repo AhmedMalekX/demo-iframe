@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "d8c4cbe2y3ofj.cloudfront.net",
       },
+      {
+        protocol: "https",
+        hostname: "imgs-patternedai.s3.us-east-1.amazonaws.com",
+      },
     ],
   },
 

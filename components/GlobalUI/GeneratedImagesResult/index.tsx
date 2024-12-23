@@ -49,6 +49,13 @@ export const GeneratedImagesResult = () => {
             imgUrl: STANDARD_IMAGE_URL,
             uiid: "d723a3ab-d8d9-4d05-8996-16fde86a43dd",
           },
+          {
+            imgFileUrl:
+              "https://res.cloudinary.com/xcodercloudname/image/upload/v1734868033/basketball_standard_tugwwd.png",
+            imgUrl:
+              "https://res.cloudinary.com/xcodercloudname/image/upload/v1734868033/basketball_standard_tugwwd.png",
+            uiid: "3921868d-7d0c-4806-9347-97298e53837d",
+          },
         ],
         metadata: {
           prompt:
