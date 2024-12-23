@@ -4174,6 +4174,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"idb@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "idb@npm:8.0.1"
+  checksum: 10c0/01489040a91ebb0be18c0d77a92f336fcb965049014b14cce493c5f6cefdc7e3b4a95aa6a6f1024981eecb52f3745e370ac29c6e5dcb3b9e9e29e925e1120fb4
+  languageName: node
+  linkType: hard
+
 "ieee754@npm:1.1.13":
   version: 1.1.13
   resolution: "ieee754@npm:1.1.13"
@@ -4225,6 +4232,7 @@ __metadata:
     fabric: "npm:6.0.0-beta12"
     file-saver: "npm:^2.0.5"
     firebase-admin: "npm:^13.0.0"
+    idb: "npm:^8.0.1"
     js-cookie: "npm:^3.0.5"
     jsonwebtoken: "npm:^9.0.2"
     lucide-react: "npm:^0.454.0"

@@ -31,6 +31,17 @@ interface DashboardStore {
   ) => void;
   generateFromTextNumberOfImages: number;
   setGenerateFromTextNumberOfImages: (value: number) => void;
+  generatedImagesFromText: {
+    imgs_dict_list: IImage[];
+    metadata: {
+      img_height: number;
+      img_width: number;
+      prompt: string;
+    };
+  } | null;
+  setGeneratedImagesFromText: (value: any) => void;
+  selectedPreviewImageFromTextTab: string | null;
+  setSelectedPreviewImageFromTextTab: (value: any) => void;
 
   // Generate image using another image
   selectedGenerateSimilarImage: string | null;
@@ -152,6 +163,12 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
   generateFromImagePrompt: null,
   setGenerateFromImagePrompt: (value: string | null) =>
     set({ generateFromImagePrompt: value }),
+  generatedImagesFromText: null,
+  setGeneratedImagesFromText: (value: any) =>
+    set({ generatedImagesFromText: value }),
+  selectedPreviewImageFromTextTab: null,
+  setSelectedPreviewImageFromTextTab: (value: any) =>
+    set({ selectedPreviewImageFromTextTab: value }),
 
   // Generate image using elements
   generatingMotif: false,
