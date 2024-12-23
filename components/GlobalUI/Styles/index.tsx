@@ -150,7 +150,7 @@ export const Styles = () => {
                 />
               </div>
               <span className="text-sm text-center mt-1 row-span-1 font-medium">
-                {style.styleName}
+                {style.styleName === "Kawaii" ? "Cute" : style.styleName}
               </span>
             </div>
           </div>

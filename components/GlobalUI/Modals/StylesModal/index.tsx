@@ -72,7 +72,7 @@ export const StylesModal = () => {
                       className="rounded-md object-cover w-full h-full group-hover:scale-110 transition duration-300 group-hover:border-2 group-hover:border-primary"
                     />
                     <span className="text-center mt-2 font-medium">
-                      {style.styleName}
+                      {style.styleName === "Kawaii" ? "Cute" : style.styleName}
                     </span>
                   </div>
                 ))}

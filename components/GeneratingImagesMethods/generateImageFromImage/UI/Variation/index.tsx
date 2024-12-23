@@ -44,6 +44,7 @@ import { getImageDataHelper } from "@/helpers/getImageDataHelper";
  */
 import { CircleHelp, LoaderCircle } from "lucide-react";
 import { useAbortStore } from "@/store/abort.store";
+import { Styles } from "@/components/GlobalUI/Styles";
 
 export const Variation = () => {
   const {
@@ -70,6 +71,7 @@ export const Variation = () => {
     setErrorModalMessage,
     setGeneratedImages,
     setSelectedPreviewImage,
+    generateFromTextStyleName,
   } = useDashboardStore();
 
   const handleReplaceVariationImage = () => {
@@ -287,6 +289,7 @@ export const Variation = () => {
       console.log({ token });
 
       // 2- Get call ID
+      console.log({ generateFromTextStyleName });
       const { callId } = await getFromImageCallIdHelper({
         prompt: generateFromImagePrompt || "",
         setShowErrorModal,
@@ -297,6 +300,7 @@ export const Variation = () => {
         imageUrl: variationImage.imageUrl!,
         id: "123",
         generationMethod: "Variation",
+        style: generateFromTextStyleName || "None",
       });
 
       if (callId === "0") {
@@ -444,6 +448,9 @@ export const Variation = () => {
             placeholder="Describe your pattern elements, colors and background..."
           />
         </div>
+
+        {/*Styles*/}
+        <Styles />
 
         {/*number of images*/}
         <div className="!-my-4">
