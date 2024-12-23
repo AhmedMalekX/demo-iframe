@@ -989,6 +989,16 @@ export const GeneratedImageControls = () => {
           gl.enableVertexAttribArray(texCoordLocation);
 
           // Loop through each tile position
+          // Get the uniform location for translation once outside the loop
+          const translationLocation = gl.getUniformLocation(
+            program,
+            "u_translation",
+          );
+
+          // Set the resolution uniform once since it doesn't change
+          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+
+          // Loop through the tiles and set translations
           for (let row = 0; row < tilesY; row++) {
             for (let col = 0; col < tilesX; col++) {
               // Calculate the translation for the current tile
@@ -996,14 +1006,7 @@ export const GeneratedImageControls = () => {
               const translationY = row * scaledImageHeight;
 
               // Pass the translation to the shader
-              const translationLocation = gl.getUniformLocation(
-                program,
-                "u_translation",
-              );
               gl.uniform2fv(translationLocation, [translationX, translationY]);
-
-              // Set the resolution uniform
-              gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 
               // Draw the current tile
               gl.drawArrays(gl.TRIANGLES, 0, 6);
