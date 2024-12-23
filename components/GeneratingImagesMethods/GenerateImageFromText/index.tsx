@@ -49,6 +49,11 @@ export const GenerateImageFromText = () => {
     setGeneratedImages,
     setSelectedPreviewImage,
   } = useDashboardStore();
+  /*
+   * TODO:
+   * - Use the specific values for the from text tab
+   * */
+
   const { accessToken, setAccessToken } = useAccessTokenStore();
 
   const tooltipContent = `
