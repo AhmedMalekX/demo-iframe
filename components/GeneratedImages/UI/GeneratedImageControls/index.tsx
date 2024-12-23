@@ -573,11 +573,13 @@ export const GeneratedImageControls = () => {
     quality,
     zoom,
     currentSelectedImage,
+    usePhysicalDimensions,
   }: {
     currentTab: "tile" | "repeated";
     quality: "standard" | "high";
     zoom: number;
     currentSelectedImage: string;
+    usePhysicalDimensions: boolean;
   }) => {
     if (!currentSelectedImage) {
       console.error("No image URL provided.");
@@ -615,21 +617,31 @@ export const GeneratedImageControls = () => {
             finalHeight = img.height * 4;
             dpi = img.width * 4;
           }
-        } else if (usePhysicalDimensions) {
-          const dpiValues = calculateDPI(img.width, img.height, zoom); // Assuming calculateDPI is defined elsewhere
-          dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
-          finalWidth = Math.round(img.width * dpi);
-          finalHeight = Math.round(img.height * dpi);
         } else {
-          if (quality === "high") {
-            adjustedZoomLevel = zoom / 4;
-          }
-          const scaleFactor = adjustedZoomLevel / 100;
-          finalWidth = img.width;
-          finalHeight = img.height;
-          dpi = Math.round(tileSize / scaleFactor);
-        }
+          if (usePhysicalDimensions) {
+            // inch
+            console.log("hello!");
+            // const dpiValues = calculateDPI(img.width, img.height, zoom);
+            // dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
+            // finalWidth = Math.round(img.width * dpi);
+            // finalHeight = Math.round(img.height * dpi);
 
+            const dpiValues = calculateDPI(width, height, zoom);
+            dpi = quality === "standard" ? dpiValues.small : dpiValues.large;
+            finalWidth = Math.round(width * dpi);
+            finalHeight = Math.round(height * dpi);
+          } else {
+            // pixels
+            console.log("world!");
+            if (quality === "high") {
+              adjustedZoomLevel = zoom / 4;
+            }
+            const scaleFactor = adjustedZoomLevel / 100;
+            finalWidth = width;
+            finalHeight = height;
+            dpi = Math.round(tileSize / scaleFactor);
+          }
+        }
         resolve({ finalWidth, finalHeight, dpi, tileSize });
       };
 
@@ -666,6 +678,12 @@ export const GeneratedImageControls = () => {
     } else {
       if (imageUrl === STANDARD_IMAGE_URL) {
         finalImageUrl = HIGH_QUALITY_IMAGE_URL;
+      } else if (
+        imageUrl ===
+        "https://res.cloudinary.com/xcodercloudname/image/upload/v1734868033/basketball_standard_tugwwd.png"
+      ) {
+        finalImageUrl =
+          "https://res.cloudinary.com/xcodercloudname/image/upload/v1734868036/basketball_highres_klvpif.png";
       } else {
         const foundImage = upscaledImages.find(
           (img: { imageUrl: string }) => img.imageUrl === imageUrl,
@@ -759,6 +777,12 @@ export const GeneratedImageControls = () => {
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
+    console.log("==========drawImageOnCanvasWithWebgl=========", {
+      canvasWidth,
+      canvasHeight,
+      tileSize,
+    });
+
     const gl = canvas.getContext("webgl");
     if (!gl) {
       console.error("WebGL not supported");
@@ -779,14 +803,14 @@ export const GeneratedImageControls = () => {
     void main() {
       // Translate the position
       vec2 translatedPosition = a_position + u_translation;
-  
+
       // Convert the position to clip space
       vec2 zeroToOne = translatedPosition / u_resolution;
       vec2 zeroToTwo = zeroToOne * 2.0;
       vec2 clipSpace = zeroToTwo - 1.0;
-  
+
       gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-  
+
       // Pass the texture coordinates to the fragment shader
       v_texCoord = a_texCoord;
     }
@@ -883,36 +907,42 @@ export const GeneratedImageControls = () => {
         gl.uniform1i(textureLocation, 0);
 
         // Handle "tile" tab logic
-        if (currentTab === "tile") {
-          for (let y = 0; y < canvasHeight; y += tileSize) {
-            for (let x = 0; x < canvasWidth; x += tileSize) {
-              gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-              const translationX = (x / canvasWidth) * 2 - 1;
-              const translationY = -((y / canvasHeight) * 2 - 1);
-              const translationLocation = gl.getUniformLocation(
-                program,
-                "u_translation",
-              );
-              gl.uniform2fv(translationLocation, [translationX, translationY]);
-              gl.drawArrays(gl.TRIANGLES, 0, 6);
-            }
-          }
-        } else if (currentTab === "repeated") {
+        // if (currentTab === "tile") {
+        //   for (let y = 0; y < canvasHeight; y += tileSize) {
+        //     for (let x = 0; x < canvasWidth; x += tileSize) {
+        //       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+        //       const translationX = (x / canvasWidth) * 2 - 1;
+        //       const translationY = -((y / canvasHeight) * 2 - 1);
+        //       const translationLocation = gl.getUniformLocation(
+        //         program,
+        //         "u_translation",
+        //       );
+        //       gl.uniform2fv(translationLocation, [translationX, translationY]);
+        //       gl.drawArrays(gl.TRIANGLES, 0, 6);
+        //     }
+        //   }
+        // } else
+
+        if (currentTab === "repeated") {
           // Scaling the image according to zoom
           const scaleFactor = zoom / 100;
           const scaledImageWidth = img.width * scaleFactor;
           const scaledImageHeight = img.height * scaleFactor;
 
-          // Log the new image size
-          console.log("Scaled Image Width:", scaledImageWidth);
-          console.log("Scaled Image Height:", scaledImageHeight);
+          console.log("==========drawImageOnCanvasWithWebgl=========", {
+            scaleFactor,
+            scaledImageWidth,
+            scaledImageHeight,
+          });
 
           // Calculate how many tiles are needed to fill the canvas
           const tilesX = Math.ceil(canvasWidth / scaledImageWidth);
           const tilesY = Math.ceil(canvasHeight / scaledImageHeight);
 
-          console.log("Tiles needed along X:", tilesX);
-          console.log("Tiles needed along Y:", tilesY);
+          console.log("==========drawImageOnCanvasWithWebgl=========", {
+            tilesX,
+            tilesY,
+          });
 
           // Create a buffer for the position of a single tile
           const positions = new Float32Array([
@@ -1007,6 +1037,7 @@ export const GeneratedImageControls = () => {
       quality,
       zoom,
       currentSelectedImage: selectedPreviewImage!,
+      usePhysicalDimensions,
     });
 
     if (
@@ -1020,6 +1051,12 @@ export const GeneratedImageControls = () => {
 
     const { finalWidth, finalHeight, adjustedZoomLevel, tileSize } =
       finalSizeResult;
+
+    console.log("======x===========x===========", {
+      finalWidth,
+      finalHeight,
+      usePhysicalDimensions,
+    });
 
     console.log({ finalWidth, finalHeight, adjustedZoomLevel, tileSize });
 
