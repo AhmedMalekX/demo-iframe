@@ -24,6 +24,7 @@ interface VariationProps extends BaseProps {
   imageUrl: string;
   keepStyle: number;
   keepOutline: number;
+  style: any;
 }
 
 interface ImageMixingProps extends BaseProps {

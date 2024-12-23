@@ -13,12 +13,24 @@ export const GeneratingImagesMethods: IGeneratingImagesMethods[] = [
 
 export const StylesNames = [
   {
-    styleName: "Kawaii",
-    styleImage: "/styles/kawaii.jpeg",
-  },
-  {
     styleName: "Watercolour",
     styleImage: "/styles/watercolour.jpeg",
+  },
+  {
+    styleName: "Minimalist",
+    styleImage: "/styles/minimalism.jpeg",
+  },
+  {
+    styleName: "Ink print",
+    styleImage: "/styles/ink_print.jpeg",
+  },
+  {
+    styleName: "Oil painting",
+    styleImage: "/styles/oil_painting.jpeg",
+  },
+  {
+    styleName: "Kawaii",
+    styleImage: "/styles/kawaii.jpeg",
   },
   {
     styleName: "Lowpoly",
@@ -37,10 +49,6 @@ export const StylesNames = [
     styleImage: "/styles/papercut_layered.jpeg",
   },
   {
-    styleName: "Ink print",
-    styleImage: "/styles/ink_print.jpeg",
-  },
-  {
     styleName: "Line art",
     styleImage: "/styles/line_art.jpeg",
   },
@@ -57,10 +65,6 @@ export const StylesNames = [
     styleImage: "/styles/comic_book.jpeg",
   },
   {
-    styleName: "Minimalist",
-    styleImage: "/styles/minimalism.jpeg",
-  },
-  {
     styleName: "Paper quilling",
     styleImage: "/styles/paper_quilling.jpeg",
   },
@@ -75,10 +79,6 @@ export const StylesNames = [
   {
     styleName: "Zentangle",
     styleImage: "/styles/zentangle.jpeg",
-  },
-  {
-    styleName: "Oil painting",
-    styleImage: "/styles/oil_painting.jpeg",
   },
   {
     styleName: "Origami",
