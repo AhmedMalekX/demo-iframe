@@ -995,8 +995,6 @@ export const GeneratedImageControls = () => {
               const translationX = col * scaledImageWidth;
               const translationY = row * scaledImageHeight;
 
-              console.log({ translationX, translationY });
-
               // Pass the translation to the shader
               const translationLocation = gl.getUniformLocation(
                 program,
